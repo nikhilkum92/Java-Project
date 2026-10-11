@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — CampusGrid</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="login-wrapper">
+        <!-- Left Hero Pane (Architectural Campus Visual) -->
+        <div class="login-hero-pane">
+            <div class="login-brand-header">
+                <div class="login-brand-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                </div>
+                <div class="login-brand-title">CampusGrid</div>
+            </div>
+
+            <div class="login-hero-center">
+                <svg class="login-hero-illustration" viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E2E8F0" stroke-width="0.8"/>
+                        </pattern>
+                    </defs>
+                    <rect x="10" y="10" width="480" height="260" fill="url(#gridPattern)" rx="8"/>
+                    
+                    <!-- Main Academic Block Vector -->
+                    <rect x="90" y="70" width="320" height="170" fill="#FFFFFF" stroke="#0F172A" stroke-width="2" rx="4"/>
+                    
+                    <!-- Windows Grid -->
+                    <g fill="#F8FAFC" stroke="#64748B" stroke-width="1.2">
+                        <rect x="120" y="95" width="45" height="35" rx="2"/>
+                        <rect x="185" y="95" width="45" height="35" rx="2"/>
+                        <rect x="250" y="95" width="45" height="35" rx="2"/>
+                        <rect x="315" y="95" width="45" height="35" rx="2"/>
+                        
+                        <rect x="120" y="150" width="45" height="35" rx="2"/>
+                        <rect x="185" y="150" width="45" height="35" rx="2"/>
+                        <rect x="250" y="150" width="45" height="35" rx="2"/>
+                        <rect x="315" y="150" width="45" height="35" rx="2"/>
+                    </g>
+
+                    <!-- Entrance Portico -->
+                    <rect x="220" y="185" width="60" height="55" fill="#0F172A" rx="2"/>
+                    <rect x="232" y="198" width="36" height="42" fill="#FFFFFF" rx="2"/>
+                    <line x1="250" y1="198" x2="250" y2="240" stroke="#0F172A" stroke-width="1.5"/>
+
+                    <!-- Architectural Foundation Line -->
+                    <line x1="50" y1="240" x2="450" y2="240" stroke="#0F172A" stroke-width="2.5"/>
+                </svg>
+                <div style="font-size: 20px; font-weight: 700; color: var(--cg-brand-black); margin-bottom: 6px; letter-spacing: -0.02em;">Smart Campus Space &amp; Timetable Platform</div>
+                <div class="login-hero-motto">Manage &bull; Schedule &bull; Allocate &bull; Locate</div>
+            </div>
+
+            <div style="font-size: 12px; color: var(--cg-text-muted); display: flex; align-items: center; justify-content: space-between;">
+                <span>CampusGrid Enterprise Platform</span>
+                <span style="font-weight: 600;">v1.0 &bull; Java 21 &bull; MySQL</span>
+            </div>
+        </div>
+
+        <!-- Right Form Pane (Authentication Card) -->
+        <div class="login-form-pane">
+            <div class="login-card">
+                <div class="login-heading">Welcome to CampusGrid</div>
+                <div class="login-subtitle">Sign in with your campus credentials to continue</div>
+
+                <div id="alertBox" style="display:none; padding: 10px 14px; margin-bottom: 16px; border-radius: var(--cg-radius-md); font-size: 12.5px; font-weight: 500;"></div>
+
+                <form id="loginForm">
+                    <div class="form-group-cg">
+                        <label class="form-label-cg" for="inputUsername">Username or Email</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon-left">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </span>
+                            <input type="text" id="inputUsername" class="input-cg" placeholder="Enter username or email" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label class="form-label-cg" for="inputPassword" style="margin-bottom: 0;">Password</label>
+                            <a href="#" onclick="alert('Please contact the campus IT administrator to reset your password.'); return false;" style="font-size: 12px; color: var(--cg-text-muted); text-decoration: none; font-weight: 500;">Forgot password?</a>
+                        </div>
+                        <div class="input-with-icon">
+                            <span class="input-icon-left">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </span>
+                            <input type="password" id="inputPassword" class="input-cg" placeholder="Enter password" required autocomplete="current-password">
+                            <button type="button" id="togglePasswordBtn" class="input-icon-right" title="Toggle password visibility">
+                                <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
+                        <input type="checkbox" id="checkRememberMe">
+                        <label for="checkRememberMe" style="font-size: 12.5px; color: var(--cg-text-secondary); cursor: pointer; user-select: none;">Remember this session</label>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn-login">
+                        <span>Sign In</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+
+                    <div style="margin-top: 14px; font-size: 11.5px; color: var(--cg-text-muted); line-height: 1.45; padding: 10px 12px; background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md); display: flex; gap: 8px;">
+                        <span style="color: var(--cg-text-secondary);">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </span>
+                        <div><strong>Institutional Access:</strong> Self-signup is disabled. All user credentials are provided and managed by the Campus Administrator.</div>
+                    </div>
+                </form>
+
+                <!-- One-Click Quick Login Switcher (Refined SaaS Icons) -->
+                <div class="role-switcher-container">
+                    <div class="role-switcher-title">One-Click Quick Login As</div>
+                    <div class="role-switcher-grid">
+                        <button type="button" class="btn-role-tab" onclick="fillCredentials('admin', 'Admin@123', 'ADMIN')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            <span>Admin</span>
+                        </button>
+                        <button type="button" class="btn-role-tab" onclick="fillCredentials('meera.faculty', 'Faculty@123', 'FACULTY')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                            <span>Faculty</span>
+                        </button>
+                        <button type="button" class="btn-role-tab" onclick="fillCredentials('rahul123', 'Student@123', 'STUDENT')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                                <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                            </svg>
+                            <span>Student</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const alertBox = document.getElementById('alertBox');
+        const inputUsername = document.getElementById('inputUsername');
+        const inputPassword = document.getElementById('inputPassword');
+        const checkRememberMe = document.getElementById('checkRememberMe');
+        const submitBtn = document.getElementById('submitBtn');
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        // Toggle password show/hide with SVG state
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = inputPassword.type === 'password';
+            inputPassword.type = isPassword ? 'text' : 'password';
+            eyeIcon.innerHTML = isPassword 
+                ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>'
+                : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        });
+
+        function fillCredentials(u, p, role) {
+            inputUsername.value = u;
+            inputPassword.value = p;
+            showAlert(`Loaded ${role} credentials (${u}). Click "Sign In" to proceed.`, 'info');
+        }
+
+        function showAlert(msg, type = 'error') {
+            alertBox.style.display = 'block';
+            if (type === 'error') {
+                alertBox.style.background = 'var(--cg-danger-bg)';
+                alertBox.style.color = 'var(--cg-danger)';
+                alertBox.style.border = '1px solid var(--cg-danger-border)';
+            } else if (type === 'info') {
+                alertBox.style.background = 'var(--cg-primary-blue-soft)';
+                alertBox.style.color = 'var(--cg-primary-blue)';
+                alertBox.style.border = '1px solid var(--cg-primary-blue-border)';
+            }
+            alertBox.textContent = msg;
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Authenticating...</span>';
+            alertBox.style.display = 'none';
+
+            try {
+                const u = inputUsername.value.trim();
+                const p = inputPassword.value;
+                const rem = checkRememberMe.checked;
+
+                const authData = await Auth.login(u, p, rem);
+                submitBtn.innerHTML = '<span>Redirecting...</span>';
+                Auth.redirectByRole(authData.user.role);
+            } catch (err) {
+                showAlert(err.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Sign In</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
+            }
+        });
+    </script>
+</body>
+</html>
