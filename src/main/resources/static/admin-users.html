@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management — CampusGrid</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Sidebar (Canonical Admin Menu with Refined SVG Icons) -->
+        <aside class="sidebar">
+            <a href="/admin/users" class="sidebar-brand">
+                <span class="sidebar-brand-pill">CG</span>
+                <span>CampusGrid</span>
+            </a>
+            <div class="sidebar-nav">
+                <div class="sidebar-category">Overview</div>
+                <a href="/admin/dashboard" class="sidebar-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="sidebar-category">Campus &amp; Space</div>
+                <a href="/admin/campus" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                    <span>Campus Explorer</span>
+                </a>
+                <a href="/admin/rooms" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Rooms</span>
+                </a>
+                <a href="/admin/seating" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    <span>Seat Layouts</span>
+                </a>
+
+                <div class="sidebar-category">Academics</div>
+                <a href="/admin/users" class="sidebar-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>User Management</span>
+                </a>
+                <a href="#" onclick="alert('Module 3 will activate this page.'); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    <span>Sections &amp; Subjects</span>
+                </a>
+                <a href="#" onclick="alert('Module 3 will activate this page.'); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>Timetable</span>
+                </a>
+
+                <div class="sidebar-category">Examinations</div>
+                <a href="#" onclick="alert('Module 4 will activate this page.'); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>Examinations</span>
+                </a>
+                <a href="#" onclick="alert('Module 4 will activate this page.'); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="6"></circle>
+                        <circle cx="12" cy="12" r="2"></circle>
+                    </svg>
+                    <span>Seat Allocation</span>
+                </a>
+
+                <div class="sidebar-category">System</div>
+                <a href="#" onclick="alert('Notification Center will be enabled in Module 5.'); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span>Notifications</span>
+                </a>
+                <a href="#" onclick="alert('Reports will be enabled in Module 5.'); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Topbar (Polished SaaS Header) -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="input-with-icon" style="width: 100%;">
+                    <span class="input-icon-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" class="global-search-input" placeholder="Search students, faculty, rooms... (Ctrl+K)">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div style="font-size: 12px; font-weight: 500; color: var(--cg-text-muted);" id="currentDateStr">Sun, 11 Oct 2026</div>
+                <div class="topbar-icon-btn" title="System Notifications">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="topbar-badge">3</span>
+                </div>
+                <div class="user-badge" onclick="openModal('modalLogoutConfirm')" title="Click to Logout">
+                    <div class="user-avatar" id="topAvatar">A</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; line-height: 1.2;" id="topUserName">Campus Administrator</div>
+
+                        <div style="font-size: 11px; color: var(--cg-text-muted); line-height: 1.2;">Administrator &bull; Logout</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-wrapper">
+            <div class="breadcrumb-cg">
+                <span>CampusGrid</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span>Academics</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span style="color: var(--cg-text-primary); font-weight: 600;">User Management</span>
+            </div>
+            
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">User Management</h1>
+                    <div style="font-size: 13px; color: var(--cg-text-muted); margin-top: 2px;">
+                        Manage student cohorts, faculty teaching staff, and academic credentials.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-cg-outline" onclick="exportData()" title="Download CSV Dataset">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Export CSV</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Metrics Overview Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">
+                        <span>TOTAL STUDENTS</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path></svg>
+                    </div>
+                    <div class="metric-val" id="statTotalStudents">0</div>
+                    <div class="metric-sub" style="color: var(--cg-success); font-weight: 500;" id="statActiveStudents">0 Active enrolled</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">
+                        <span>TEACHING FACULTY</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <div class="metric-val" id="statTotalFaculty">0</div>
+                    <div class="metric-sub" id="statActiveFaculty">0 Active instructors</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">
+                        <span>DEPARTMENTS</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    </div>
+                    <div class="metric-val" id="statTotalDepts">0</div>
+                    <div class="metric-sub">Active academic branches</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">
+                        <span>SECTIONS</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
+                    </div>
+                    <div class="metric-val" id="statTotalSections">0</div>
+                    <div class="metric-sub">Configured cohorts</div>
+                </div>
+            </div>
+
+            <!-- Tabs: Students vs Faculty -->
+            <div class="nav-tabs-cg">
+                <button class="tab-btn-cg active" id="tabBtnStudents" onclick="switchTab('students')">
+                    <span>Students</span>
+                    <span class="tab-badge" id="studentCountBadge">0</span>
+                </button>
+                <button class="tab-btn-cg" id="tabBtnFaculty" onclick="switchTab('faculty')">
+                    <span>Faculty</span>
+                    <span class="tab-badge" id="facultyCountBadge">0</span>
+                </button>
+            </div>
+
+            <!-- Table Card with Multi-filter bar -->
+            <div class="table-card">
+                <div class="table-filter-bar">
+                    <div style="flex: 1; min-width: 280px;">
+                        <div class="input-with-icon">
+                            <span class="input-icon-left">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </span>
+                            <input type="text" id="userSearchInput" class="input-cg" style="height: 34px; padding-left: 34px; font-size: 13px;" placeholder="Search by name, roll number, employee ID, or email...">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <select id="deptFilterSelect" class="filter-select">
+                            <option value="">All Departments</option>
+                        </select>
+                        <div id="sectionFilterGroup">
+                            <select id="sectionFilterSelect" class="filter-select">
+                                <option value="">All Sections</option>
+                            </select>
+                        </div>
+                        <select id="statusFilterSelect" class="filter-select">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Contextual Bulk Actions Toolbar -->
+                <div id="bulkActionsToolbar" style="display: none; padding: 10px 16px; background: #F1F5F9; border-bottom: 1px solid var(--cg-border); align-items: center; justify-content: space-between; font-size: 12.5px;">
+                    <div style="font-weight: 600; color: var(--cg-text-primary);">
+                        <span id="bulkSelectedCount">0</span> record(s) selected
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-action-cg" onclick="bulkExportSelected()">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span>Export Selected</span>
+                        </button>
+                        <button class="btn-action-cg" onclick="bulkToggleStatus()">
+                            <span>Toggle Status</span>
+                        </button>
+                        <button class="btn-action-cg danger" onclick="bulkDeleteSelected()">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            <span>Delete Selected</span>
+                        </button>
+                        <button class="btn-action-cg" onclick="clearBulkSelection()">Clear</button>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="table-cg">
+                        <thead id="usersTableHead"></thead>
+                        <tbody id="usersTableBody"></tbody>
+
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Add Student -->
+    <div class="modal-cg" id="modalAddStudent">
+        <div class="modal-box-cg">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px; color: var(--cg-brand-black);">Add New Student Account</div>
+                <button class="btn-action-cg" style="border:none; padding:4px 6px;" onclick="closeModal('modalAddStudent')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="formAddStudent">
+                <div class="modal-body-cg">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Full Name *</label>
+                            <input type="text" id="stuFullName" class="input-cg" style="padding-left:12px;" placeholder="e.g. Aditya Sharma" required>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Roll Number *</label>
+                            <input type="text" id="stuRollNumber" class="input-cg" style="padding-left:12px;" placeholder="e.g. 23CSE009" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Username *</label>
+                            <input type="text" id="stuUsername" class="input-cg" style="padding-left:12px;" placeholder="aditya23" required>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Email Address *</label>
+                            <input type="email" id="stuEmail" class="input-cg" style="padding-left:12px;" placeholder="aditya@college.ac.in" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label class="form-label-cg" style="margin-bottom:0;">Initial Password (Optional)</label>
+                            <span style="font-size: 11px; color: var(--cg-text-muted);">Leave empty to auto-generate secure activation token</span>
+                        </div>
+                        <div style="position: relative;">
+                            <input type="password" id="stuPassword" class="input-cg" style="padding-left:12px; padding-right: 36px;" placeholder="Leave empty for auto-generated secure token">
+                            <button type="button" onclick="toggleModalPassword('stuPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--cg-text-muted); padding: 4px;" title="Toggle Password Visibility">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Department *</label>
+                            <select id="stuDepartment" class="input-cg" style="padding-left:12px;"></select>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Section *</label>
+                            <select id="stuSection" class="input-cg" style="padding-left:12px;"></select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 12px;">
+                        <div>
+                            <label class="form-label-cg">Year *</label>
+                            <select id="stuYear" class="input-cg" style="padding-left:12px;">
+                                <option value="1">Year 1</option>
+                                <option value="2" selected>Year 2</option>
+                                <option value="3">Year 3</option>
+                                <option value="4">Year 4</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Semester *</label>
+                            <select id="stuSemester" class="input-cg" style="padding-left:12px;">
+                                <option value="1">Sem 1</option>
+                                <option value="2">Sem 2</option>
+                                <option value="3" selected>Sem 3</option>
+                                <option value="4">Sem 4</option>
+                                <option value="5">Sem 5</option>
+                                <option value="6">Sem 6</option>
+                                <option value="7">Sem 7</option>
+                                <option value="8">Sem 8</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Phone Number</label>
+                            <input type="text" id="stuPhone" class="input-cg" style="padding-left:12px;" placeholder="+91...">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer-cg">
+                    <button type="button" class="btn-cg-outline" onclick="closeModal('modalAddStudent')">Cancel</button>
+                    <button type="submit" class="btn-cg-primary">Save Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Faculty -->
+    <div class="modal-cg" id="modalAddFaculty">
+        <div class="modal-box-cg">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px; color: var(--cg-brand-black);">Add New Faculty Member</div>
+                <button class="btn-action-cg" style="border:none; padding:4px 6px;" onclick="closeModal('modalAddFaculty')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="formAddFaculty">
+                <div class="modal-body-cg">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Full Name *</label>
+                            <input type="text" id="facFullName" class="input-cg" style="padding-left:12px;" placeholder="e.g. Dr. Ramesh Kumar" required>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Employee ID *</label>
+                            <input type="text" id="facEmployeeId" class="input-cg" style="padding-left:12px;" placeholder="e.g. FAC003" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Username *</label>
+                            <input type="text" id="facUsername" class="input-cg" style="padding-left:12px;" placeholder="ramesh.faculty" required>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Email Address *</label>
+                            <input type="email" id="facEmail" class="input-cg" style="padding-left:12px;" placeholder="ramesh.kumar@college.ac.in" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label class="form-label-cg" style="margin-bottom:0;">Initial Password (Optional)</label>
+                            <span style="font-size: 11px; color: var(--cg-text-muted);">Leave empty to auto-generate secure activation token</span>
+                        </div>
+                        <div style="position: relative;">
+                            <input type="password" id="facPassword" class="input-cg" style="padding-left:12px; padding-right: 36px;" placeholder="Leave empty for auto-generated secure token">
+                            <button type="button" onclick="toggleModalPassword('facPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--cg-text-muted); padding: 4px;" title="Toggle Password Visibility">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Department *</label>
+                            <select id="facDepartment" class="input-cg" style="padding-left:12px;"></select>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Designation *</label>
+                            <select id="facDesignation" class="input-cg" style="padding-left:12px;">
+                                <option value="Assistant Professor">Assistant Professor</option>
+                                <option value="Associate Professor">Associate Professor</option>
+                                <option value="Professor">Professor</option>
+                                <option value="Lab Instructor">Lab Instructor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label-cg">Office Room</label>
+                            <input type="text" id="facOffice" class="input-cg" style="padding-left:12px;" placeholder="Block A, Room 301">
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Phone Number</label>
+                            <input type="text" id="facPhone" class="input-cg" style="padding-left:12px;" placeholder="+91...">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer-cg">
+                    <button type="button" class="btn-cg-outline" onclick="closeModal('modalAddFaculty')">Cancel</button>
+                    <button type="submit" class="btn-cg-primary">Save Faculty</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Edit User (Dynamic Student/Faculty) -->
+    <div class="modal-cg" id="modalEditUser">
+        <div class="modal-box-cg">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px; color: var(--cg-brand-black);" id="modalEditTitle">Edit User Account</div>
+                <button class="btn-action-cg" style="border:none; padding:4px 6px;" onclick="closeModal('modalEditUser')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="formEditUser">
+                <input type="hidden" id="editUserId">
+                <input type="hidden" id="editUserRole">
+                <div class="modal-body-cg">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Full Name *</label>
+                            <input type="text" id="editFullName" class="input-cg" style="padding-left:12px;" required>
+                        </div>
+                        <div>
+                            <label class="form-label-cg" id="editIdLabel">Roll / Employee ID *</label>
+                            <input type="text" id="editSpecificId" class="input-cg" style="padding-left:12px;" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Email Address *</label>
+                            <input type="email" id="editEmail" class="input-cg" style="padding-left:12px;" required>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Department *</label>
+                            <select id="editDepartment" class="input-cg" style="padding-left:12px;"></select>
+                        </div>
+                    </div>
+
+                    <!-- Student-only Edit Fields -->
+                    <div id="editStudentFields" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Section *</label>
+                            <select id="editSection" class="input-cg" style="padding-left:12px;"></select>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Year</label>
+                            <input type="number" id="editYear" class="input-cg" style="padding-left:12px;" min="1" max="5">
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Semester</label>
+                            <input type="number" id="editSemester" class="input-cg" style="padding-left:12px;" min="1" max="10">
+                        </div>
+                    </div>
+
+                    <!-- Faculty-only Edit Fields -->
+                    <div id="editFacultyFields" style="display: none; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label class="form-label-cg">Designation *</label>
+                            <select id="editDesignation" class="input-cg" style="padding-left:12px;">
+                                <option value="Assistant Professor">Assistant Professor</option>
+                                <option value="Associate Professor">Associate Professor</option>
+                                <option value="Professor">Professor</option>
+                                <option value="Lab Instructor">Lab Instructor</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label-cg">Office Room</label>
+                            <input type="text" id="editOffice" class="input-cg" style="padding-left:12px;">
+                        </div>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Phone Number</label>
+                        <input type="text" id="editPhone" class="input-cg" style="padding-left:12px;" placeholder="+91...">
+                    </div>
+                </div>
+                <div class="modal-footer-cg">
+                    <button type="button" class="btn-cg-outline" onclick="closeModal('modalEditUser')">Cancel</button>
+                    <button type="submit" class="btn-cg-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Batch CSV Import (3-Stage Validation Workflow) -->
+    <div class="modal-cg" id="modalImportUsers">
+        <div class="modal-box-cg" style="max-width: 620px;">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px; color: var(--cg-brand-black);">Batch CSV User Onboarding</div>
+                <button class="btn-action-cg" style="border:none; padding:4px 6px;" onclick="closeModal('modalImportUsers')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <!-- Stage 1: Upload / Input -->
+            <div id="importStage1">
+                <form id="formImportUsers">
+                    <div class="modal-body-cg">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                            <div>
+                                <label class="form-label-cg" style="margin-bottom: 0;">Target Role</label>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <select id="importRoleSelect" class="filter-select" style="height: 32px;" onchange="updateCsvTemplate()">
+                                    <option value="STUDENT">Student Cohort</option>
+                                    <option value="FACULTY">Faculty Instructors</option>
+                                </select>
+                                <button type="button" class="btn-action-cg" onclick="downloadCsvTemplate()" title="Download sample CSV template">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                    <span>CSV Template</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group-cg">
+                            <label class="form-label-cg">Choose or Drop CSV File (.csv)</label>
+                            <div id="csvDropZone" style="border: 2px dashed var(--cg-border); border-radius: var(--cg-radius-md); padding: 16px; text-align: center; background: #FAFAFA; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('importCsvFileInput').click()">
+                                <input type="file" id="importCsvFileInput" accept=".csv,text/csv" style="display: none;" onchange="handleCsvFileSelected(this)">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--cg-text-muted); margin-bottom: 6px;">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <div style="font-size: 13px; font-weight: 600; color: var(--cg-brand-black);" id="csvFileDropLabel">Click to upload CSV file or drag and drop</div>
+                                <div style="font-size: 11px; color: var(--cg-text-muted); margin-top: 2px;" id="csvFileDropMeta">Supports standard .csv file format (UTF-8, comma-separated)</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group-cg">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label class="form-label-cg" style="margin-bottom:0;">Or Paste CSV Raw Data</label>
+                                <button type="button" class="btn-action-cg" style="font-size: 10.5px; padding: 2px 6px;" onclick="clearCsvInput()">Clear</button>
+                            </div>
+                            <textarea id="importCsvData" class="input-cg" style="height: 110px; padding: 10px; font-family: monospace; font-size: 11px; line-height: 1.45;" placeholder="Full Name,Email,Username,Roll Number,Department,Section,Phone&#10;Manish Roy,manish.roy@college.ac.in,manish.roy,23CSE010,Computer Science,CSE-A,+91 9876543220"></textarea>
+                        </div>
+                        
+                        <div style="font-size: 11px; color: var(--cg-text-muted); line-height: 1.45; padding: 8px 10px; background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md);">
+                            🔒 <strong>Security Policy:</strong> Accounts receive randomized cryptographically secure temporary activation tokens. Shared predictable default passwords are barred.
+                        </div>
+                    </div>
+                    <div class="modal-footer-cg">
+                        <button type="button" class="btn-cg-outline" onclick="closeModal('modalImportUsers')">Cancel</button>
+                        <button type="submit" class="btn-cg-primary">Validate &amp; Preview &rarr;</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Stage 2: Verification & Preview -->
+            <div id="importStage2" style="display: none;">
+                <div class="modal-body-cg">
+                    <div id="importSummaryReport" style="margin-bottom: 14px;"></div>
+                    <div id="importIssuesList" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-sm); font-size: 12px;"></div>
+                </div>
+                <div class="modal-footer-cg">
+                    <button type="button" class="btn-cg-outline" onclick="resetImportModal()">Back to Edit</button>
+                    <button type="button" class="btn-cg-primary" onclick="closeModal('modalImportUsers')">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Custom Enterprise Logout Confirmation -->
+    <div class="modal-cg" id="modalLogoutConfirm">
+        <div class="modal-box-cg" style="max-width: 380px;">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px; color: var(--cg-brand-black);">Log out of CampusGrid?</div>
+                <button class="btn-action-cg" style="border:none; padding:4px 6px;" onclick="closeModal('modalLogoutConfirm')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body-cg" style="font-size: 13px; color: var(--cg-text-secondary);">
+                Are you sure you want to end your active session? You will be returned to the campus login portal.
+            </div>
+            <div class="modal-footer-cg">
+                <button type="button" class="btn-cg-outline" onclick="closeModal('modalLogoutConfirm')">Stay Logged In</button>
+                <button type="button" class="btn-cg-primary" style="background: var(--cg-danger); border-color: var(--cg-danger);" onclick="Auth.logout()">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/user-management.js"></script>
+
+</body>
+</html>

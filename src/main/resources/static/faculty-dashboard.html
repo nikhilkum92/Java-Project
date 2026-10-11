@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard — CampusGrid</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a href="/faculty/dashboard" class="sidebar-brand">
+                <span style="background:#111; color:#fff; border-radius:4px; padding:2px 8px; font-size:14px;">CG</span>
+                <span>CampusGrid</span>
+            </a>
+            <div class="sidebar-nav">
+                <div class="sidebar-category">Faculty Portal</div>
+                <a href="/faculty/dashboard" class="sidebar-link active">
+                    <span>&#9638;</span> <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="alert('Teaching timetable will be activated in Module 3.'); return false;" class="sidebar-link">
+                    <span>&#128197;</span> <span>My Timetable</span>
+                </a>
+                <a href="#" onclick="alert('Room schedules will be activated in Module 3.'); return false;" class="sidebar-link">
+                    <span>&#128203;</span> <span>Room Schedule</span>
+                </a>
+                <a href="#" onclick="alert('Exam invigilation duties will be activated in Module 4.'); return false;" class="sidebar-link">
+                    <span>&#128221;</span> <span>Examinations</span>
+                </a>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <input type="text" class="global-search-input" placeholder="Search courses, schedules... (Ctrl+K)">
+            </div>
+            <div class="topbar-right">
+                <div class="user-badge" onclick="if(confirm('Log out of Faculty portal?')) Auth.logout();" title="Click to Logout">
+                    <div class="user-avatar" id="facAvatar">F</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600;" id="facName">Dr. Meera Sharma</div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted);">Faculty &bull; Logout</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-wrapper">
+            <div class="breadcrumb-cg">CampusGrid &bull; Faculty Portal &bull; <strong>Dashboard</strong></div>
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title" id="facGreeting">Welcome, Dr. Meera Sharma</h1>
+                    <div style="font-size: 13px; color: var(--cg-text-secondary); margin-top: 2px;" id="facSub">
+                        Computer Science Department &bull; Employee ID: FAC001
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="table-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--cg-text-muted); font-weight: 600;">TODAY'S CLASSES</div>
+                    <div style="font-size: 28px; font-weight: 700; margin: 4px 0;">3</div>
+                    <div style="font-size: 12px; color: var(--cg-success); font-weight: 600;">Next at 09:00 AM (A-201)</div>
+                </div>
+                <div class="table-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--cg-text-muted); font-weight: 600;">THIS WEEK</div>
+                    <div style="font-size: 28px; font-weight: 700; margin: 4px 0;">12</div>
+                    <div style="font-size: 12px; color: var(--cg-text-muted);">Assigned lectures</div>
+                </div>
+                <div class="table-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--cg-text-muted); font-weight: 600;">ASSIGNED ROOMS</div>
+                    <div style="font-size: 28px; font-weight: 700; margin: 4px 0;">4</div>
+                    <div style="font-size: 12px; color: var(--cg-text-muted);">A-201, A-202, B-101, Lab-1</div>
+                </div>
+                <div class="table-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--cg-text-muted); font-weight: 600;">UPCOMING EXAMS</div>
+                    <div style="font-size: 28px; font-weight: 700; margin: 4px 0;">2</div>
+                    <div style="font-size: 12px; color: var(--cg-warning); font-weight: 600;">Proctoring duties</div>
+                </div>
+            </div>
+
+            <div class="table-card" style="padding: 24px;">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">Active Faculty Authentication Profile</h3>
+                <div id="profileDetails" style="font-family: monospace; font-size: 13px; line-height: 1.8; color: var(--cg-text-secondary);">
+                    Loading profile...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = Auth.getUser();
+            if (!user || (user.role !== 'FACULTY' && user.role !== 'ADMIN')) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                // Fetch dynamic live user profile from backend
+                const res = await Auth.fetchWithAuth('/api/auth/me');
+                const json = await res.json();
+                const liveUser = (json.status === 'SUCCESS' && json.data) ? json.data : user;
+
+                document.getElementById('facName').textContent = liveUser.fullName || 'Faculty Member';
+                document.getElementById('facGreeting').textContent = 'Welcome, ' + (liveUser.fullName || 'Faculty');
+                document.getElementById('facSub').textContent = (liveUser.department || 'Academic Department') + ' • Employee ID: ' + (liveUser.specificId || 'FAC001');
+                document.getElementById('facAvatar').textContent = (liveUser.fullName ? liveUser.fullName[0] : 'F').toUpperCase();
+
+                document.getElementById('profileDetails').innerHTML = `
+                    &bull; User ID: ${liveUser.id}<br>
+                    &bull; Secure UID: ${liveUser.uid}<br>
+                    &bull; Username: ${liveUser.username}<br>
+                    &bull; Email: ${liveUser.email}<br>
+                    &bull; Role: <span class="badge-cg badge-active">${liveUser.role}</span><br>
+                    &bull; Department: <strong>${liveUser.department || 'Not specified'}</strong><br>
+                    &bull; Session: Active (Validated via JWT Access Token &amp; DB Session)
+                `;
+            } catch (e) {
+                console.error('Failed to fetch live profile:', e);
+            }
+        });
+    </script>
+
+</body>
+</html>

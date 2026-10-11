@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard — CampusGrid</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a href="/student/dashboard" class="sidebar-brand">
+                <span style="background:#111; color:#fff; border-radius:4px; padding:2px 8px; font-size:14px;">CG</span>
+                <span>CampusGrid</span>
+            </a>
+            <div class="sidebar-nav">
+                <div class="sidebar-category">Student Portal</div>
+                <a href="/student/dashboard" class="sidebar-link active">
+                    <span>&#9638;</span> <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="alert('Student personal timetable will be activated in Module 5.'); return false;" class="sidebar-link">
+                    <span>&#128197;</span> <span>My Timetable</span>
+                </a>
+                <a href="#" onclick="alert('Student examinations and seat locator will be activated in Module 5.'); return false;" class="sidebar-link">
+                    <span>&#128221;</span> <span>My Examinations</span>
+                </a>
+                <a href="#" onclick="alert('Campus explorer will be activated in Module 2.'); return false;" class="sidebar-link">
+                    <span>&#127963;</span> <span>Campus Explorer</span>
+                </a>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <input type="text" class="global-search-input" placeholder="Search my courses, rooms... (Ctrl+K)">
+            </div>
+            <div class="topbar-right">
+                <div class="user-badge" onclick="if(confirm('Log out of Student portal?')) Auth.logout();" title="Click to Logout">
+                    <div class="user-avatar" id="stuAvatar">S</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600;" id="stuTopName">Rahul Sharma</div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted);">Student &bull; Logout</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-wrapper">
+            <div class="breadcrumb-cg">CampusGrid &bull; Student Portal &bull; <strong>Dashboard</strong></div>
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title" id="stuGreeting">Welcome back, Rahul Sharma!</h1>
+                    <div style="font-size: 13px; color: var(--cg-text-secondary); margin-top: 2px;" id="stuSub">
+                        Section CSE-A &bull; Roll Number: 23CSE001 &bull; Computer Science Engineering
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="table-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--cg-text-muted); font-weight: 600;">TODAY'S CLASSES</div>
+                    <div style="font-size: 28px; font-weight: 700; margin: 4px 0;">3</div>
+                    <div style="font-size: 12px; color: var(--cg-success); font-weight: 600;">Next at 09:00 AM (A-201)</div>
+                </div>
+                <div class="table-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--cg-text-muted); font-weight: 600;">UPCOMING EXAMS</div>
+                    <div style="font-size: 28px; font-weight: 700; margin: 4px 0;">2</div>
+                    <div style="font-size: 12px; color: var(--cg-primary-blue); font-weight: 600;">Assigned Seat: A-05</div>
+                </div>
+                <div class="table-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--cg-text-muted); font-weight: 600;">ENROLLED SUBJECTS</div>
+                    <div style="font-size: 28px; font-weight: 700; margin: 4px 0;">6</div>
+                    <div style="font-size: 12px; color: var(--cg-text-muted);">Semester 3</div>
+                </div>
+                <div class="table-card" style="padding: 20px;">
+                    <div style="font-size: 12px; color: var(--cg-text-muted); font-weight: 600;">ATTENDANCE</div>
+                    <div style="font-size: 28px; font-weight: 700; margin: 4px 0;">78%</div>
+                    <div style="font-size: 12px; color: var(--cg-success); font-weight: 600;">Good standing</div>
+                </div>
+            </div>
+
+            <div class="table-card" style="padding: 24px;">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">Active Student Authentication Profile</h3>
+                <div id="stuProfileDetails" style="font-family: monospace; font-size: 13px; line-height: 1.8; color: var(--cg-text-secondary);">
+                    Loading profile...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = Auth.getUser();
+            if (!user || user.role !== 'STUDENT') {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                // Fetch dynamic live user profile from backend
+                const res = await Auth.fetchWithAuth('/api/auth/me');
+                const json = await res.json();
+                const liveUser = (json.status === 'SUCCESS' && json.data) ? json.data : user;
+
+                document.getElementById('stuTopName').textContent = liveUser.fullName || 'Student';
+                document.getElementById('stuGreeting').textContent = 'Welcome back, ' + (liveUser.fullName || 'Student') + '!';
+                document.getElementById('stuSub').textContent = 'Section ' + (liveUser.section || 'CSE-A') + ' • Roll Number: ' + (liveUser.specificId || '23CSE001') + ' • ' + (liveUser.department || 'Computer Science');
+                document.getElementById('stuAvatar').textContent = (liveUser.fullName ? liveUser.fullName[0] : 'S').toUpperCase();
+
+                document.getElementById('stuProfileDetails').innerHTML = `
+                    &bull; User ID: ${liveUser.id}<br>
+                    &bull; Secure UID: ${liveUser.uid}<br>
+                    &bull; Username: ${liveUser.username}<br>
+                    &bull; Email: ${liveUser.email}<br>
+                    &bull; Roll Number: <strong>${liveUser.specificId || '23CSE001'}</strong><br>
+                    &bull; Academic Section: <strong>${liveUser.section || 'CSE-A'}</strong><br>
+                    &bull; Department: <strong>${liveUser.department || 'Computer Science'}</strong><br>
+                    &bull; Role: <span class="badge-cg badge-active">${liveUser.role}</span><br>
+                    &bull; Session: Authenticated via JWT Dual-Token &amp; Server-Side Session Tracking
+                `;
+            } catch (e) {
+                console.error('Failed to fetch live student profile:', e);
+            }
+        });
+    </script>
+</body>
+</html>
