@@ -34,4 +34,25 @@ public class StudentPortalController {
         Role role = (Role) request.getAttribute("authenticatedRole");
         return role == Role.STUDENT || role == Role.ADMIN;
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<UserProfileDto>> getProfile(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required."));
+        }
+        if (!isAuthorizedStudent(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Student access required."));
+        }
+
+        try {
+            UserProfileDto profile = studentService.getStudentProfile(userId);
+            return ResponseEntity.ok(ApiResponse.success(profile));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }
