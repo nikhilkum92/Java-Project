@@ -48,4 +48,23 @@ public class StudentService {
 
         return dto;
     }
+
+    public StudentDashboardDto getStudentDashboard(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        Student student = getStudentByUserId(userId);
+        UserProfileDto profile = getStudentProfile(userId);
+
+        StudentDashboardDto dashboard = new StudentDashboardDto();
+        dashboard.setProfile(profile);
+        dashboard.setRollNumber(student.getRollNumber());
+        dashboard.setDepartment(student.getDepartment());
+        dashboard.setAcademicGroup(student.getSectionName());
+        dashboard.setAcademicYear(student.getYear());
+        dashboard.setCurrentSemester(student.getCurrentSemester());
+        dashboard.setActiveStatus(user.isActive());
+
+        return dashboard;
+    }
 }
