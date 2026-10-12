@@ -22,6 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final FacultyRepository facultyRepository;
+    private com.campusgrid.repository.UserSessionRepository sessionRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
     public UserService(
@@ -32,6 +33,11 @@ public class UserService {
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
         this.facultyRepository = facultyRepository;
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    public void setUserSessionRepository(com.campusgrid.repository.UserSessionRepository sessionRepository) {
+        this.sessionRepository = sessionRepository;
     }
 
     public List<UserTableDto> getAllStudents() {
@@ -201,6 +207,10 @@ public class UserService {
             studentRepository.findByUserId(userId).ifPresent(studentRepository::delete);
         } else if (user.getRole() == Role.FACULTY) {
             facultyRepository.findByUserId(userId).ifPresent(facultyRepository::delete);
+        }
+
+        if (sessionRepository != null) {
+            sessionRepository.deleteByUserId(userId);
         }
 
         userRepository.delete(user);
