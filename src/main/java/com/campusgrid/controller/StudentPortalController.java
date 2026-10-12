@@ -55,4 +55,25 @@ public class StudentPortalController {
                     .body(ApiResponse.error(e.getMessage()));
         }
     }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<StudentDashboardDto>> getDashboard(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required."));
+        }
+        if (!isAuthorizedStudent(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Student access required."));
+        }
+
+        try {
+            StudentDashboardDto dashboard = studentService.getStudentDashboard(userId);
+            return ResponseEntity.ok(ApiResponse.success(dashboard));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }
