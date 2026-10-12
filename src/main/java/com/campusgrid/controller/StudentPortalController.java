@@ -76,4 +76,25 @@ public class StudentPortalController {
                     .body(ApiResponse.error(e.getMessage()));
         }
     }
+
+    @GetMapping("/timetable")
+    public ResponseEntity<ApiResponse<List<StudentTimetableEntryDto>>> getTimetable(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required."));
+        }
+        if (!isAuthorizedStudent(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Student access required."));
+        }
+
+        try {
+            List<StudentTimetableEntryDto> timetable = studentService.getStudentTimetable(userId);
+            return ResponseEntity.ok(ApiResponse.success(timetable));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }
