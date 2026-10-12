@@ -25,4 +25,27 @@ public class StudentService {
         return studentRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Student academic profile not found for user ID: " + userId));
     }
+
+    public UserProfileDto getStudentProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        Student student = getStudentByUserId(userId);
+
+        UserProfileDto dto = new UserProfileDto();
+        dto.setId(user.getId());
+        dto.setUid(user.getUid());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setRole(user.getRole());
+        dto.setActive(user.isActive());
+        dto.setSpecificId(student.getRollNumber());
+        dto.setDepartment(student.getDepartment());
+        dto.setSection(student.getSectionName());
+        dto.setYear(student.getYear());
+        dto.setSemester(student.getCurrentSemester());
+
+        return dto;
+    }
 }
