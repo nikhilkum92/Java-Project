@@ -97,4 +97,25 @@ public class StudentPortalController {
                     .body(ApiResponse.error(e.getMessage()));
         }
     }
+
+    @GetMapping("/examinations")
+    public ResponseEntity<ApiResponse<List<StudentExamAllocationDto>>> getExaminations(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required."));
+        }
+        if (!isAuthorizedStudent(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Student access required."));
+        }
+
+        try {
+            List<StudentExamAllocationDto> exams = studentService.getStudentExaminations(userId);
+            return ResponseEntity.ok(ApiResponse.success(exams));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
 }
