@@ -67,4 +67,9 @@ public class StudentService {
 
         return dashboard;
     }
+
+    public java.util.List<StudentTimetableEntryDto> getStudentTimetable(Long userId) {
+        Student student = getStudentByUserId(userId);
+        return java.util.Collections.emptyList();
+    }
 }
