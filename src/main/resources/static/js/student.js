@@ -436,6 +436,197 @@ const Student = {
         `;
     },
 
+    // 7. Load Student Campus & Room Directory (Module 2 Integration)
+    async loadCampusExplorer() {
+        this.initCommon();
+        try {
+            const [treeRes, roomsRes] = await Promise.all([
+                Auth.fetchWithAuth('/api/spaces/tree'),
+                Auth.fetchWithAuth('/api/spaces/rooms')
+            ]);
+            const treeJson = await treeRes.json();
+            const roomsJson = await roomsRes.json();
+
+            if (treeJson.status === 'SUCCESS' && Array.isArray(treeJson.data)) {
+                this.campusTree = treeJson.data;
+                this.populateFilterDropdowns(this.campusTree);
+            }
+
+            if (roomsJson.status === 'SUCCESS' && Array.isArray(roomsJson.data)) {
+                this.allRooms = roomsJson.data;
+                this.renderRoomsDirectory(this.allRooms);
+            }
+
+            // Setup search and filter listeners
+            const searchInput = document.getElementById('roomSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', () => this.filterRoomsDirectory());
+            }
+            const typeFilter = document.getElementById('roomTypeFilter');
+            if (typeFilter) {
+                typeFilter.addEventListener('change', () => this.filterRoomsDirectory());
+            }
+            const campusFilter = document.getElementById('campusFilter');
+            if (campusFilter) {
+                campusFilter.addEventListener('change', () => this.filterRoomsDirectory());
+            }
+
+        } catch (err) {
+            console.error('Failed to load campus directory:', err);
+            this.showError('Could not load campus directory: ' + err.message);
+        }
+    },
+
+    populateFilterDropdowns(tree) {
+        const campusFilter = document.getElementById('campusFilter');
+        if (campusFilter) {
+            campusFilter.innerHTML = '<option value="">All Campuses & Blocks</option>' +
+                tree.map(c => `
+                    <optgroup label="${escapeHtml(c.name)}">
+                        ${c.blocks.map(b => `<option value="${b.id}">${escapeHtml(b.name)}</option>`).join('')}
+                    </optgroup>
+                `).join('');
+        }
+    },
+
+    filterRoomsDirectory() {
+        const query = (document.getElementById('roomSearchInput')?.value || '').toLowerCase().trim();
+        const type = document.getElementById('roomTypeFilter')?.value || '';
+        const blockId = document.getElementById('campusFilter')?.value || '';
+
+        const filtered = this.allRooms.filter(r => {
+            const matchQuery = !query ||
+                (r.roomNumber && r.roomNumber.toLowerCase().includes(query)) ||
+                (r.displayName && r.displayName.toLowerCase().includes(query)) ||
+                (r.blockName && r.blockName.toLowerCase().includes(query));
+            const matchType = !type || r.roomType === type;
+            const matchBlock = !blockId || (r.blockId && String(r.blockId) === String(blockId));
+            return matchQuery && matchType && matchBlock;
+        });
+
+        this.renderRoomsDirectory(filtered);
+    },
+
+    renderRoomsDirectory(rooms) {
+        const container = document.getElementById('roomsDirectoryContainer');
+        const countBadge = document.getElementById('roomsCountBadge');
+        if (countBadge) countBadge.textContent = rooms.length;
+
+        if (!container) return;
+
+        if (rooms.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 48px 20px; background: #FFFFFF; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md);">
+                    <div style="font-weight: 600; font-size: 14px; color: var(--cg-brand-black); margin-bottom: 4px;">No Rooms Found</div>
+                    <div style="font-size: 12.5px; color: var(--cg-text-muted);">Try adjusting your search criteria or clearing filters.</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px;">
+                ${rooms.map(r => `
+                    <div class="table-card" style="padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black);">${escapeHtml(r.roomNumber)}</div>
+                                    <div style="font-size: 12px; color: var(--cg-text-muted);">${escapeHtml(r.displayName || r.roomNumber)}</div>
+                                </div>
+                                <span class="badge-cg badge-active">${escapeHtml(r.roomType || 'CLASSROOM')}</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--cg-text-secondary); margin-bottom: 12px; line-height: 1.5;">
+                                📍 <strong>${escapeHtml(r.blockName || 'Main Block')}</strong> &bull; ${escapeHtml(r.floorName || 'Floor 1')}<br>
+                                👥 Capacity: <strong>${r.capacity} seats</strong>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--cg-border); padding-top: 12px; margin-top: 6px;">
+                            <span style="font-size: 11px; color: var(--cg-success); font-weight: 600;">${escapeHtml(r.status || 'AVAILABLE')}</span>
+                            <button class="btn-action-cg" onclick="Student.viewRoomSeatingGrid(${r.id}, '${escapeHtml(r.roomNumber)}')">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                                <span>View Seating Layout</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    },
+
+    async viewRoomSeatingGrid(roomId, roomNumber) {
+        const modal = document.getElementById('modalRoomSeating');
+        const modalTitle = document.getElementById('modalRoomSeatingTitle');
+        const gridContainer = document.getElementById('modalRoomSeatingGrid');
+        if (!modal || !gridContainer) return;
+
+        if (modalTitle) modalTitle.textContent = `Room ${roomNumber} — Physical Seating Layout`;
+        gridContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--cg-text-muted);">Loading seating layout grid...</div>';
+        modal.classList.add('show');
+
+        try {
+            const res = await Auth.fetchWithAuth(`/api/spaces/rooms/${roomId}/grid`);
+            const json = await res.json();
+            if (json.status !== 'SUCCESS' || !json.data) {
+                gridContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--cg-text-muted);">No configured seating layout exists for this room.</div>';
+                return;
+            }
+
+            const grid = json.data;
+            if (!grid.seats || grid.seats.length === 0) {
+                gridContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--cg-text-muted);">No individual seats mapped for this room yet.</div>';
+                return;
+            }
+
+            // Render interactive physical seat layout grid
+            let rowsMap = {};
+            grid.seats.forEach(s => {
+                const r = s.rowNumber || 1;
+                if (!rowsMap[r]) rowsMap[r] = [];
+                rowsMap[r].push(s);
+            });
+
+            let gridHtml = `
+                <div style="background: #0F172A; color: #FFFFFF; text-align: center; padding: 6px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.05em;">
+                    TEACHING PODIUM / SCREEN FRONT
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: center; max-height: 420px; overflow-y: auto; padding: 8px;">
+            `;
+
+            Object.keys(rowsMap).sort((a,b) => a - b).forEach(rNum => {
+                const rowSeats = rowsMap[rNum].sort((a,b) => a.columnNumber - b.columnNumber);
+                gridHtml += `<div style="display: flex; gap: 8px; align-items: center;">`;
+                gridHtml += `<span style="font-size: 11px; font-weight: 700; color: var(--cg-text-muted); width: 24px; text-align: right;">R${rNum}</span>`;
+                rowSeats.forEach(st => {
+                    gridHtml += `
+                        <div style="width: 38px; height: 38px; border-radius: 4px; border: 1px solid var(--cg-border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; background: ${st.status === 'AVAILABLE' ? '#DCFCE7' : '#F1F5F9'}; color: ${st.status === 'AVAILABLE' ? '#16803D' : '#64748B'};" title="Seat ${escapeHtml(st.seatNumber)} (${st.seatType})">
+                            ${escapeHtml(st.seatNumber)}
+                        </div>
+                    `;
+                });
+                gridHtml += `</div>`;
+            });
+
+            gridHtml += `
+                </div>
+                <div style="display: flex; gap: 14px; justify-content: center; margin-top: 14px; font-size: 11px; color: var(--cg-text-muted);">
+                    <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #DCFCE7; border: 1px solid #BBF7D0; border-radius: 2px;"></span> Available Seat</div>
+                    <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 2px;"></span> Standard Desk</div>
+                </div>
+            `;
+
+            gridContainer.innerHTML = gridHtml;
+
+        } catch (e) {
+            gridContainer.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--cg-danger);">Failed to load seating grid: ${e.message}</div>`;
+        }
+    },
+
+    closeRoomSeatingModal() {
+        const modal = document.getElementById('modalRoomSeating');
+        if (modal) modal.classList.remove('show');
+    },
+
     showError(msg) {
         alert(msg);
     }
