@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Seating Grid Designer — CampusGrid</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <a href="/admin/dashboard" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit;">
+                    <div class="sidebar-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
+                    <span class="sidebar-title">CampusGrid</span>
+                </a>
+            </div>
+
+            <div class="sidebar-nav">
+                <div class="sidebar-category">Overview</div>
+                <a href="/admin/dashboard" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="sidebar-category">Campus &amp; Space</div>
+                <a href="/admin/campus" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                    <span>Campus Explorer</span>
+                </a>
+                <a href="/admin/rooms" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Rooms</span>
+                </a>
+                <a href="/admin/seating" class="sidebar-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    <span>Seat Layouts</span>
+                </a>
+
+                <div class="sidebar-category">Academics</div>
+                <a href="/admin/users" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>User Management</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div style="font-weight:600; font-size:15px; color:var(--cg-text-primary);">
+                    Seating Layout Designer
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div style="font-size: 12px; font-weight: 500; color: var(--cg-text-muted);" id="currentDateStr"></div>
+                <div class="profile-dropdown">
+                    <div class="profile-chip">
+                        <div class="avatar-circle" id="userAvatar">A</div>
+                        <div class="profile-info">
+                            <span class="profile-name" id="userDisplayName">Administrator</span>
+                            <span class="profile-role">ADMIN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Room Selection & Layout Configuration Controls Bar -->
+            <div class="card" style="padding: 20px; margin-bottom: 24px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:12px; align-items:flex-end; flex:1;">
+                        <div class="form-group-cg" style="margin-bottom:0; min-width:240px;">
+                            <label class="form-label-cg">Target Room *</label>
+                            <select id="designerRoomSelect" class="input-cg" style="height:38px; padding-left:12px;" onchange="onRoomSelected()"></select>
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Layout Template</label>
+                            <select id="designerTemplateSelect" class="input-cg" style="height:38px; padding-left:10px;">
+                                <option value="STANDARD_GRID">Standard Grid (Continuous)</option>
+                                <option value="CENTRAL_AISLE">Central Aisle (2 Column Blocks)</option>
+                                <option value="H_PATTERN">H-Pattern Walkway (Exam Hall)</option>
+                                <option value="LABORATORY">Laboratory Benches (Paired Systems)</option>
+                            </select>
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0; width:90px;">
+                            <label class="form-label-cg">Rows</label>
+                            <input type="number" id="designerRowsInput" class="input-cg" style="height:38px; padding-left:10px;" min="1" max="50">
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0; width:90px;">
+                            <label class="form-label-cg">Columns</label>
+                            <input type="number" id="designerColsInput" class="input-cg" style="height:38px; padding-left:10px;" min="1" max="50">
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-primary" style="height:38px;" onclick="applyLayoutConfiguration()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                            <span>Regenerate Grid</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Header & Metrics Card -->
+            <div class="card" style="padding: 16px 20px; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h2 style="font-size: 16px; font-weight: 700; color: var(--cg-text-primary);" id="gridRoomHeader">Select a room to load layout</h2>
+                    <div style="font-size: 12px; color: var(--cg-text-secondary); margin-top: 2px;" id="gridRoomMeta">--</div>
+                </div>
+                <div style="display:flex; gap:20px; align-items:center;">
+                    <div style="text-align:right;">
+                        <span style="font-size: 11px; color: var(--cg-text-muted); text-transform:uppercase;">Seats Active</span>
+                        <div style="font-size: 18px; font-weight: 700; color: var(--cg-text-primary);" id="metricActiveSeats">0 / 0</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size: 11px; color: var(--cg-text-muted); text-transform:uppercase;">Blocked</span>
+                        <div style="font-size: 18px; font-weight: 700; color: var(--cg-danger);" id="metricBlockedSeats">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Grid Stage Canvas -->
+            <div class="seating-grid-container" id="seatingCanvasContainer">
+                <div class="seating-stage">FRONT &bull; PODIUM / WHITEBOARD / SCREEN</div>
+                <div id="seatingMatrixWrapper" style="display:flex; justify-content:center; width:100%; min-height: 280px; align-items:center;">
+                    <div style="color:var(--cg-text-muted); font-size:13px;">Please select an academic room above to inspect or configure its seating grid.</div>
+                </div>
+
+                <!-- Legend -->
+                <div class="seat-legend" style="border-top: 1px solid var(--cg-border); width: 100%; justify-content: center; padding-top: 16px;">
+                    <div class="seat-legend-item">
+                        <div class="seat-legend-swatch" style="background:#F8FAFC; border-color:#CBD5E1;"></div>
+                        <span>Available Seat (Click to toggle Blocked)</span>
+                    </div>
+                    <div class="seat-legend-item">
+                        <div class="seat-legend-swatch" style="background:#FEE2E2; border-color:#FECACA;"></div>
+                        <span>Blocked / Reserved</span>
+                    </div>
+                    <div class="seat-legend-item">
+                        <div class="seat-legend-swatch" style="background:#FEF3C7; border-color:#FDE68A;"></div>
+                        <span>Under Maintenance</span>
+                    </div>
+                    <div class="seat-legend-item">
+                        <div class="seat-legend-swatch" style="background:transparent; border: 1px dashed #CBD5E1;"></div>
+                        <span>Corridor / Walkway Aisle Gap</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/seating-designer.js"></script>
+</body>
+</html>
