@@ -259,6 +259,96 @@ const Student = {
         }
     },
 
+    // 5. Load Student Timetable View
+    async loadTimetable() {
+        this.initCommon();
+        try {
+            const [profileRes, ttRes] = await Promise.all([
+                Auth.fetchWithAuth('/api/student/profile'),
+                Auth.fetchWithAuth('/api/student/timetable')
+            ]);
+            const profileJson = await profileRes.json();
+            const ttJson = await ttRes.json();
+
+            if (profileJson.status === 'SUCCESS' && profileJson.data) {
+                const p = profileJson.data;
+                const headerInfo = document.getElementById('timetableHeaderInfo');
+                if (headerInfo) {
+                    headerInfo.textContent = `Cohort: Section ${p.section || 'CSE-A'} • Department of ${p.department || 'Computer Science'} • Year ${p.year || 1}, Semester ${p.semester || 1}`;
+                }
+            }
+
+            const entries = (ttJson.status === 'SUCCESS' && Array.isArray(ttJson.data)) ? ttJson.data : [];
+            this.renderTimetableEntries(entries);
+
+        } catch (err) {
+            console.error('Failed to load student timetable:', err);
+            this.showError('Could not load timetable: ' + err.message);
+        }
+    },
+
+    renderTimetableEntries(entries) {
+        const container = document.getElementById('timetableEntriesContainer');
+        if (!container) return;
+
+        if (entries.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px 24px; background: #FFFFFF; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md);">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--cg-text-muted); margin-bottom: 12px;">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black); margin-bottom: 6px;">No Timetable Published for Current Session</div>
+                    <div style="font-size: 13px; color: var(--cg-text-muted); max-width: 480px; margin: 0 auto 16px;">
+                        The academic timetable for your section is currently being prepared by the administration. Once published, your daily lecture schedules, laboratory slots, and room locations will automatically appear here.
+                    </div>
+                    <a href="/student/campus" class="btn-cg-outline" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+                        <span>Explore Campus Rooms</span> &rarr;
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        // Render populated timetable
+        container.innerHTML = `
+            <div style="overflow-x: auto;">
+                <table class="table-cg">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Time Slot</th>
+                            <th>Subject</th>
+                            <th>Room Location</th>
+                            <th>Faculty</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${entries.map(e => `
+                            <tr>
+                                <td><strong>${escapeHtml(e.dayOfWeek)}</strong></td>
+                                <td>${escapeHtml(e.timeSlot || (e.startTime + ' - ' + e.endTime))}</td>
+                                <td>
+                                    <div style="font-weight: 600;">${escapeHtml(e.subjectName)}</div>
+                                    <div style="font-size: 11px; color: var(--cg-text-muted);">${escapeHtml(e.subjectCode || '')}</div>
+                                </td>
+                                <td>
+                                    <span style="font-weight: 600; padding: 2px 7px; background: #F1F5F9; border-radius: 4px;">${escapeHtml(e.roomCode)}</span>
+                                    <span style="font-size: 11px; color: var(--cg-text-muted); margin-left: 4px;">(${escapeHtml(e.blockName || '')})</span>
+                                </td>
+                                <td>${escapeHtml(e.facultyName || 'TBA')}</td>
+                                <td><span class="badge-cg badge-active">${escapeHtml(e.status || 'ACTIVE')}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    },
+
     showError(msg) {
         alert(msg);
     }
