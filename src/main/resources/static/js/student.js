@@ -225,6 +225,40 @@ const Student = {
         }
     },
 
+    // 4. Load Detailed Student Profile
+    async loadProfile() {
+        this.initCommon();
+        try {
+            const res = await Auth.fetchWithAuth('/api/student/profile');
+            const json = await res.json();
+            if (json.status !== 'SUCCESS' || !json.data) {
+                this.showError('Could not load student profile.');
+                return;
+            }
+
+            const p = json.data;
+            document.getElementById('profileFullName').textContent = p.fullName || 'Student';
+            document.getElementById('profileRollNumber').textContent = p.specificId || 'N/A';
+            document.getElementById('profileUid').textContent = p.uid || 'N/A';
+            document.getElementById('profileEmail').textContent = p.email || 'N/A';
+            document.getElementById('profileUsername').textContent = p.username || 'N/A';
+            document.getElementById('profileDepartment').textContent = p.department || 'Computer Science';
+            document.getElementById('profileSection').textContent = p.section || 'N/A';
+            document.getElementById('profileYear').textContent = `Year ${p.year || 1}`;
+            document.getElementById('profileSemester').textContent = `Semester ${p.semester || 1}`;
+
+            const badgeEl = document.getElementById('profileStatusBadge');
+            if (badgeEl) {
+                badgeEl.className = `badge-cg ${p.active ? 'badge-active' : 'badge-inactive'}`;
+                badgeEl.textContent = p.active ? 'Active Enrolled' : 'Deactivated';
+            }
+
+        } catch (err) {
+            console.error('Failed to load profile:', err);
+            this.showError('Profile load failed: ' + err.message);
+        }
+    },
+
     showError(msg) {
         alert(msg);
     }
