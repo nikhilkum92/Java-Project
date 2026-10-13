@@ -349,6 +349,93 @@ const Student = {
         `;
     },
 
+    // 6. Load Student Examinations & Seating View
+    async loadExaminations() {
+        this.initCommon();
+        try {
+            const [profileRes, examRes] = await Promise.all([
+                Auth.fetchWithAuth('/api/student/profile'),
+                Auth.fetchWithAuth('/api/student/examinations')
+            ]);
+            const profileJson = await profileRes.json();
+            const examJson = await examRes.json();
+
+            if (profileJson.status === 'SUCCESS' && profileJson.data) {
+                const p = profileJson.data;
+                const headerInfo = document.getElementById('examHeaderInfo');
+                if (headerInfo) {
+                    headerInfo.textContent = `Candidate: ${p.fullName} • Roll Number: ${p.specificId} • ${p.department || 'Computer Science'}`;
+                }
+            }
+
+            const exams = (examJson.status === 'SUCCESS' && Array.isArray(examJson.data)) ? examJson.data : [];
+            this.renderExaminations(exams);
+
+        } catch (err) {
+            console.error('Failed to load examinations:', err);
+            this.showError('Could not load examination records: ' + err.message);
+        }
+    },
+
+    renderExaminations(exams) {
+        const container = document.getElementById('examinationsContainer');
+        if (!container) return;
+
+        if (exams.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px 24px; background: #FFFFFF; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md);">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--cg-text-muted); margin-bottom: 12px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="6"></circle>
+                        <circle cx="12" cy="12" r="2"></circle>
+                    </svg>
+                    <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black); margin-bottom: 6px;">No Active Examination Seating Allocations</div>
+                    <div style="font-size: 13px; color: var(--cg-text-muted); max-width: 480px; margin: 0 auto 16px;">
+                        You currently have no examination schedules or assigned examination hall seats for this semester. When the examination cell publishes seat allotments, your physical seat number, examination block, and room details will be visible here.
+                    </div>
+                    <div style="padding: 12px 16px; background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-sm); display: inline-block; font-size: 12px; color: var(--cg-text-secondary); text-align: left;">
+                        🔒 <strong>Institutional Seating Policy:</strong> Examination seat allocations are strictly individual and tamper-proof. Each student must occupy only their officially designated desk.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Render examinations list
+        container.innerHTML = `
+            <div style="display: grid; gap: 16px;">
+                ${exams.map(e => `
+                    <div class="table-card" style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                            <div>
+                                <h3 style="font-size: 16px; font-weight: 700; color: var(--cg-brand-black); margin-bottom: 2px;">${escapeHtml(e.courseName)}</h3>
+                                <div style="font-size: 12px; color: var(--cg-text-muted);">${escapeHtml(e.examName)} &bull; Course Code: <strong>${escapeHtml(e.courseCode)}</strong></div>
+                            </div>
+                            <span class="badge-cg badge-active">${escapeHtml(e.status || 'CONFIRMED')}</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding: 14px; background: #F8FAFC; border-radius: var(--cg-radius-sm); border: 1px solid var(--cg-border); margin-bottom: 12px;">
+                            <div>
+                                <div style="font-size: 11px; color: var(--cg-text-muted); font-weight: 600;">DATE & TIME</div>
+                                <div style="font-weight: 600; font-size: 13px;">${escapeHtml(e.examDate)}</div>
+                                <div style="font-size: 11.5px; color: var(--cg-text-muted);">${escapeHtml(e.startTime)} - ${escapeHtml(e.endTime)}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--cg-text-muted); font-weight: 600;">EXAM HALL</div>
+                                <div style="font-weight: 700; font-size: 14px; color: var(--cg-brand-black);">${escapeHtml(e.roomCode)}</div>
+                                <div style="font-size: 11.5px; color: var(--cg-text-muted);">${escapeHtml(e.blockName || '')}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--cg-primary-blue); font-weight: 700;">ASSIGNED SEAT NUMBER</div>
+                                <div style="font-weight: 800; font-size: 20px; color: var(--cg-primary-blue);">${escapeHtml(e.seatNumber || 'Unassigned')}</div>
+                            </div>
+                        </div>
+                        ${e.instructions ? `<div style="font-size: 11.5px; color: var(--cg-text-muted); line-height: 1.45;">📌 Instructions: ${escapeHtml(e.instructions)}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    },
+
     showError(msg) {
         alert(msg);
     }
