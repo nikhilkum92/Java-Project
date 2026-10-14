@@ -20,6 +20,9 @@ const Student = {
     dashboardData: null,
     allRooms: [],
     campusTree: [],
+    selectedBlockId: null,
+    activeTimetableSection: null,
+    activeExamSection: null,
 
     // 1. Initial Access & Session Guard
     verifySession() {
@@ -179,28 +182,38 @@ const Student = {
 
         if (data.upcomingExams && data.upcomingExams.length > 0) {
             container.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px;">
                     ${data.upcomingExams.map(ex => `
-                        <div style="border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md); padding: 16px; background: #FFFFFF;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                                <div>
-                                    <div style="font-weight: 700; font-size: 14px; color: var(--cg-brand-black);">${escapeHtml(ex.courseName)}</div>
-                                    <div style="font-size: 11.5px; color: var(--cg-text-muted);">${escapeHtml(ex.examName)} (${escapeHtml(ex.courseCode)})</div>
+                        <div style="border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md); padding: 16px; background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 14px; color: var(--cg-brand-black);">${escapeHtml(ex.courseName)}</div>
+                                        <div style="font-size: 11.5px; color: var(--cg-text-muted);">${escapeHtml(ex.examName)} (${escapeHtml(ex.courseCode)})</div>
+                                    </div>
+                                    <span class="badge-cg badge-active">${escapeHtml(ex.status || 'SCHEDULED')}</span>
                                 </div>
-                                <span class="badge-cg badge-active">${escapeHtml(ex.status || 'SCHEDULED')}</span>
+                                <div style="font-size: 12px; color: var(--cg-text-secondary); margin-bottom: 12px; line-height: 1.5;">
+                                    📅 <strong>${escapeHtml(ex.examDate)}</strong> &bull; ${escapeHtml(ex.startTime)} - ${escapeHtml(ex.endTime)}
+                                    ${ex.sectionName ? `<span style="margin-left: 6px; padding: 2px 7px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-weight: 600; font-size: 11px;">Section ${escapeHtml(ex.sectionName)}</span>` : ''}
+                                </div>
+                                <div style="padding: 10px; background: var(--cg-primary-blue-soft); border: 1px solid var(--cg-primary-blue-border); border-radius: var(--cg-radius-sm); font-size: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <div>
+                                        <div style="font-size: 10.5px; color: var(--cg-primary-blue); font-weight: 700;">ASSIGNED SEAT</div>
+                                        <div style="font-size: 15px; font-weight: 700; color: var(--cg-primary-blue);">${escapeHtml(ex.seatNumber || 'Unassigned')}</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 10.5px; color: var(--cg-text-muted);">EXAM VENUE</div>
+                                        <div style="font-weight: 600; color: var(--cg-text-primary);">${escapeHtml(ex.roomCode)} (${escapeHtml(ex.blockName || '')})</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="font-size: 12px; color: var(--cg-text-secondary); margin-bottom: 12px; line-height: 1.5;">
-                                📅 <strong>${escapeHtml(ex.examDate)}</strong> &bull; ${escapeHtml(ex.startTime)} - ${escapeHtml(ex.endTime)}
-                            </div>
-                            <div style="padding: 10px; background: var(--cg-primary-blue-soft); border: 1px solid var(--cg-primary-blue-border); border-radius: var(--cg-radius-sm); font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <div style="font-size: 10.5px; color: var(--cg-primary-blue); font-weight: 700;">ASSIGNED SEAT</div>
-                                    <div style="font-size: 15px; font-weight: 700; color: var(--cg-primary-blue);">${escapeHtml(ex.seatNumber || 'Unassigned')}</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div style="font-size: 10.5px; color: var(--cg-text-muted);">ROOM LOCATION</div>
-                                    <div style="font-weight: 600; color: var(--cg-text-primary);">${escapeHtml(ex.roomCode)} (${escapeHtml(ex.blockName || '')})</div>
-                                </div>
+                            <div style="border-top: 1px solid var(--cg-border); padding-top: 10px; margin-top: 6px; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 11px; color: var(--cg-text-muted);">Venue: <strong>${escapeHtml(ex.blockName || 'Main Campus')}</strong></span>
+                                <a href="/student/campus?block=${encodeURIComponent(ex.blockName || '')}" class="btn-action-cg" style="text-decoration: none; font-size: 11.5px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                                    <span>View Block</span> &rarr;
+                                </a>
                             </div>
                         </div>
                     `).join('')}
@@ -260,26 +273,50 @@ const Student = {
     },
 
     // 5. Load Student Timetable View
-    async loadTimetable() {
+    async loadTimetable(requestedSection) {
         this.initCommon();
         try {
-            const [profileRes, ttRes] = await Promise.all([
+            // Determine active section from parameter or URL query string
+            const urlParams = new URLSearchParams(window.location.search);
+            let section = requestedSection || urlParams.get('section');
+
+            // 1. Fetch available sections list and profile in parallel
+            const [profileRes, sectionsRes] = await Promise.all([
                 Auth.fetchWithAuth('/api/student/profile'),
-                Auth.fetchWithAuth('/api/student/timetable')
+                Auth.fetchWithAuth('/api/student/timetable/sections')
             ]);
             const profileJson = await profileRes.json();
-            const ttJson = await ttRes.json();
+            const sectionsJson = await sectionsRes.json();
 
-            if (profileJson.status === 'SUCCESS' && profileJson.data) {
-                const p = profileJson.data;
-                const headerInfo = document.getElementById('timetableHeaderInfo');
-                if (headerInfo) {
-                    headerInfo.textContent = `Cohort: Section ${p.section || 'CSE-A'} • Department of ${p.department || 'Computer Science'} • Year ${p.year || 1}, Semester ${p.semester || 1}`;
-                }
+            const profile = (profileJson.status === 'SUCCESS' && profileJson.data) ? profileJson.data : {};
+            let availableSections = (sectionsJson.status === 'SUCCESS' && Array.isArray(sectionsJson.data))
+                ? sectionsJson.data
+                : ['CSE-A', 'CSE-B', 'AI-DS-A', 'AI-DS-B'];
+
+            if (!section) {
+                section = profile.section || (availableSections.length > 0 ? availableSections[0] : 'CSE-A');
+            }
+            this.activeTimetableSection = section;
+
+            // Populate Section Dropdown
+            const secSelector = document.getElementById('sectionSelector');
+            if (secSelector) {
+                secSelector.innerHTML = availableSections.map(s => `
+                    <option value="${escapeHtml(s)}" ${s === section ? 'selected' : ''}>${escapeHtml(s)}</option>
+                `).join('');
             }
 
+            // Update Header Info
+            const headerInfo = document.getElementById('timetableHeaderInfo');
+            if (headerInfo) {
+                headerInfo.textContent = `Cohort: Section ${section} • Department of ${profile.department || 'Academic Department'} • Year ${profile.year || 1}, Semester ${profile.semester || 1}`;
+            }
+
+            // 2. Fetch Section Timetable
+            const ttRes = await Auth.fetchWithAuth(`/api/student/timetable?section=${encodeURIComponent(section)}`);
+            const ttJson = await ttRes.json();
             const entries = (ttJson.status === 'SUCCESS' && Array.isArray(ttJson.data)) ? ttJson.data : [];
-            this.renderTimetableEntries(entries);
+            this.renderTimetableEntries(entries, section);
 
         } catch (err) {
             console.error('Failed to load student timetable:', err);
@@ -287,7 +324,15 @@ const Student = {
         }
     },
 
-    renderTimetableEntries(entries) {
+    changeTimetableSection(section) {
+        if (!section) return;
+        const url = new URL(window.location);
+        url.searchParams.set('section', section);
+        window.history.replaceState(null, '', url);
+        this.loadTimetable(section);
+    },
+
+    renderTimetableEntries(entries, sectionName) {
         const container = document.getElementById('timetableEntriesContainer');
         if (!container) return;
 
@@ -300,9 +345,9 @@ const Student = {
                         <line x1="8" y1="2" x2="8" y2="6"></line>
                         <line x1="3" y1="10" x2="21" y2="10"></line>
                     </svg>
-                    <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black); margin-bottom: 6px;">No Timetable Published for Current Session</div>
+                    <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black); margin-bottom: 6px;">No Timetable Published for Section ${escapeHtml(sectionName || '')}</div>
                     <div style="font-size: 13px; color: var(--cg-text-muted); max-width: 480px; margin: 0 auto 16px;">
-                        The academic timetable for your section is currently being prepared by the administration. Once published, your daily lecture schedules, laboratory slots, and room locations will automatically appear here.
+                        The academic timetable for section <strong>${escapeHtml(sectionName || '')}</strong> is currently being prepared by the administration. Select another section from the dropdown above or check back later.
                     </div>
                     <a href="/student/campus" class="btn-cg-outline" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
                         <span>Explore Campus Rooms</span> &rarr;
@@ -321,7 +366,9 @@ const Student = {
                             <th>Day</th>
                             <th>Time Slot</th>
                             <th>Subject</th>
+                            <th>Section</th>
                             <th>Room Location</th>
+                            <th>Campus Block</th>
                             <th>Faculty</th>
                             <th>Status</th>
                         </tr>
@@ -336,8 +383,15 @@ const Student = {
                                     <div style="font-size: 11px; color: var(--cg-text-muted);">${escapeHtml(e.subjectCode || '')}</div>
                                 </td>
                                 <td>
+                                    <span style="font-weight: 600; padding: 2px 7px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-size: 11.5px;">${escapeHtml(e.sectionName || sectionName || 'CSE-A')}</span>
+                                </td>
+                                <td>
                                     <span style="font-weight: 600; padding: 2px 7px; background: #F1F5F9; border-radius: 4px;">${escapeHtml(e.roomCode)}</span>
-                                    <span style="font-size: 11px; color: var(--cg-text-muted); margin-left: 4px;">(${escapeHtml(e.blockName || '')})</span>
+                                </td>
+                                <td>
+                                    <a href="/student/campus?block=${encodeURIComponent(e.blockName || '')}" style="color: var(--cg-primary-blue); text-decoration: none; font-weight: 500;" title="View Block in Campus Explorer">
+                                        ${escapeHtml(e.blockName || '')} &rarr;
+                                    </a>
                                 </td>
                                 <td>${escapeHtml(e.facultyName || 'TBA')}</td>
                                 <td><span class="badge-cg badge-active">${escapeHtml(e.status || 'ACTIVE')}</span></td>
@@ -350,26 +404,50 @@ const Student = {
     },
 
     // 6. Load Student Examinations & Seating View
-    async loadExaminations() {
+    async loadExaminations(requestedSection) {
         this.initCommon();
         try {
-            const [profileRes, examRes] = await Promise.all([
+            // Determine active section from parameter or URL query string
+            const urlParams = new URLSearchParams(window.location.search);
+            let section = requestedSection || urlParams.get('section');
+
+            // 1. Fetch available sections & profile in parallel
+            const [profileRes, sectionsRes] = await Promise.all([
                 Auth.fetchWithAuth('/api/student/profile'),
-                Auth.fetchWithAuth('/api/student/examinations')
+                Auth.fetchWithAuth('/api/student/examinations/sections')
             ]);
             const profileJson = await profileRes.json();
-            const examJson = await examRes.json();
+            const sectionsJson = await sectionsRes.json();
 
-            if (profileJson.status === 'SUCCESS' && profileJson.data) {
-                const p = profileJson.data;
-                const headerInfo = document.getElementById('examHeaderInfo');
-                if (headerInfo) {
-                    headerInfo.textContent = `Candidate: ${p.fullName} • Roll Number: ${p.specificId} • ${p.department || 'Computer Science'}`;
-                }
+            const profile = (profileJson.status === 'SUCCESS' && profileJson.data) ? profileJson.data : {};
+            let availableSections = (sectionsJson.status === 'SUCCESS' && Array.isArray(sectionsJson.data))
+                ? sectionsJson.data
+                : ['CSE-A', 'CSE-B', 'AI-DS-A', 'AI-DS-B'];
+
+            if (!section) {
+                section = profile.section || (availableSections.length > 0 ? availableSections[0] : 'CSE-A');
+            }
+            this.activeExamSection = section;
+
+            // Populate Section Dropdown
+            const secSelector = document.getElementById('examSectionSelector');
+            if (secSelector) {
+                secSelector.innerHTML = availableSections.map(s => `
+                    <option value="${escapeHtml(s)}" ${s === section ? 'selected' : ''}>${escapeHtml(s)}</option>
+                `).join('');
             }
 
+            // Update Header Info
+            const headerInfo = document.getElementById('examHeaderInfo');
+            if (headerInfo) {
+                headerInfo.textContent = `Candidate: ${profile.fullName || 'Student'} • Section: ${section} • Roll Number: ${profile.specificId || 'N/A'} • ${profile.department || 'Academic Department'}`;
+            }
+
+            // 2. Fetch Section Examinations
+            const examRes = await Auth.fetchWithAuth(`/api/student/examinations?section=${encodeURIComponent(section)}`);
+            const examJson = await examRes.json();
             const exams = (examJson.status === 'SUCCESS' && Array.isArray(examJson.data)) ? examJson.data : [];
-            this.renderExaminations(exams);
+            this.renderExaminations(exams, section);
 
         } catch (err) {
             console.error('Failed to load examinations:', err);
@@ -377,7 +455,15 @@ const Student = {
         }
     },
 
-    renderExaminations(exams) {
+    changeExamSection(section) {
+        if (!section) return;
+        const url = new URL(window.location);
+        url.searchParams.set('section', section);
+        window.history.replaceState(null, '', url);
+        this.loadExaminations(section);
+    },
+
+    renderExaminations(exams, sectionName) {
         const container = document.getElementById('examinationsContainer');
         if (!container) return;
 
@@ -389,9 +475,9 @@ const Student = {
                         <circle cx="12" cy="12" r="6"></circle>
                         <circle cx="12" cy="12" r="2"></circle>
                     </svg>
-                    <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black); margin-bottom: 6px;">No Active Examination Seating Allocations</div>
+                    <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black); margin-bottom: 6px;">No Examinations Scheduled for Section ${escapeHtml(sectionName || '')}</div>
                     <div style="font-size: 13px; color: var(--cg-text-muted); max-width: 480px; margin: 0 auto 16px;">
-                        You currently have no examination schedules or assigned examination hall seats for this semester. When the examination cell publishes seat allotments, your physical seat number, examination block, and room details will be visible here.
+                        There are no upcoming examinations or assigned hall seatings recorded for section <strong>${escapeHtml(sectionName || '')}</strong>. Please select another section from the dropdown above.
                     </div>
                     <div style="padding: 12px 16px; background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-sm); display: inline-block; font-size: 12px; color: var(--cg-text-secondary); text-align: left;">
                         🔒 <strong>Institutional Seating Policy:</strong> Examination seat allocations are strictly individual and tamper-proof. Each student must occupy only their officially designated desk.
@@ -406,21 +492,24 @@ const Student = {
             <div style="display: grid; gap: 16px;">
                 ${exams.map(e => `
                     <div class="table-card" style="padding: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                             <div>
-                                <h3 style="font-size: 16px; font-weight: 700; color: var(--cg-brand-black); margin-bottom: 2px;">${escapeHtml(e.courseName)}</h3>
-                                <div style="font-size: 12px; color: var(--cg-text-muted);">${escapeHtml(e.examName)} &bull; Course Code: <strong>${escapeHtml(e.courseCode)}</strong></div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <h3 style="font-size: 16px; font-weight: 700; color: var(--cg-brand-black); margin-bottom: 0;">${escapeHtml(e.courseName)}</h3>
+                                    <span style="padding: 2px 8px; background: #E0E7FF; color: #3730A3; border-radius: 4px; font-size: 11.5px; font-weight: 600;">Section ${escapeHtml(e.sectionName || sectionName || '')}</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--cg-text-muted); margin-top: 4px;">${escapeHtml(e.examName)} &bull; Course Code: <strong>${escapeHtml(e.courseCode)}</strong></div>
                             </div>
                             <span class="badge-cg badge-active">${escapeHtml(e.status || 'CONFIRMED')}</span>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding: 14px; background: #F8FAFC; border-radius: var(--cg-radius-sm); border: 1px solid var(--cg-border); margin-bottom: 12px;">
                             <div>
-                                <div style="font-size: 11px; color: var(--cg-text-muted); font-weight: 600;">DATE & TIME</div>
-                                <div style="font-weight: 600; font-size: 13px;">${escapeHtml(e.examDate)}</div>
+                                <div style="font-size: 11px; color: var(--cg-text-muted); font-weight: 600;">EXAM DATE &amp; TIME</div>
+                                <div style="font-weight: 600; font-size: 13px;">📅 ${escapeHtml(e.examDate)}</div>
                                 <div style="font-size: 11.5px; color: var(--cg-text-muted);">${escapeHtml(e.startTime)} - ${escapeHtml(e.endTime)}</div>
                             </div>
                             <div>
-                                <div style="font-size: 11px; color: var(--cg-text-muted); font-weight: 600;">EXAM HALL</div>
+                                <div style="font-size: 11px; color: var(--cg-text-muted); font-weight: 600;">EXAMINATION VENUE</div>
                                 <div style="font-weight: 700; font-size: 14px; color: var(--cg-brand-black);">${escapeHtml(e.roomCode)}</div>
                                 <div style="font-size: 11.5px; color: var(--cg-text-muted);">${escapeHtml(e.blockName || '')}</div>
                             </div>
@@ -429,7 +518,15 @@ const Student = {
                                 <div style="font-weight: 800; font-size: 20px; color: var(--cg-primary-blue);">${escapeHtml(e.seatNumber || 'Unassigned')}</div>
                             </div>
                         </div>
-                        ${e.instructions ? `<div style="font-size: 11.5px; color: var(--cg-text-muted); line-height: 1.45;">📌 Instructions: ${escapeHtml(e.instructions)}</div>` : ''}
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div style="font-size: 11.5px; color: var(--cg-text-muted); line-height: 1.45;">
+                                ${e.instructions ? `📌 <strong>Instructions:</strong> ${escapeHtml(e.instructions)}` : '📌 Report 15 minutes before exam commencement with institutional ID.'}
+                            </div>
+                            <a href="/student/campus?block=${encodeURIComponent(e.blockName || '')}" class="btn-action-cg" style="text-decoration: none; font-size: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                                <span>View Block</span> &rarr;
+                            </a>
+                        </div>
                     </div>
                 `).join('')}
             </div>
@@ -450,11 +547,11 @@ const Student = {
             if (treeJson.status === 'SUCCESS' && Array.isArray(treeJson.data)) {
                 this.campusTree = treeJson.data;
                 this.populateFilterDropdowns(this.campusTree);
+                this.renderCampusBlocks(this.campusTree);
             }
 
             if (roomsJson.status === 'SUCCESS' && Array.isArray(roomsJson.data)) {
                 this.allRooms = roomsJson.data;
-                this.renderRoomsDirectory(this.allRooms);
             }
 
             // Setup search and filter listeners
@@ -468,7 +565,44 @@ const Student = {
             }
             const campusFilter = document.getElementById('campusFilter');
             if (campusFilter) {
-                campusFilter.addEventListener('change', () => this.filterRoomsDirectory());
+                campusFilter.addEventListener('change', (e) => {
+                    const blockId = e.target.value;
+                    if (blockId) {
+                        this.selectBlock(blockId, false);
+                    } else {
+                        this.clearBlockFilter();
+                    }
+                });
+            }
+
+            // Check URL parameters for direct deep linking (e.g. ?block=Block+A or ?blockId=1)
+            const urlParams = new URLSearchParams(window.location.search);
+            const blockParam = urlParams.get('block');
+            const blockIdParam = urlParams.get('blockId');
+
+            let matchedBlockId = null;
+            if (blockIdParam) {
+                matchedBlockId = blockIdParam;
+            } else if (blockParam && this.campusTree) {
+                const normParam = blockParam.trim().toLowerCase();
+                for (const campus of this.campusTree) {
+                    for (const b of (campus.blocks || [])) {
+                        if (b.name.toLowerCase() === normParam ||
+                            (b.code && b.code.toLowerCase() === normParam) ||
+                            b.name.toLowerCase().includes(normParam) ||
+                            normParam.includes(b.name.toLowerCase())) {
+                            matchedBlockId = b.id;
+                            break;
+                        }
+                    }
+                    if (matchedBlockId) break;
+                }
+            }
+
+            if (matchedBlockId) {
+                this.selectBlock(matchedBlockId, false);
+            } else {
+                this.renderRoomsDirectory(this.allRooms);
             }
 
         } catch (err) {
@@ -480,27 +614,184 @@ const Student = {
     populateFilterDropdowns(tree) {
         const campusFilter = document.getElementById('campusFilter');
         if (campusFilter) {
-            campusFilter.innerHTML = '<option value="">All Campuses & Blocks</option>' +
+            campusFilter.innerHTML = '<option value="">All Campuses &amp; Blocks</option>' +
                 tree.map(c => `
                     <optgroup label="${escapeHtml(c.name)}">
-                        ${c.blocks.map(b => `<option value="${b.id}">${escapeHtml(b.name)}</option>`).join('')}
+                        ${(c.blocks || []).map(b => `<option value="${b.id}">${escapeHtml(b.name)} (${escapeHtml(b.code || '')})</option>`).join('')}
                     </optgroup>
                 `).join('');
         }
     },
 
+    renderCampusBlocks(tree) {
+        const container = document.getElementById('campusBlocksContainer');
+        if (!container) return;
+
+        if (!tree || tree.length === 0) {
+            container.innerHTML = '<div style="padding: 20px; color: var(--cg-text-muted);">No campus blocks available.</div>';
+            return;
+        }
+
+        const blocks = [];
+        tree.forEach(campus => {
+            (campus.blocks || []).forEach(b => {
+                let totalRooms = 0;
+                let roomTypesSet = new Set();
+                let floorsCount = (b.floors || []).length;
+                let totalCapacity = 0;
+
+                (b.floors || []).forEach(f => {
+                    const rList = f.rooms || [];
+                    totalRooms += (rList.length > 0 ? rList.length : (f.roomCount || 0));
+                    rList.forEach(r => {
+                        if (r.roomType) roomTypesSet.add(r.roomType);
+                        if (r.capacity) totalCapacity += r.capacity;
+                    });
+                });
+
+                blocks.push({
+                    id: b.id,
+                    name: b.name,
+                    code: b.code,
+                    description: b.description || 'Academic Department & Laboratories',
+                    campusName: campus.name,
+                    totalRooms,
+                    floorsCount,
+                    totalCapacity,
+                    roomTypes: Array.from(roomTypesSet)
+                });
+            });
+        });
+
+        if (blocks.length === 0) {
+            container.innerHTML = '<div style="padding: 20px; color: var(--cg-text-muted);">No campus blocks found.</div>';
+            return;
+        }
+
+        container.innerHTML = blocks.map(b => {
+            const isSelected = this.selectedBlockId && String(this.selectedBlockId) === String(b.id);
+            const activeClass = isSelected ? 'block-card-cg active' : 'block-card-cg';
+
+            return `
+                <div class="${activeClass}" data-block-id="${b.id}" data-block-name="${escapeHtml(b.name)}" onclick="Student.selectBlock(${b.id}, true)"
+                    style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                            <div style="font-weight: 700; font-size: 15px; color: var(--cg-brand-black);">${escapeHtml(b.name)}</div>
+                            <span class="badge-cg" style="font-size: 10.5px; background: #F1F5F9; color: var(--cg-text-secondary); font-weight: 600;">${escapeHtml(b.code || '')}</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--cg-primary-blue); font-weight: 600; margin-bottom: 8px;">
+                            ${escapeHtml(b.description)}
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--cg-text-secondary); line-height: 1.5; margin-bottom: 10px;">
+                            🏛️ ${escapeHtml(b.campusName)}<br>
+                            🏢 ${b.floorsCount} ${b.floorsCount === 1 ? 'Floor' : 'Floors'} &bull; 🚪 ${b.totalRooms} Rooms
+                        </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px;">
+                            ${b.roomTypes.length > 0
+                                ? b.roomTypes.map(rt => `<span style="font-size: 10px; padding: 2px 6px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 3px; color: var(--cg-text-muted);">${escapeHtml(rt)}</span>`).join('')
+                                : '<span style="font-size: 10px; color: var(--cg-text-muted);">Classrooms &amp; Labs</span>'
+                            }
+                        </div>
+                        <div style="border-top: 1px solid ${isSelected ? '#BFDBFE' : 'var(--cg-border)'}; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 11.5px;">
+                            <span style="font-weight: 600; color: ${isSelected ? 'var(--cg-primary-blue)' : 'var(--cg-text-secondary)'};">
+                                ${isSelected ? '✓ Selected Block' : 'Click to View Rooms'}
+                            </span>
+                            <span style="color: ${isSelected ? 'var(--cg-primary-blue)' : 'var(--cg-text-muted)'};">&rarr;</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+
+    selectBlock(blockId, shouldScroll) {
+        this.selectedBlockId = blockId;
+
+        // Sync dropdown
+        const campusFilter = document.getElementById('campusFilter');
+        if (campusFilter) {
+            campusFilter.value = blockId ? String(blockId) : '';
+        }
+
+        // Show reset button
+        const resetBtn = document.getElementById('btnResetBlockFilter');
+        if (resetBtn) {
+            resetBtn.style.display = blockId ? 'inline-flex' : 'none';
+        }
+
+        // Re-render blocks cards to reflect active selection
+        if (this.campusTree && this.campusTree.length > 0) {
+            this.renderCampusBlocks(this.campusTree);
+        }
+
+        // Filter rooms list
+        this.filterRoomsDirectory();
+
+        // Optional smooth scroll to rooms list
+        if (shouldScroll) {
+            const tableCard = document.getElementById('roomSearchInput');
+            if (tableCard) {
+                tableCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    },
+
+    clearBlockFilter() {
+        this.selectedBlockId = null;
+
+        const campusFilter = document.getElementById('campusFilter');
+        if (campusFilter) {
+            campusFilter.value = '';
+        }
+
+        const resetBtn = document.getElementById('btnResetBlockFilter');
+        if (resetBtn) {
+            resetBtn.style.display = 'none';
+        }
+
+        const searchInput = document.getElementById('roomSearchInput');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+
+        const typeFilter = document.getElementById('roomTypeFilter');
+        if (typeFilter) {
+            typeFilter.value = '';
+        }
+
+        // Clear URL search params
+        if (window.history.replaceState) {
+            const url = new URL(window.location);
+            url.searchParams.delete('block');
+            url.searchParams.delete('blockId');
+            window.history.replaceState(null, '', url);
+        }
+
+        if (this.campusTree && this.campusTree.length > 0) {
+            this.renderCampusBlocks(this.campusTree);
+        }
+
+        this.filterRoomsDirectory();
+    },
+
     filterRoomsDirectory() {
         const query = (document.getElementById('roomSearchInput')?.value || '').toLowerCase().trim();
         const type = document.getElementById('roomTypeFilter')?.value || '';
-        const blockId = document.getElementById('campusFilter')?.value || '';
+        const dropdownBlockId = document.getElementById('campusFilter')?.value || '';
+        const activeBlockId = this.selectedBlockId || dropdownBlockId;
 
         const filtered = this.allRooms.filter(r => {
             const matchQuery = !query ||
                 (r.roomNumber && r.roomNumber.toLowerCase().includes(query)) ||
+                (r.roomCode && r.roomCode.toLowerCase().includes(query)) ||
                 (r.displayName && r.displayName.toLowerCase().includes(query)) ||
+                (r.roomName && r.roomName.toLowerCase().includes(query)) ||
                 (r.blockName && r.blockName.toLowerCase().includes(query));
             const matchType = !type || r.roomType === type;
-            const matchBlock = !blockId || (r.blockId && String(r.blockId) === String(blockId));
+            const matchBlock = !activeBlockId || (r.blockId && String(r.blockId) === String(activeBlockId));
             return matchQuery && matchType && matchBlock;
         });
 
@@ -526,30 +817,34 @@ const Student = {
 
         container.innerHTML = `
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px;">
-                ${rooms.map(r => `
-                    <div class="table-card" style="padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                                <div>
-                                    <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black);">${escapeHtml(r.roomNumber)}</div>
-                                    <div style="font-size: 12px; color: var(--cg-text-muted);">${escapeHtml(r.displayName || r.roomNumber)}</div>
+                ${rooms.map(r => {
+                    const code = r.roomCode || r.roomNumber || 'Room';
+                    const name = r.roomName || r.displayName || code;
+                    return `
+                        <div class="table-card" style="padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 16px; color: var(--cg-brand-black);">${escapeHtml(code)}</div>
+                                        <div style="font-size: 12px; color: var(--cg-text-muted);">${escapeHtml(name)}</div>
+                                    </div>
+                                    <span class="badge-cg badge-active">${escapeHtml(r.roomType || 'CLASSROOM')}</span>
                                 </div>
-                                <span class="badge-cg badge-active">${escapeHtml(r.roomType || 'CLASSROOM')}</span>
+                                <div style="font-size: 12px; color: var(--cg-text-secondary); margin-bottom: 12px; line-height: 1.5;">
+                                    📍 <strong>${escapeHtml(r.blockName || 'Academic Block')}</strong> &bull; ${escapeHtml(r.floorName || 'Floor 1')}<br>
+                                    👥 Capacity: <strong>${r.capacity} seats</strong>
+                                </div>
                             </div>
-                            <div style="font-size: 12px; color: var(--cg-text-secondary); margin-bottom: 12px; line-height: 1.5;">
-                                📍 <strong>${escapeHtml(r.blockName || 'Main Block')}</strong> &bull; ${escapeHtml(r.floorName || 'Floor 1')}<br>
-                                👥 Capacity: <strong>${r.capacity} seats</strong>
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--cg-border); padding-top: 12px; margin-top: 6px;">
+                                <span style="font-size: 11px; color: var(--cg-success); font-weight: 600;">${escapeHtml(r.status || 'AVAILABLE')}</span>
+                                <button class="btn-action-cg" onclick="Student.viewRoomSeatingGrid(${r.id}, '${escapeHtml(code)}')">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                                    <span>View Seating Layout</span>
+                                </button>
                             </div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--cg-border); padding-top: 12px; margin-top: 6px;">
-                            <span style="font-size: 11px; color: var(--cg-success); font-weight: 600;">${escapeHtml(r.status || 'AVAILABLE')}</span>
-                            <button class="btn-action-cg" onclick="Student.viewRoomSeatingGrid(${r.id}, '${escapeHtml(r.roomNumber)}')">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                                <span>View Seating Layout</span>
-                            </button>
-                        </div>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         `;
     },

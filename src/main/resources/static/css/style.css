@@ -1116,3 +1116,29 @@ input[type="checkbox"] {
     border: 1px solid var(--cg-border);
 }
 
+/* ==========================================================================
+   Campus Academic Blocks & Explorer Styling
+   ========================================================================== */
+.block-card-cg {
+    background: #FFFFFF;
+    border: 1px solid var(--cg-border);
+    border-radius: var(--cg-radius-md);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    box-shadow: var(--cg-shadow-xs);
+}
+
+.block-card-cg:hover {
+    border-color: #93C5FD;
+    transform: translateY(-2px);
+    box-shadow: var(--cg-shadow-md);
+}
+
+.block-card-cg.active {
+    border-color: var(--cg-primary-blue);
+    background: var(--cg-primary-blue-soft);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
