@@ -81,6 +81,22 @@
                     </svg>
                     <span>Examinations</span>
                 </a>
+                <div class="sidebar-category">System</div>
+                <a href="#" onclick="openNotificationCenter(); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span>Notifications</span>
+                </a>
+                <a href="#" onclick="openSystemReports(); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span>Reports</span>
+                </a>
             </div>
         </aside>
 
@@ -219,6 +235,7 @@
             <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--cg-border); padding-bottom: 8px;">
                 <button class="tab-btn active" id="tabListView" onclick="switchTimetableView('list')">All Schedule Entries</button>
                 <button class="tab-btn" id="tabGroupView" onclick="switchTimetableView('group')">Cohort Grid (CSE-A)</button>
+                <button class="tab-btn" id="tabSubjectsView" onclick="switchTimetableView('subjects')">Sections &amp; Subjects (Module 3)</button>
             </div>
 
             <!-- Main Timetable Content Container -->
@@ -441,8 +458,58 @@
         </div>
     </div>
 
+    <!-- Modal: Create Academic Subject (Module 3) -->
+    <div class="modal-cg" id="modalCreateSubject">
+        <div class="modal-box-cg" style="max-width: 480px;">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px; color: var="--cg-brand-black";">Add Academic Subject (Module 3)</div>
+                <button class="btn-action-cg" style="border:none; padding:4px 6px;" onclick="closeModal('modalCreateSubject')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body-cg">
+                <form id="createSubjectForm" onsubmit="submitNewSubject(event)">
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Subject Code *</label>
+                        <input type="text" id="newSubjCode" class="input-cg" required placeholder="e.g. CS307" style="text-transform: uppercase;">
+                    </div>
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Subject Name / Course Title *</label>
+                        <input type="text" id="newSubjName" class="input-cg" required placeholder="e.g. Web Technologies & Frameworks">
+                    </div>
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Department *</label>
+                        <input type="text" id="newSubjDept" class="input-cg" required placeholder="e.g. Computer Science">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group-cg">
+                            <label class="form-label-cg">Subject Type *</label>
+                            <select id="newSubjType" class="input-cg">
+                                <option value="THEORY">Theory</option>
+                                <option value="PRACTICAL">Practical / Lab</option>
+                            </select>
+                        </div>
+                        <div class="form-group-cg">
+                            <label class="form-label-cg">Semester (1 - 8) *</label>
+                            <input type="number" id="newSubjSem" class="input-cg" min="1" max="8" value="3" required>
+                        </div>
+                    </div>
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Academic Credits (1 - 6) *</label>
+                        <input type="number" id="newSubjCredits" class="input-cg" min="1" max="6" value="4" required>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('modalCreateSubject')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Subject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="/js/auth.js"></script>
+    <script src="/js/system-tools.js"></script>
     <script src="/js/timetable-management.js"></script>
 </body>
 </html>

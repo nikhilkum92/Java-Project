@@ -44,6 +44,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 4. Attach Event Listeners
     setupFilterListeners();
+
+    // 5. Check if direct navigation to subjects tab requested
+    if (window.location.search.includes('tab=subjects') || window.location.hash === '#subjects') {
+        switchTimetableView('subjects');
+    }
 });
 
 async function loadInitialMetadata() {
@@ -340,6 +345,14 @@ function switchTimetableView(view) {
     currentView = view;
     document.getElementById('tabListView')?.classList.toggle('active', view === 'list');
     document.getElementById('tabGroupView')?.classList.toggle('active', view === 'group');
+    document.getElementById('tabSubjectsView')?.classList.toggle('active', view === 'subjects');
+    document.getElementById('sideLinkTimetable')?.classList.toggle('active', view !== 'subjects');
+    document.getElementById('sideLinkSubjects')?.classList.toggle('active', view === 'subjects');
+
+    if (view === 'subjects') {
+        renderSubjectsView();
+        return;
+    }
 
     if (view === 'list') {
         const area = document.getElementById('timetableContentArea');
@@ -647,4 +660,106 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+
+// =========================================================================
+// MODULE 3: SUBJECTS & SECTIONS MANAGEMENT
+// =========================================================================
+
+function renderSubjectsView() {
+    const area = document.getElementById('timetableContentArea');
+    if (!area) return;
+
+    area.innerHTML = `
+        <div class="table-card" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--cg-brand-black); margin-bottom: 4px;">Academic Subjects &amp; Course Directory (Module 3)</h3>
+                    <div style="font-size: 12.5px; color: var(--cg-text-secondary);">Active accredited courses, theory modules, and laboratory practicums</div>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="openCreateSubjectModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Add New Subject</span>
+                    </button>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="table-cg">
+                    <thead>
+                        <tr>
+                            <th>Subject Code</th>
+                            <th>Course Title</th>
+                            <th>Department</th>
+                            <th>Type</th>
+                            <th>Semester</th>
+                            <th>Credits</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subjectsTableBody">
+                        ${allSubjects.map(s => `
+                            <tr>
+                                <td><span style="font-weight: 700; font-family: monospace; padding: 2px 8px; background: #F1F5F9; border-radius: 4px;">${escapeHtml(s.subjectCode)}</span></td>
+                                <td><div style="font-weight: 600; color: var(--cg-text-primary);">${escapeHtml(s.subjectName)}</div></td>
+                                <td>${escapeHtml(s.department)}</td>
+                                <td><span class="badge-cg ${s.subjectType === 'PRACTICAL' ? 'badge-active' : 'badge-neutral'}" style="font-size: 11px;">${escapeHtml(s.subjectType)}</span></td>
+                                <td>Semester ${s.semester}</td>
+                                <td><strong>${s.credits}</strong> credits</td>
+                                <td><span class="badge-cg badge-active">Active Accredited</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function openCreateSubjectModal() {
+    const modal = document.getElementById('modalCreateSubject');
+    if (modal) modal.classList.add('show');
+}
+
+async function submitNewSubject(event) {
+    event.preventDefault();
+
+    const payload = {
+        subjectCode: document.getElementById('newSubjCode').value.trim().toUpperCase(),
+        subjectName: document.getElementById('newSubjName').value.trim(),
+        department: document.getElementById('newSubjDept').value.trim(),
+        subjectType: document.getElementById('newSubjType').value,
+        semester: parseInt(document.getElementById('newSubjSem').value),
+        credits: parseInt(document.getElementById('newSubjCredits').value)
+    };
+
+    try {
+        const res = await Auth.fetchWithAuth('/api/admin/subjects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const json = await res.json();
+        if (json.status === 'SUCCESS') {
+            closeModal('modalCreateSubject');
+            document.getElementById('createSubjectForm').reset();
+            
+            // Reload subjects
+            const subjRes = await Auth.fetchWithAuth('/api/admin/subjects');
+            const subjJson = await subjRes.json();
+            if (subjJson.status === 'SUCCESS' && Array.isArray(subjJson.data)) {
+                allSubjects = subjJson.data;
+                populateSubjectSelect(allSubjects);
+            }
+            renderSubjectsView();
+            alert('Subject added successfully!');
+        } else {
+            alert('Failed to add subject: ' + json.message);
+        }
+    } catch (err) {
+        alert('Error adding subject: ' + err.message);
+    }
 }

@@ -61,7 +61,7 @@
                     </svg>
                     <span>User Management</span>
                 </a>
-                <a href="#" onclick="alert('Module 3 will activate this page.'); return false;" class="sidebar-link">
+                <a href="/admin/timetable?tab=subjects" class="sidebar-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
@@ -99,14 +99,14 @@
                 </a>
 
                 <div class="sidebar-category">System</div>
-                <a href="#" onclick="alert('Notification Center will be enabled in Module 5.'); return false;" class="sidebar-link">
+                <a href="#" onclick="openNotificationCenter(); return false;" class="sidebar-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                     </svg>
                     <span>Notifications</span>
                 </a>
-                <a href="#" onclick="alert('Reports will be enabled in Module 5.'); return false;" class="sidebar-link">
+                <a href="#" onclick="openSystemReports(); return false;" class="sidebar-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="20" x2="18" y2="10"></line>
                         <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -657,6 +657,7 @@
     </div>
 
     <script src="/js/auth.js"></script>
+    <script src="/js/system-tools.js"></script>
     <script src="/js/user-management.js"></script>
 
 </body>

@@ -306,6 +306,16 @@ public class TimetableService {
     }
 
     /**
+     * Timetable schedule for a faculty member looked up by their user account ID.
+     */
+    @Transactional(readOnly = true)
+    public List<TimetableEntryDto> getTimetableByFacultyUserId(Long userId) {
+        return facultyRepository.findByUserId(userId)
+                .map(f -> getTimetableByFaculty(f.getId()))
+                .orElse(Collections.emptyList());
+    }
+
+    /**
      * Timetable schedule for a specific student cohort (department + section).
      */
     @Transactional(readOnly = true)

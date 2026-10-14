@@ -100,4 +100,15 @@ public class TimetableDirectoryController {
                     .body(ApiResponse.error(e.getMessage()));
         }
     }
+
+    @GetMapping("/my-schedule")
+    public ResponseEntity<ApiResponse<List<TimetableEntryDto>>> getMySchedule(HttpServletRequest request) {
+        if (!isAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required to access schedule."));
+        }
+        Long userId = (Long) request.getAttribute("authenticatedUserId");
+        List<TimetableEntryDto> schedule = timetableService.getTimetableByFacultyUserId(userId);
+        return ResponseEntity.ok(ApiResponse.success(schedule));
+    }
 }
