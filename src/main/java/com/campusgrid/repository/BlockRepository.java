@@ -14,6 +14,8 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 
     boolean existsByCampusIdAndCode(Long campusId, String code);
 
+    boolean existsByCode(String code);
+
     boolean existsByCampusIdAndName(Long campusId, String name);
 
     Optional<Block> findByCampusIdAndCode(Long campusId, String code);
