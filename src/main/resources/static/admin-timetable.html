@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable &amp; Room Allocation — CampusGrid</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/admin/timetable" class="sidebar-brand">
+                <span class="sidebar-brand-pill">CG</span>
+                <span>CampusGrid</span>
+            </a>
+            <div class="sidebar-nav">
+                <div class="sidebar-category">Overview</div>
+                <a href="/admin/dashboard" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="sidebar-category">Campus &amp; Space</div>
+                <a href="/admin/campus" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                    <span>Campus Explorer</span>
+                </a>
+                <a href="/admin/rooms" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Rooms</span>
+                </a>
+                <a href="/admin/seating" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    <span>Seat Layouts</span>
+                </a>
+
+                <div class="sidebar-category">Academics</div>
+                <a href="/admin/users" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>User Management</span>
+                </a>
+                <a href="/admin/timetable" class="sidebar-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>Timetable &amp; Allocation</span>
+                </a>
+
+                <div class="sidebar-category">Examinations</div>
+                <a href="#" onclick="alert('Examination scheduling is managed in Module 4.'); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Examinations</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="input-with-icon" style="width: 320px;">
+                    <span class="input-icon-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" id="timetableSearchInput" class="input-cg" style="height:36px; padding-left:36px;" placeholder="Search subject, section, room, faculty...">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div style="font-size: 12px; font-weight: 500; color: var(--cg-text-muted);" id="currentDateStr"></div>
+                <div class="user-badge" onclick="if(confirm('Log out of CampusGrid?')) Auth.logout();" title="Click to Logout">
+                    <div class="user-avatar" id="topAvatar">A</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; line-height: 1.2;" id="topUserName">Administrator</div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); line-height: 1.2;">Admin &bull; Logout</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-wrapper">
+            <div class="breadcrumb-cg">
+                <span>CampusGrid</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span>Academics</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span style="color: var(--cg-text-primary); font-weight: 600;">Timetable &amp; Room Allocation</span>
+            </div>
+
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                <div>
+                    <h1 class="page-title" style="font-size: 22px; font-weight: 700; color: var(--cg-text-primary);">Academic Timetable &amp; Room Allocation</h1>
+                    <p class="page-subtitle" style="font-size: 13px; color: var(--cg-text-secondary); margin-top: 4px;">
+                        Manage lecture schedules, allocate physical classrooms and laboratories, and prevent scheduling conflicts.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-outline" onclick="openAvailabilityModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span>Check Room Availability</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="openCreateTimetableModal()" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>New Timetable Entry</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Telemetry Metrics Banner -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-label">Total Scheduled Classes</div>
+                    <div class="stat-value" id="metricTotalScheduled">0</div>
+                    <div class="stat-sub">Active recurring slots</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Scheduled Hours / Week</div>
+                    <div class="stat-value" id="metricTotalHours">0 hrs</div>
+                    <div class="stat-sub">Across all departments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Allocated Rooms</div>
+                    <div class="stat-value" style="color: #059669;" id="metricAllocatedRooms">0</div>
+                    <div class="stat-sub">Rooms assigned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending Room Allocation</div>
+                    <div class="stat-value" style="color: #D97706;" id="metricPendingRooms">0</div>
+                    <div class="stat-sub">Slots needing rooms</div>
+                </div>
+            </div>
+
+            <!-- Filter Toolbar -->
+            <div class="table-card" style="padding: 16px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 12px; align-items: flex-end;">
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Day of Week</label>
+                        <select id="filterDayOfWeek" class="input-cg" style="height:36px;">
+                            <option value="">All Days</option>
+                            <option value="MONDAY">Monday</option>
+                            <option value="TUESDAY">Tuesday</option>
+                            <option value="WEDNESDAY">Wednesday</option>
+                            <option value="THURSDAY">Thursday</option>
+                            <option value="FRIDAY">Friday</option>
+                            <option value="SATURDAY">Saturday</option>
+                        </select>
+                    </div>
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Department</label>
+                        <select id="filterDepartment" class="input-cg" style="height:36px;">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Section (Group)</label>
+                        <select id="filterSection" class="input-cg" style="height:36px;">
+                            <option value="">All Sections</option>
+                        </select>
+                    </div>
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Room</label>
+                        <select id="filterRoom" class="input-cg" style="height:36px;">
+                            <option value="">All Rooms</option>
+                        </select>
+                    </div>
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Status</label>
+                        <select id="filterStatus" class="input-cg" style="height:36px;">
+                            <option value="">All Statuses</option>
+                            <option value="SCHEDULED">Scheduled</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" onclick="resetFilters()" style="height:36px; padding: 0 14px;">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Switcher Tabs -->
+            <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--cg-border); padding-bottom: 8px;">
+                <button class="tab-btn active" id="tabListView" onclick="switchTimetableView('list')">All Schedule Entries</button>
+                <button class="tab-btn" id="tabGroupView" onclick="switchTimetableView('group')">Cohort Grid (CSE-A)</button>
+            </div>
+
+            <!-- Main Timetable Content Container -->
+            <div id="timetableContentArea">
+                <div class="table-card">
+                    <div style="overflow-x: auto;">
+                        <table class="table-cg">
+                            <thead>
+                                <tr>
+                                    <th>Day &amp; Time</th>
+                                    <th>Subject</th>
+                                    <th>Cohort</th>
+                                    <th>Assigned Room</th>
+                                    <th>Faculty Member</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timetableTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align:center; padding: 40px; color: var(--cg-text-muted);">
+                                        Loading timetable schedule...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: CREATE TIMETABLE ENTRY -->
+    <!-- ========================================================================= -->
+    <div class="modal-backdrop" id="modalCreateTimetable" style="display:none;">
+        <div class="modal-card" style="max-width: 640px;">
+            <div class="modal-header">
+                <div class="modal-title">New Timetable Entry</div>
+                <button class="btn-close" onclick="closeModal('modalCreateTimetable')">&times;</button>
+            </div>
+            <div id="createAlert" style="display:none; padding:10px 14px; margin: 12px 20px 0; border-radius: var(--cg-radius-md); font-size:12.5px;"></div>
+            <form id="createTimetableForm" onsubmit="handleCreateTimetable(event)" style="padding: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group-cg" style="grid-column: span 2;">
+                        <label class="form-label-cg">Subject *</label>
+                        <select id="createSubject" class="input-cg" required>
+                            <option value="">Select Subject...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Department *</label>
+                        <select id="createDepartment" class="input-cg" required>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Electronics &amp; Communication">Electronics &amp; Communication</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Section (Cohort) *</label>
+                        <select id="createSection" class="input-cg" required>
+                            <option value="CSE-A">CSE-A</option>
+                            <option value="CSE-B">CSE-B</option>
+                            <option value="CSE-C">CSE-C</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Day of Week *</label>
+                        <select id="createDayOfWeek" class="input-cg" required>
+                            <option value="MONDAY">Monday</option>
+                            <option value="TUESDAY">Tuesday</option>
+                            <option value="WEDNESDAY">Wednesday</option>
+                            <option value="THURSDAY">Thursday</option>
+                            <option value="FRIDAY">Friday</option>
+                            <option value="SATURDAY">Saturday</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Class Type *</label>
+                        <select id="createClassType" class="input-cg" required>
+                            <option value="LECTURE">Lecture</option>
+                            <option value="LAB">Laboratory (Practical)</option>
+                            <option value="TUTORIAL">Tutorial</option>
+                            <option value="SEMINAR">Seminar</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Start Time *</label>
+                        <input type="time" id="createStartTime" class="input-cg" value="09:00" required>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">End Time *</label>
+                        <input type="time" id="createEndTime" class="input-cg" value="10:00" required>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Expected Student Count *</label>
+                        <input type="number" id="createCapacity" class="input-cg" value="40" min="1" max="500" required>
+                    </div>
+
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Assign Faculty (Optional)</label>
+                        <select id="createFaculty" class="input-cg">
+                            <option value="">To Be Assigned</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-cg" style="grid-column: span 2;">
+                        <label class="form-label-cg">Assign Room (Optional)</label>
+                        <select id="createRoom" class="input-cg">
+                            <option value="">To Be Assigned (Allocate Later)</option>
+                        </select>
+                        <div style="font-size:11px; color:var(--cg-text-muted); margin-top:4px;">
+                            Only active, compatible rooms with sufficient capacity are available.
+                        </div>
+                    </div>
+
+                    <div class="form-group-cg" style="grid-column: span 2;">
+                        <label class="form-label-cg">Remarks (Optional)</label>
+                        <input type="text" id="createRemarks" class="input-cg" placeholder="e.g. Bring personal laptops, syllabus unit 2">
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 16px 0 0; margin-top: 16px; border-top: 1px solid var(--cg-border); display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalCreateTimetable')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitCreate">Create &amp; Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: ALLOCATE ROOM -->
+    <!-- ========================================================================= -->
+    <div class="modal-backdrop" id="modalAllocateRoom" style="display:none;">
+        <div class="modal-card" style="max-width: 520px;">
+            <div class="modal-header">
+                <div class="modal-title">Allocate Physical Room</div>
+                <button class="btn-close" onclick="closeModal('modalAllocateRoom')">&times;</button>
+            </div>
+            <div id="allocAlert" style="display:none; padding:10px 14px; margin: 12px 20px 0; border-radius: var(--cg-radius-md); font-size:12.5px;"></div>
+            <div style="padding: 20px;">
+                <div style="padding: 12px; background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-sm); margin-bottom: 16px; font-size: 13px;">
+                    <div style="font-weight: 700; color: var(--cg-brand-black);" id="allocSlotHeader">Data Structures (CS301)</div>
+                    <div style="color: var(--cg-text-secondary); margin-top: 2px;" id="allocSlotTime">Monday &bull; 09:00 - 10:00 &bull; Section CSE-A</div>
+                </div>
+
+                <form id="allocateRoomForm" onsubmit="handleAllocateRoomSubmit(event)">
+                    <input type="hidden" id="allocEntryId">
+                    <div class="form-group-cg">
+                        <label class="form-label-cg">Select Physical Room *</label>
+                        <select id="allocRoomSelect" class="input-cg" required>
+                            <option value="">Select Room...</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-footer" style="padding: 16px 0 0; margin-top: 16px; border-top: 1px solid var(--cg-border); display:flex; justify-content:space-between;">
+                        <button type="button" class="btn btn-outline" style="color: #DC2626;" onclick="handleDeallocateCurrentRoom()">Deallocate Room</button>
+                        <div style="display:flex; gap:10px;">
+                            <button type="button" class="btn btn-outline" onclick="closeModal('modalAllocateRoom')">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Confirm Allocation</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: CHECK ROOM AVAILABILITY -->
+    <!-- ========================================================================= -->
+    <div class="modal-backdrop" id="modalAvailability" style="display:none;">
+        <div class="modal-card" style="max-width: 780px;">
+            <div class="modal-header">
+                <div class="modal-title">Physical Room Availability Search</div>
+                <button class="btn-close" onclick="closeModal('modalAvailability')">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 12px; align-items: flex-end; margin-bottom: 16px;">
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Day of Week</label>
+                        <select id="availDayOfWeek" class="input-cg" style="height:36px;">
+                            <option value="MONDAY">Monday</option>
+                            <option value="TUESDAY">Tuesday</option>
+                            <option value="WEDNESDAY">Wednesday</option>
+                            <option value="THURSDAY">Thursday</option>
+                            <option value="FRIDAY">Friday</option>
+                            <option value="SATURDAY">Saturday</option>
+                        </select>
+                    </div>
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Start Time</label>
+                        <input type="time" id="availStartTime" class="input-cg" value="09:00" style="height:36px;">
+                    </div>
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">End Time</label>
+                        <input type="time" id="availEndTime" class="input-cg" value="10:00" style="height:36px;">
+                    </div>
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Min Capacity</label>
+                        <input type="number" id="availMinCapacity" class="input-cg" value="30" min="1" style="height:36px;">
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" onclick="searchAvailableRooms()" style="height:36px; padding: 0 16px;">Search</button>
+                    </div>
+                </div>
+
+                <div id="availResultsContainer" style="max-height: 380px; overflow-y: auto; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md);">
+                    <div style="text-align: center; padding: 40px; color: var(--cg-text-muted);">
+                        Select desired time interval and click Search to query persisted unreserved rooms.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/timetable-management.js"></script>
+</body>
+</html>
