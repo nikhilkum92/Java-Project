@@ -67,15 +67,21 @@ public class CampusTreeDto {
         private Long id;
         private String name;
         private String code;
+        private String description;
         private List<FloorTreeDto> floors = new ArrayList<>();
 
         public BlockTreeDto() {
         }
 
-        public BlockTreeDto(Long id, String name, String code) {
+        public BlockTreeDto(Long id, String name, String code, String description) {
             this.id = id;
             this.name = name;
             this.code = code;
+            this.description = description;
+        }
+
+        public BlockTreeDto(Long id, String name, String code) {
+            this(id, name, code, null);
         }
 
         public Long getId() {
@@ -100,6 +106,14 @@ public class CampusTreeDto {
 
         public void setCode(String code) {
             this.code = code;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
         }
 
         public List<FloorTreeDto> getFloors() {

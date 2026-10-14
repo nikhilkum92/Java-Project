@@ -36,6 +36,10 @@ public class BlockDto {
         this(id, campusId, campusName, name, code, null, active, 0, 0, 0, null);
     }
 
+    public BlockDto(Long id, Long campusId, String campusName, String name, String code, String description, boolean active) {
+        this(id, campusId, campusName, name, code, description, active, 0, 0, 0, null);
+    }
+
     public Long getId() {
         return id;
     }

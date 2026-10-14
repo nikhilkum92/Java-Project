@@ -13,15 +13,17 @@ public class StudentTimetableEntryDto {
     private String roomName;
     private String blockName;
     private String facultyName;
+    private String sectionName;
     private String status;
 
     public StudentTimetableEntryDto() {
     }
 
-    public StudentTimetableEntryDto(Long id, String dayOfWeek, String timeSlot, String startTime, String endTime,
+    public StudentTimetableEntryDto(Long id, String sectionName, String dayOfWeek, String timeSlot, String startTime, String endTime,
                                     String subjectCode, String subjectName, String roomCode, String roomName,
                                     String blockName, String facultyName, String status) {
         this.id = id;
+        this.sectionName = sectionName;
         this.dayOfWeek = dayOfWeek;
         this.timeSlot = timeSlot;
         this.startTime = startTime;
@@ -33,6 +35,12 @@ public class StudentTimetableEntryDto {
         this.blockName = blockName;
         this.facultyName = facultyName;
         this.status = status;
+    }
+
+    public StudentTimetableEntryDto(Long id, String dayOfWeek, String timeSlot, String startTime, String endTime,
+                                    String subjectCode, String subjectName, String roomCode, String roomName,
+                                    String blockName, String facultyName, String status) {
+        this(id, null, dayOfWeek, timeSlot, startTime, endTime, subjectCode, subjectName, roomCode, roomName, blockName, facultyName, status);
     }
 
     public Long getId() {
@@ -121,6 +129,14 @@ public class StudentTimetableEntryDto {
 
     public void setFacultyName(String facultyName) {
         this.facultyName = facultyName;
+    }
+
+    public String getSectionName() {
+        return sectionName;
+    }
+
+    public void setSectionName(String sectionName) {
+        this.sectionName = sectionName;
     }
 
     public String getStatus() {
