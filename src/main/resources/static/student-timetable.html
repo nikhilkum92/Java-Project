@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Timetable — CampusGrid</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/student/dashboard" class="sidebar-brand">
+                <span class="sidebar-brand-pill">CG</span>
+                <span>CampusGrid</span>
+            </a>
+            <div class="sidebar-nav">
+                <div class="sidebar-category">Student Portal</div>
+                <a href="/student/dashboard" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/student/timetable" class="sidebar-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>My Timetable</span>
+                </a>
+                <a href="/student/examinations" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>My Examinations</span>
+                </a>
+                <a href="/student/campus" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                    <span>Campus Explorer</span>
+                </a>
+
+                <div class="sidebar-category">Account</div>
+                <a href="/student/profile" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>My Profile</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Topbar Header -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="input-with-icon" style="width: 100%;">
+                    <span class="input-icon-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" class="global-search-input" placeholder="Search my classes, subjects... (Ctrl+K)">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div style="font-size: 12px; font-weight: 500; color: var(--cg-text-muted);" id="currentDateStr">Sun, 11 Oct 2026</div>
+                <div class="user-badge" onclick="document.getElementById('modalLogoutConfirm').classList.add('show')" title="Click to Logout">
+                    <div class="user-avatar" id="topAvatar">S</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; line-height: 1.2;" id="topUserName">Student</div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); line-height: 1.2;">Student &bull; Logout</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-wrapper">
+            <div class="breadcrumb-cg">
+                <span>CampusGrid</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span>Student Portal</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span style="color: var(--cg-text-primary); font-weight: 600;">My Timetable</span>
+            </div>
+
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Academic Timetable</h1>
+                    <div style="font-size: 13px; color: var(--cg-text-muted); margin-top: 2px;" id="timetableHeaderInfo">
+                        Weekly lecture and laboratory schedule for your enrolled cohort.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="/student/campus" class="btn-cg-outline" style="text-decoration: none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                        <span>Room Locator</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Timetable Entries Container -->
+            <div id="timetableEntriesContainer">
+                <div style="padding: 40px; text-align: center; color: var(--cg-text-muted);">
+                    Loading academic schedule...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Logout Confirmation -->
+    <div class="modal-cg" id="modalLogoutConfirm">
+        <div class="modal-box-cg" style="max-width: 380px;">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px; color: var(--cg-brand-black);">Log out of Student Portal?</div>
+                <button class="btn-action-cg" style="border:none; padding:4px 6px;" onclick="document.getElementById('modalLogoutConfirm').classList.remove('show')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body-cg" style="font-size: 13px; color: var(--cg-text-secondary);">
+                Are you sure you want to end your student session?
+            </div>
+            <div class="modal-footer-cg">
+                <button type="button" class="btn-cg-outline" onclick="document.getElementById('modalLogoutConfirm').classList.remove('show')">Stay Logged In</button>
+                <button type="button" class="btn-cg-primary" style="background: var(--cg-danger); border-color: var(--cg-danger);" onclick="Auth.logout()">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/student.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Student.loadTimetable();
+        });
+    </script>
+</body>
+</html>
