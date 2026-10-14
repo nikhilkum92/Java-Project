@@ -19,10 +19,16 @@ public class StudentService {
 
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
+    private com.campusgrid.repository.TimetableEntryRepository timetableEntryRepository;
 
     public StudentService(UserRepository userRepository, StudentRepository studentRepository) {
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    public void setTimetableEntryRepository(com.campusgrid.repository.TimetableEntryRepository timetableEntryRepository) {
+        this.timetableEntryRepository = timetableEntryRepository;
     }
 
     public Student getStudentByUserId(Long userId) {
@@ -87,9 +93,45 @@ public class StudentService {
 
     public List<StudentTimetableEntryDto> getStudentTimetable(Long userId) {
         Student student = getStudentByUserId(userId);
-        // Timetable persistence (Module 3) is pending integration by the timetable module.
-        // Returns real persisted schedule or an accurate empty collection (never fabricated fake data).
-        return Collections.emptyList();
+        if (timetableEntryRepository == null) {
+            return Collections.emptyList();
+        }
+
+        List<com.campusgrid.model.TimetableEntry> entries = timetableEntryRepository
+                .findByDepartmentAndSectionNameAndActiveTrueOrderByDayOfWeekAscStartTimeAsc(
+                        student.getDepartment(), student.getSectionName()
+                );
+
+        if (entries == null || entries.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<StudentTimetableEntryDto> result = new ArrayList<>();
+        for (var e : entries) {
+            String roomCode = e.getRoom() != null ? e.getRoom().getRoomCode() : "TBA";
+            String roomName = e.getRoom() != null ? e.getRoom().getRoomName() : "To Be Assigned";
+            String blockName = (e.getRoom() != null && e.getRoom().getFloor() != null && e.getRoom().getFloor().getBlock() != null)
+                    ? e.getRoom().getFloor().getBlock().getName() : "";
+            String facultyName = (e.getFaculty() != null && e.getFaculty().getUser() != null)
+                    ? e.getFaculty().getUser().getFullName() : "Faculty TBA";
+
+            StudentTimetableEntryDto dto = new StudentTimetableEntryDto(
+                    e.getId(),
+                    e.getDayOfWeek().name(),
+                    e.getStartTime() + " - " + e.getEndTime(),
+                    e.getStartTime().toString(),
+                    e.getEndTime().toString(),
+                    e.getSubject() != null ? e.getSubject().getSubjectCode() : "",
+                    e.getSubject() != null ? e.getSubject().getSubjectName() : "",
+                    roomCode,
+                    roomName,
+                    blockName,
+                    facultyName,
+                    e.getStatus().name()
+            );
+            result.add(dto);
+        }
+        return result;
     }
 
     public List<StudentExamAllocationDto> getStudentExaminations(Long userId) {

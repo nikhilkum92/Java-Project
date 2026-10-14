@@ -16,13 +16,23 @@ public class CampusGridApplication {
     @Bean
     @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "campusgrid.seeding.enabled", havingValue = "true", matchIfMissing = true)
     public CommandLineRunner initDatabase(
-            org.springframework.beans.factory.ObjectProvider<UserService> userServiceProvider
+            org.springframework.beans.factory.ObjectProvider<UserService> userServiceProvider,
+            org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.SpaceService> spaceServiceProvider,
+            org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.TimetableService> timetableServiceProvider
     ) {
         return args -> {
             try {
                 UserService userService = userServiceProvider.getIfAvailable();
                 if (userService != null) {
                     userService.seedInitialUsers();
+                }
+                com.campusgrid.service.SpaceService spaceService = spaceServiceProvider.getIfAvailable();
+                if (spaceService != null) {
+                    spaceService.seedInitialSpaces();
+                }
+                com.campusgrid.service.TimetableService timetableService = timetableServiceProvider.getIfAvailable();
+                if (timetableService != null) {
+                    timetableService.seedInitialSubjectsAndTimetable();
                 }
                 System.out.println("=================================================");
                 System.out.println(" CampusGrid Platform Initialized Successfully! ");
