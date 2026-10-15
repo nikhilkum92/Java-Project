@@ -44,8 +44,8 @@ CampusGrid enforces strict Role-Based Access Control (RBAC) at the API and servi
 
 ### SRS PDF
 
-You can access the official Software Requirements Specification document here:  
-👉 **[CampusGrid Software Requirements Specification (SRS v1.0 PDF)](./docs/CampusGrid_SRS.pdf)**
+You can access the official Software Requirements Specification (SRS) document here:  
+👉 **[Project SRS (Google Drive)](https://drive.google.com/file/d/19gzBiHBor-abgMxAQIs0FBi7UxTkP4Ya/view?usp=drive_link)** *(or view the [Repository PDF](./docs/CampusGrid_SRS.pdf))*
 
 ---
 
