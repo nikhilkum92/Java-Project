@@ -559,3 +559,234 @@ Features cohort filtering, student & faculty credentials directory, active statu
 Features multi-filter scheduling matrix, room conflict checks, recurring lecture slot assignment, and faculty workload distribution.
 
 * [CampusGrid Academic Timetable & Room Allocation]![Timetable & Room Allocation](./image/timetable_allocation_mockup.png)
+
+---
+
+## Week 5: Module 1 — Identity, Authentication & Role-Based Access Control
+
+### 1. Architectural Highlights & Implementation Objectives
+* **Stateless Token-Based Authentication**: Implemented `JwtService` utilizing HMAC-SHA512 cryptographic signing. Configured a dual-token lifecycle with short-lived access tokens (15-minute expiration) and persistent 7-day refresh tokens.
+* **Role-Based Access Control (RBAC)**: Defined three fundamental user roles (`ADMIN`, `FACULTY`, `STUDENT`) with custom endpoint authorization interceptors guarding administrative and academic resources.
+* **Password Hashing & Security Policies**: Enforced one-way password hashing using BCrypt with 10 salt rounds to safeguard user credentials.
+* **Session Auditing & IP Tracking**: Constructed `UserSession` and `RefreshToken` repositories to capture client IPv4/IPv6 addresses, browser User-Agent strings, and timestamped activity logs for administrative compliance.
+* **Automated Data Seeders**: Built institutional bootstrap seeders generating default administrative (`admin`), faculty (`meera.faculty`), and student (`rahul123`) accounts with pre-configured academic profiles.
+
+---
+
+## Week 6: Module 2 — Campus Spatial Hierarchy & Visual Seating Designer
+
+### 1. Spatial Structure Implementation
+* **4-Tier Institutional Spatial Hierarchy**: Developed domain models and JPA repositories managing the complete physical infrastructure: `Campus` ➔ `Block` ➔ `Floor` ➔ `Room`.
+* **Dynamic Room Categorization**: Added support for diverse space classifications (`CLASSROOM`, `LAB`, `AUDITORIUM`, `SEMINAR_HALL`) with real-time occupancy status flags (`AVAILABLE`, `OCCUPIED`, `MAINTENANCE`).
+* **Hierarchical Tree Directory**: Exposed `GET /api/spaces/tree` delivering a nested JSON representation of the entire campus layout for instant visual navigation.
+
+### 2. Interactive Seating Layout Designer
+* **Visual Matrix Generator**: Built `SeatingLayoutService` enabling administrators to configure grid dimensions ($M \times N$) for any room.
+* **Coordinate-Based Seat Management**: Persisted individual physical seat entities (`PhysicalSeat`) capturing exact `row_index` and `col_index` coordinates alongside alphanumeric labels (e.g., `A-01`, `B-04`).
+* **Usability & Aisle Mapping**: Added interactive toggles allowing administrators to flag specific coordinates as disabled/broken seats or walkway aisles, ensuring non-usable slots are excluded from class capacity and exam seating.
+
+---
+
+## Week 7: Module 3 — Academic Timetable & Collision Detection Engine
+
+### 1. Course Scheduling & Master Timetable Architecture
+* **Curriculum & Subject Catalogue**: Modeled academic courses (`Subject`) with course codes, titles, credits, department affiliations, semester mappings, and theory vs laboratory classifications.
+* **Recurring Slot Allocation**: Designed `TimetableService` and `TimetableEntry` entities managing weekly recurring lecture periods across days of the week (`MONDAY` through `SATURDAY`).
+
+### 2. Dual-Vector Collision Detection Engine
+* **Spatial Conflict Detection**: Implemented query-level collision detection verifying that target classrooms and laboratories are not concurrently booked for overlapping lecture periods.
+* **Faculty Conflict Detection**: Enforced algorithmic checks ensuring faculty members cannot be assigned to teach multiple cohorts or sections in overlapping time intervals.
+* **Cohort Timetable Feeds**: Exposed dedicated endpoints returning semester- and section-specific schedules (`CSE-A`) to streamline student and faculty lecture tracking.
+
+---
+
+## Week 8: Module 4 — Examination Scheduling & Anti-Cheating Seating Engine
+
+### 1. Examination Lifecycle Management
+* **Examination Sessions**: Modeled `ExamSession` capturing exam names, course catalogue codes, calendar dates, exact commencement/conclusion time windows, and examination guidelines.
+* **Hall Capacity & Invigilation Allotment**: Implemented `ExamRoomAllocation` linking examination halls with allocated seating quotas, notes, and designated faculty invigilators (`User`).
+
+### 2. Intelligent Anti-Cheating Seating Engine
+* **Algorithmic Seat Distribution (`ExamSeatingEngine`)**: Formulated an automated seating assignment algorithm that ingests configured physical seat grids from Module 2.
+* **Checkerboard & Alternating Pattern**: Enforces academic integrity by ensuring students taking the same examination paper or enrolled in identical academic cohorts are never seated adjacently in adjacent rows or columns.
+* **Deterministic Allocation & Roster Generation**: Binds each candidate to an immutable physical seat record (`ExamSeatAllocation`) with distinct labels (`seat_number`), outputting exportable attendance rosters.
+
+---
+
+## Week 9: Module 5 — Student Portal & Faculty Workspaces
+
+### 1. Student Self-Service Experience
+* **Personalized Daily Schedule**: Developed `StudentPortalController` and `StudentService` delivering customized daily lecture agendas based on the student's registered department, year, semester, and section.
+* **Digital Examination Hall Ticket (Admit Card)**: Integrated live examination records allowing students to view exam dates, venues, floor levels, and verified physical seat numbers (e.g., `Seat: A-01`) directly on their personal portal.
+
+### 2. Faculty Teaching & Invigilation Dashboard
+* **Faculty Lecture Roster**: Surfaces a consolidated weekly calendar of assigned teaching commitments.
+* **Invigilation Duty Roster**: Added an active invigilation table (`GET /api/admin/exams/my-duties`) enabling professors to monitor their allocated examination halls, time slots, and examinee candidate headcounts.
+
+---
+
+## Week 10: Cross-Module Integration & Executive Platform Telemetry
+
+### 1. End-to-End Cross-Engine Interlinking
+* **Spatial Action Routing**: Enriched the Room Directory modal in `room-management.js` with direct action buttons linking physical rooms to:
+  * Their weekly lecture timetable schedule (`/admin/timetable?search=...`).
+  * Their upcoming examination room allocations (`/admin/examinations`).
+  * Their interactive seating designer layout (`/admin/seating?roomId=...`).
+* **Standardized REST Contract**: Normalized all responses across controllers using a unified `ApiResponse<T>` envelope containing status indicators, user-friendly messages, typed payloads, and ISO-8601 timestamps.
+
+### 2. Executive Analytics & Health Telemetry
+* **4-Pillar Operations Dashboard**: Integrated `system-tools.js` to poll live statistics across all four operational backends:
+  * **Space Engine**: Campuses, blocks, rooms, total capacity, and occupancy rates.
+  * **Timetable Engine**: Total scheduled class hours, active slots, and conflict indicators.
+  * **Exam Engine**: Active exam sessions, allocated rooms, and seating fill rates.
+  * **Identity Core**: User distributions across Administrator, Faculty, and Student roles.
+
+---
+
+## Week 11: Quality Assurance, Security Audit & Automated Test Suite
+
+### 1. Automated Test Suite Execution
+* **140 Passing Tests**: Executed the complete verification suite (`mvn test -Dspring.profiles.active=test`) with **140 / 140 passing tests** across 18 specialized test classes.
+* **Layered Verification**:
+  * Unit tests validating individual service business rules (`AuthServiceTest`, `SpaceServiceTest`, `TimetableServiceTest`, `ExamServiceTest`, `StudentServiceTest`).
+  * Concurrency and collision verification (`TimetableConflictAndConcurrencyTest`) proving zero double-booking under race conditions.
+  * Anti-cheating verification (`ExamSeatingEngineTest`) proving alternate-seat separation compliance.
+
+### 2. Security Audits & Defensive Hardening
+* **Endpoint Protection Auditing**: Executed dedicated controller security tests verifying unauthorized HTTP 401/403 rejections for unauthenticated or under-privileged requests.
+* **Tamper Resistance**: Validated that modified or unsigned JWT payloads are immediately rejected by `JwtService`.
+* **Privacy & Isolation Audits**: Validated student data isolation (`StudentPrivacyAndSecurityAuditTest`), preventing cross-student data leakage and unauthorized timetable access.
+
+---
+
+## Week 12: Deployment, Production Readiness & Project Conclusion
+
+### 1. Production Configuration & Packaging
+* **Executable Standalone Archive**: Packaged the platform into an optimized Spring Boot executable JAR (`campusgrid-core-1.0.0.jar`) with pre-compiled bytecode and embedded Tomcat web container.
+* **Multi-Environment Profiles**: Configured clean profile separation:
+  * `application.properties`: Production MySQL datasource configuration with HikariCP connection pooling, schema validation, and logging policies.
+  * `application-dev.properties`: In-memory H2 database profile with automatic sample data seeding for rapid development and testing.
+
+### 2. Performance Benchmarks & Final Deliverables
+* **Low Latency Response**: Verified sub-100ms response times for space and timetable queries, and sub-300ms execution for 500-student automated exam seating allocation.
+* **Institutional Handover**: Finalized documentation, clean code formatting, verified Git sync across all merged branch contributions, and verified web accessibility on `http://localhost:8080/login`.
+
+---
+
+## Project Directory Structure
+
+Here is the complete project directory structure for **CampusGrid**:
+
+```text
+Java-Project/
+│
+├── README.md                                  # Complete Project Documentation & 12-Week Roadmap
+├── pom.xml                                    # Maven Dependencies & Build Configuration
+│
+├── image/                                     # UI Mockup Screenshots & Documentation Visuals
+│   ├── user_management_mockup.png             # Administrator User Management Dashboard
+│   └── timetable_allocation_mockup.png        # Academic Timetable & Room Allocation Interface
+│
+├── src/
+│   ├── main/
+│   │   ├── java/com/campusgrid/
+│   │   │   ├── CampusGridApplication.java     # Spring Boot Main Entry Point & Data Bootstrapper
+│   │   │   │
+│   │   │   ├── controller/                    # RESTful Web API Controllers
+│   │   │   │   ├── AuthController.java                  # Login, Token Refresh & Session Termination
+│   │   │   │   ├── UserManagementController.java        # User CRUD, Cohort Filters & Credentials
+│   │   │   │   ├── SpaceManagementController.java       # Campus, Block, Floor & Room Administration
+│   │   │   │   ├── SpaceDirectoryController.java        # Public Space Directory & Tree Exploration
+│   │   │   │   ├── TimetableManagementController.java   # Timetable CRUD & Scheduling Engine
+│   │   │   │   ├── TimetableDirectoryController.java    # Subject Catalog & Class Slot Queries
+│   │   │   │   ├── ExamManagementController.java        # Exam Sessions, Invigilation & Seating
+│   │   │   │   └── StudentPortalController.java         # Student Self-Service, Admit Cards & Schedule
+│   │   │   │
+│   │   │   ├── dto/                           # Data Transfer Objects & Request Payloads
+│   │   │   │   ├── ApiResponse.java                     # Standardized Response Wrapper Envelope
+│   │   │   │   ├── LoginRequest.java / AuthResponse.java # Authentication DTOs
+│   │   │   │   ├── CreateUserRequest.java / UpdateUserRequest.java
+│   │   │   │   ├── CampusDto.java / BlockDto.java / FloorDto.java / RoomDto.java
+│   │   │   │   ├── SeatingGridDto.java / ConfigureLayoutRequest.java
+│   │   │   │   ├── CreateTimetableRequest.java / TimetableEntryDto.java
+│   │   │   │   ├── CreateExamRequest.java / ExamDetailDto.java / ExamStatsDto.java
+│   │   │   │   ├── GenerateExamSeatingRequest.java / ExamSeatingGridDto.java
+│   │   │   │   └── StudentDashboardDto.java / StudentExamAllocationDto.java
+│   │   │   │
+│   │   │   ├── model/                         # JPA Domain Entities & Enums
+│   │   │   │   ├── User.java / Role.java                # User Entity & RBAC Enums
+│   │   │   │   ├── UserSession.java                     # Session & Audit Trail Entity
+│   │   │   │   ├── Campus.java / Block.java / Floor.java # Spatial Hierarchy Entities
+│   │   │   │   ├── Room.java / RoomType.java / RoomStatus.java # Room Entity & Classification
+│   │   │   │   ├── PhysicalSeat.java / LayoutTemplate.java # Fine-Grained Physical Seat Models
+│   │   │   │   ├── Subject.java / TimetableEntry.java   # Academic Curriculum & Schedule Models
+│   │   │   │   └── ExamSession.java / ExamRoomAllocation.java / ExamSeatAllocation.java
+│   │   │   │
+│   │   │   ├── repository/                    # Spring Data JPA Persistence Repositories
+│   │   │   │   ├── UserRepository.java / UserSessionRepository.java
+│   │   │   │   ├── CampusRepository.java / BlockRepository.java / FloorRepository.java
+│   │   │   │   ├── RoomRepository.java / PhysicalSeatRepository.java
+│   │   │   │   ├── SubjectRepository.java / TimetableEntryRepository.java
+│   │   │   │   └── ExamSessionRepository.java / ExamRoomAllocationRepository.java / ExamSeatAllocationRepository.java
+│   │   │   │
+│   │   │   └── service/                       # Business Logic & Core Engines
+│   │   │       ├── AuthService.java                     # Authentication, Hashing & Verification
+│   │   │       ├── JwtService.java                      # HMAC-SHA512 Token Creation & Validation
+│   │   │       ├── UserService.java                     # User Lifecycle Management
+│   │   │       ├── SpaceService.java                    # Campus & Space Operations
+│   │   │       ├── SeatingLayoutService.java            # Grid Layout & Usable Seat Customization
+│   │   │       ├── TimetableService.java                # Lecture Scheduling & Dual-Conflict Detection
+│   │   │       ├── ExamService.java                     # Exam Administration & Invigilation Allotment
+│   │   │       ├── ExamSeatingEngine.java               # Anti-Cheating Alternating Seating Engine
+│   │   │       └── StudentService.java                  # Student Timetable & Hall Ticket Aggregator
+│   │   │
+│   │   └── resources/
+│   │       ├── application.properties                   # Production MySQL & Datasource Settings
+│   │       ├── application-dev.properties               # In-Memory H2 Development Configuration
+│   │       └── static/                                  # Responsive Front-End Web Application
+│   │           ├── login.html                           # Authentication Portal Entry Page
+│   │           ├── admin-users.html                     # Identity & User Management Console
+│   │           ├── admin-campus.html                    # Campus Hierarchy Management
+│   │           ├── admin-rooms.html                     # Space Directory & Room Inventory
+│   │           ├── admin-seating.html                   # Interactive Visual Seating Grid Designer
+│   │           ├── admin-timetable.html                 # Timetable Scheduling & Conflict Matrix
+│   │           ├── admin-examinations.html              # Exam Scheduler & Anti-Cheating Seating Console
+│   │           ├── faculty-dashboard.html               # Faculty Lecture Schedule & Invigilation Duties
+│   │           ├── student-dashboard.html               # Student Portal & Digital Exam Hall Ticket
+│   │           ├── student-timetable.html               # Enrolled Class Timetable Viewer
+│   │           ├── student-examinations.html            # Exam Hall Tickets & Allocated Seat Badges
+│   │           ├── css/style.css                        # Institutional Design System & CSS Styling
+│   │           └── js/                                  # Front-End Controller Scripts
+│   │               ├── auth.js                          # JWT Client Handler & Role Redirection
+│   │               ├── user-management.js               # User CRUD & Cohort Actions
+│   │               ├── campus-management.js             # Campus & Building Hierarchy Scripts
+│   │               ├── room-management.js               # Room Inventory & Cross-Module Action Links
+│   │               ├── seating-designer.js              # Interactive Grid Drawing Engine
+│   │               ├── timetable-management.js          # Timetable Slot Scheduling & Conflict Checks
+│   │               ├── examination-management.js        # Exam Administration & Seating Trigger
+│   │               ├── student.js                       # Student Portal Data Fetcher
+│   │               └── system-tools.js                  # 4-Pillar Executive Analytics Telemetry
+│   │
+│   └── test/java/com/campusgrid/              # Comprehensive Automated Test Suite (140 Tests)
+│       ├── AuthServiceTest.java                         # Authentication & Password Security Tests
+│       ├── AuthControllerSecurityTest.java              # JWT Filter & Protected Route Verification
+│       ├── JwtServiceTest.java                          # Token Tampering & Expiry Validation
+│       ├── UserServiceTest.java                         # User Management Business Logic Tests
+│       ├── UserManagementControllerSecurityTest.java    # RBAC Interceptor Authorization Tests
+│       ├── SpaceServiceTest.java                        # Spatial Hierarchy Unit Tests
+│       ├── SpaceControllerSecurityTest.java             # Space API Access Control Tests
+│       ├── SeatingLayoutServiceTest.java                # Seating Grid & Aisle Mapping Tests
+│       ├── TimetableServiceTest.java                    # Scheduling Business Rule Verification
+│       ├── TimetableConflictAndConcurrencyTest.java     # Room & Faculty Collision Detection Tests
+│       ├── TimetableControllerSecurityTest.java         # Timetable Endpoint Security Tests
+│       ├── ExamServiceTest.java                         # Exam Lifecycle & Invigilation Tests
+│       ├── ExamSeatingEngineTest.java                   # Anti-Cheating Seating Distribution Tests
+│       ├── ExamManagementControllerSecurityTest.java    # Exam Module RBAC Validation Tests
+│       ├── StudentServiceTest.java                      # Student Portal Aggregation Tests
+│       ├── StudentPortalControllerSecurityTest.java     # Student Privacy & Endpoint Protection Tests
+│       ├── StudentPrivacyAndSecurityAuditTest.java      # Cross-Tenant Data Isolation Audit Tests
+│       └── CsvSecurityTest.java                         # Safe Import Validation Tests
+│
+└── target/                                    # Compiled Classes & Packaged Artifacts
+    └── campusgrid-core-1.0.0.jar              # Executable Production JAR File
+```
