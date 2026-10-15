@@ -251,4 +251,120 @@ public class ExamServiceTest {
         assertEquals("Present on time", alloc.getRemarks());
         verify(examSeatAllocationRepository).save(alloc);
     }
+
+    @Test
+    @DisplayName("Should reject examination creation when duplicate exam code is provided")
+    void testCreateExamDuplicateCodeRejection() {
+        CreateExamRequest req = new CreateExamRequest();
+        req.setExamCode("EXAM-CS301-DUPE");
+        req.setTitle("Duplicate Exam");
+        req.setDepartment("Computer Science");
+        req.setSemester(3);
+        req.setExamDate(LocalDate.now().plusDays(5));
+        req.setStartTime(LocalTime.of(10, 0));
+        req.setEndTime(LocalTime.of(13, 0));
+
+        when(examSessionRepository.existsByExamCode("EXAM-CS301-DUPE")).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                examService.createExam(req)
+        );
+        assertTrue(ex.getMessage().contains("already exists"));
+    }
+
+    @Test
+    @DisplayName("Should reject updating an examination that is in CANCELLED status")
+    void testUpdateCancelledExamThrowsException() {
+        sampleExam.setStatus(ExamStatus.CANCELLED);
+        when(examSessionRepository.findById(10L)).thenReturn(Optional.of(sampleExam));
+
+        UpdateExamRequest req = new UpdateExamRequest();
+        req.setTitle("Updated Title");
+        req.setDepartment("Computer Science");
+        req.setSemester(3);
+        req.setExamDate(LocalDate.now().plusDays(5));
+        req.setStartTime(LocalTime.of(10, 0));
+        req.setEndTime(LocalTime.of(13, 0));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                examService.updateExam(10L, req)
+        );
+        assertTrue(ex.getMessage().contains("Cannot update a cancelled examination session"));
+    }
+
+    @Test
+    @DisplayName("Should free seat allocations, set CANCELLED status, and record reason upon cancellation")
+    void testCancelExamFreesSeatsAndSetsReason() {
+        when(examSessionRepository.findById(10L)).thenReturn(Optional.of(sampleExam));
+        when(examSessionRepository.save(any(ExamSession.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        ExamDetailDto dto = examService.cancelExam(10L, "Inclement weather");
+
+        assertNotNull(dto);
+        assertEquals(ExamStatus.CANCELLED, sampleExam.getStatus());
+        assertEquals("Inclement weather", sampleExam.getCancellationReason());
+        verify(examSeatAllocationRepository).deleteByExamSessionId(10L);
+    }
+
+    @Test
+    @DisplayName("Should strictly exclude inactive students from candidate eligibility")
+    void testAllocateSeatsExcludesInactiveStudents() {
+        when(examSessionRepository.findById(10L)).thenReturn(Optional.of(sampleExam));
+
+        ExamRoomAllocation ra = new ExamRoomAllocation(sampleExam, sampleRoom, sampleFaculty, 40, null);
+        when(examRoomAllocationRepository.findByExamSessionId(10L)).thenReturn(List.of(ra));
+
+        // Mark student2 as inactive in User entity
+        student2.getUser().setActive(false);
+        when(studentRepository.findAll()).thenReturn(List.of(student1, student2));
+        when(physicalSeatRepository.findByRoomIdOrderByRowNumberAscColumnNumberAsc(101L))
+                .thenReturn(List.of(seat1, seat2));
+
+        AllocateSeatsRequest req = new AllocateSeatsRequest();
+        examService.allocateSeats(10L, req);
+
+        // Verify only 1 active student was allocated
+        verify(examSeatAllocationRepository).saveAll(argThat(list -> {
+            List<?> l = (List<?>) list;
+            return l.size() == 1;
+        }));
+    }
+
+    @Test
+    @DisplayName("Should rollback status to SCHEDULED when capacity is insufficient")
+    void testAllocateSeatsCapacityShortageRevertsStatus() {
+        when(examSessionRepository.findById(10L)).thenReturn(Optional.of(sampleExam));
+
+        ExamRoomAllocation ra = new ExamRoomAllocation(sampleExam, sampleRoom, sampleFaculty, 40, null);
+        when(examRoomAllocationRepository.findByExamSessionId(10L)).thenReturn(List.of(ra));
+
+        // 2 candidates but only 1 seat
+        when(studentRepository.findAll()).thenReturn(List.of(student1, student2));
+        when(physicalSeatRepository.findByRoomIdOrderByRowNumberAscColumnNumberAsc(101L))
+                .thenReturn(List.of(seat1));
+
+        AllocateSeatsRequest req = new AllocateSeatsRequest();
+        assertThrows(IllegalStateException.class, () -> examService.allocateSeats(10L, req));
+
+        // Status should be reverted to SCHEDULED, not left as ALLOCATION_IN_PROGRESS
+        assertEquals(ExamStatus.SCHEDULED, sampleExam.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should clear previous seat allocations before saving fresh allocation rerun")
+    void testAllocateSeatsClearsPreviousAllocations() {
+        when(examSessionRepository.findById(10L)).thenReturn(Optional.of(sampleExam));
+
+        ExamRoomAllocation ra = new ExamRoomAllocation(sampleExam, sampleRoom, sampleFaculty, 40, null);
+        when(examRoomAllocationRepository.findByExamSessionId(10L)).thenReturn(List.of(ra));
+
+        when(studentRepository.findAll()).thenReturn(List.of(student1));
+        when(physicalSeatRepository.findByRoomIdOrderByRowNumberAscColumnNumberAsc(101L))
+                .thenReturn(List.of(seat1));
+
+        examService.allocateSeats(10L, new AllocateSeatsRequest());
+
+        // Verify deleteByExamSessionId was called prior to re-allocation
+        verify(examSeatAllocationRepository).deleteByExamSessionId(10L);
+    }
 }

@@ -123,4 +123,47 @@ class ExamManagementControllerSecurityTest {
                         .requestAttr("authenticatedRole", Role.ADMIN))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @DisplayName("Should block student role from allocating seats via /api/admin/examinations/1/allocate-seats")
+    void testStudentAllocateSeatsBlocked() throws Exception {
+        mockMvc.perform(post("/api/admin/examinations/1/allocate-seats")
+                        .contentType("application/json")
+                        .content("{}")
+                        .requestAttr("authenticatedRole", Role.STUDENT))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Should allow admin role to trigger seat allocation via /api/admin/examinations/1/allocate-seats")
+    void testAdminAllocateSeatsAllowed() throws Exception {
+        ExamDetailDto dto = new ExamDetailDto();
+        dto.setId(1L);
+        dto.setStatus(com.campusgrid.model.ExamStatus.ALLOCATION_COMPLETE);
+        when(examService.allocateSeats(anyLong(), any())).thenReturn(dto);
+
+        mockMvc.perform(post("/api/admin/examinations/1/allocate-seats")
+                        .contentType("application/json")
+                        .content("{}")
+                        .requestAttr("authenticatedRole", Role.ADMIN))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Should allow faculty to view available rooms via /api/admin/examinations/1/available-rooms")
+    void testFacultyAvailableRoomsAllowed() throws Exception {
+        when(examService.getAvailableRoomsForExam(1L)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/admin/examinations/1/available-rooms")
+                        .requestAttr("authenticatedRole", Role.FACULTY))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Should block student from viewing available examination rooms")
+    void testStudentAvailableRoomsBlocked() throws Exception {
+        mockMvc.perform(get("/api/admin/examinations/1/available-rooms")
+                        .requestAttr("authenticatedRole", Role.STUDENT))
+                .andExpect(status().isForbidden());
+    }
 }
