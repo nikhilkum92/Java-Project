@@ -991,4 +991,15 @@ public class ExamService {
                 ra.getNotes()
         );
     }
+
+    /**
+     * Retrieve examination room allocations where the given faculty member is assigned as invigilator.
+     */
+    @Transactional(readOnly = true)
+    public List<ExamRoomAllocationDto> getFacultyInvigilationDuties(Long userId) {
+        return facultyRepository.findByUserId(userId)
+                .map(fac -> examRoomAllocationRepository.findByInvigilatorId(fac.getId())
+                        .stream().map(this::mapToRoomAllocationDto).collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+    }
 }

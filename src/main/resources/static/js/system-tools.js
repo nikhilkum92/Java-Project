@@ -22,6 +22,14 @@ const SystemTools = {
             type: "success"
         },
         {
+            id: 5,
+            title: "Anti-Cheating Examination Engine Active (Module 4)",
+            desc: "3 examination sessions scheduled across 3 halls with automated alternate-seat matrix allocation.",
+            time: "15 mins ago",
+            badge: "EXAMINATIONS",
+            type: "warning"
+        },
+        {
             id: 3,
             title: "Student Portal Telemetry Active (Module 5)",
             desc: "Live student dashboard, enrolled timetable schedules, and campus explorer live for all student accounts.",
@@ -141,19 +149,22 @@ const SystemTools = {
         const body = document.getElementById('reportsModalBody');
 
         try {
-            const [usersRes, spacesRes, timetablesRes] = await Promise.all([
+            const [usersRes, spacesRes, timetablesRes, examsRes] = await Promise.all([
                 fetch('/api/admin/users/stats', { headers: { 'Authorization': 'Bearer ' + Auth.getToken() } }),
                 fetch('/api/spaces/stats', { headers: { 'Authorization': 'Bearer ' + Auth.getToken() } }),
-                fetch('/api/admin/timetables/stats', { headers: { 'Authorization': 'Bearer ' + Auth.getToken() } })
+                fetch('/api/admin/timetables/stats', { headers: { 'Authorization': 'Bearer ' + Auth.getToken() } }),
+                fetch('/api/admin/exams/stats', { headers: { 'Authorization': 'Bearer ' + Auth.getToken() } })
             ]);
 
             const usersJson = await usersRes.json();
             const spacesJson = await spacesRes.json();
             const timeJson = await timetablesRes.json();
+            const examsJson = await examsRes.json();
 
             const u = usersJson.data || {};
             const s = spacesJson.data || {};
             const t = timeJson.data || {};
+            const ex = examsJson.data || {};
 
             body.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--cg-border); padding-bottom: 12px; margin-bottom: 20px;">
@@ -164,24 +175,30 @@ const SystemTools = {
                     <span class="badge-cg badge-active" style="font-size: 11px;">100% HEALTHY</span>
                 </div>
 
-                <!-- Three Pillar Metric Cards -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px;">
-                    <div style="background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: 8px; padding: 14px;">
-                        <div style="font-size: 11px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">User Enrollment (Mod 1)</div>
-                        <div style="font-size: 22px; font-weight: 800; color: var(--cg-brand-black); margin: 4px 0;">${u.totalUsers || 4}</div>
-                        <div style="font-size: 11.5px; color: var(--cg-text-secondary);">${u.totalStudents || 1} Students • ${u.totalFaculty || 2} Faculty</div>
+                <!-- Four Pillar Metric Cards -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+                    <div style="background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 10.5px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">User Accounts (Mod 1)</div>
+                        <div style="font-size: 20px; font-weight: 800; color: var(--cg-brand-black); margin: 4px 0;">${u.totalUsers || 4} Users</div>
+                        <div style="font-size: 11px; color: var(--cg-text-secondary);">${u.totalStudents || 1} Students • ${u.totalFaculty || 2} Faculty</div>
                     </div>
 
-                    <div style="background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: 8px; padding: 14px;">
-                        <div style="font-size: 11px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">Infrastructure (Mod 2)</div>
-                        <div style="font-size: 22px; font-weight: 800; color: var(--cg-brand-black); margin: 4px 0;">${s.totalRooms || 5} Rooms</div>
-                        <div style="font-size: 11.5px; color: var(--cg-text-secondary);">${s.totalBlocks || 2} Blocks • ${s.totalCapacity || 120} Seats</div>
+                    <div style="background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 10.5px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">Space Grid (Mod 2)</div>
+                        <div style="font-size: 20px; font-weight: 800; color: var(--cg-brand-black); margin: 4px 0;">${s.totalRooms || 5} Rooms</div>
+                        <div style="font-size: 11px; color: var(--cg-text-secondary);">${s.totalBlocks || 2} Blocks • ${s.totalCapacity || 256} Seats</div>
                     </div>
 
-                    <div style="background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: 8px; padding: 14px;">
-                        <div style="font-size: 11px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">Academic Schedule (Mod 3)</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #059669; margin: 4px 0;">${t.totalScheduledClasses || 11} Classes</div>
-                        <div style="font-size: 11.5px; color: var(--cg-text-secondary);">${t.totalWeeklyHours || 12} hrs/wk • ${t.allocatedRooms || 5} Active Rooms</div>
+                    <div style="background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 10.5px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">Timetables (Mod 3)</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #059669; margin: 4px 0;">${t.totalScheduledClasses || 11} Slots</div>
+                        <div style="font-size: 11px; color: var(--cg-text-secondary);">${t.totalWeeklyHours || 12} hrs/wk • ${t.allocatedRooms || 5} Rooms</div>
+                    </div>
+
+                    <div style="background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 10.5px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">Examinations (Mod 4)</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #4338CA; margin: 4px 0;">${ex.totalExams || 3} Sessions</div>
+                        <div style="font-size: 11px; color: var(--cg-text-secondary);">${ex.totalAllocatedSeats || 16} Desks • ${ex.activeExamHalls || 3} Halls</div>
                     </div>
                 </div>
 
@@ -219,9 +236,15 @@ const SystemTools = {
                                 <td><span class="badge-cg badge-active">Operational</span></td>
                             </tr>
                             <tr>
+                                <td><strong>Module 4</strong></td>
+                                <td>Exam Scheduling &amp; Anti-Cheating Seating Matrix</td>
+                                <td>${ex.totalExams || 3} exams, ${ex.totalAllocatedSeats || 16} desks assigned</td>
+                                <td><span class="badge-cg badge-active">Operational</span></td>
+                            </tr>
+                            <tr>
                                 <td><strong>Module 5</strong></td>
                                 <td>Student Portal &amp; Telemetry Reports</td>
-                                <td>Full student timetable &amp; campus sync</td>
+                                <td>Full student timetable, exam hall &amp; campus sync</td>
                                 <td><span class="badge-cg badge-active">Operational</span></td>
                             </tr>
                         </tbody>

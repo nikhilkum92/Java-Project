@@ -228,10 +228,18 @@ async function viewRoomDetail(roomId) {
                     <div style="display:flex; flex-wrap:wrap; gap:6px;">${facilitiesPills}</div>
                 </div>
 
-                <div style="background:#F8FAFC; border:1px solid var(--cg-border); border-radius:6px; padding:12px; margin-top:16px;">
-                    <div style="font-size:12px; font-weight:600; color:var(--cg-text-primary);">Timetable / Schedule Integration:</div>
-                    <div style="font-size:12px; color:var(--cg-text-muted); margin-top:2px;">
-                        ${d.scheduleIntegrationStatus} &mdash; Timetable conflict engine &amp; slot bookings will link in Module 6.
+                <div style="background:#F8FAFC; border:1px solid var(--cg-border); border-radius:6px; padding:14px; margin-top:16px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--cg-brand-black); margin-bottom: 8px;">Cross-Module Operations &amp; Schedules:</div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="/admin/timetable?search=${encodeURIComponent(r.roomCode)}" class="btn btn-outline" style="font-size:11.5px; padding:4px 10px; text-decoration:none;">
+                            📅 View Room Timetable (Mod 3)
+                        </a>
+                        <a href="/admin/examinations" class="btn btn-outline" style="font-size:11.5px; padding:4px 10px; text-decoration:none;">
+                            📝 View Exam Allocations (Mod 4)
+                        </a>
+                        <a href="/admin/seating" class="btn btn-outline" style="font-size:11.5px; padding:4px 10px; text-decoration:none;">
+                            🪑 Configure Seating Layout (Mod 2)
+                        </a>
                     </div>
                 </div>
             `;

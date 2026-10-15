@@ -64,6 +64,17 @@ public class ExamManagementController {
         return ResponseEntity.ok(ApiResponse.success(stats));
     }
 
+    @GetMapping("/my-duties")
+    public ResponseEntity<ApiResponse<List<ExamRoomAllocationDto>>> getMyInvigilationDuties(HttpServletRequest request) {
+        if (!checkAdminOrFacultyAuthorization(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Administrative or Faculty privilege required."));
+        }
+        Long userId = (Long) request.getAttribute("authenticatedUserId");
+        List<ExamRoomAllocationDto> duties = examService.getFacultyInvigilationDuties(userId);
+        return ResponseEntity.ok(ApiResponse.success(duties));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ExamDetailDto>> getExamById(
             @PathVariable("id") Long id,
