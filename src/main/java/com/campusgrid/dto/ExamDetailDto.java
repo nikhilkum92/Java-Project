@@ -24,11 +24,28 @@ public class ExamDetailDto {
     private int maxMarks;
     private String instructions;
     private ExamStatus status;
+    private String cancellationReason;
+
+    // Summary metrics derived from persisted records
     private int allocatedRoomsCount;
-    private int allocatedStudentsCount;
+    private int totalEligibleCandidates;
+    private int totalAllocatedCandidates;
+    private int totalUnallocatedCandidates;
+    private int totalUsableSeats;
+    private int totalUnavailableSeats;
+
     private List<ExamRoomAllocationDto> rooms = new ArrayList<>();
 
     public ExamDetailDto() {
+    }
+
+    // Backward compatibility aliases
+    public int getAllocatedStudentsCount() {
+        return totalAllocatedCandidates;
+    }
+
+    public void setAllocatedStudentsCount(int count) {
+        this.totalAllocatedCandidates = count;
     }
 
     // Getters and Setters
@@ -160,6 +177,14 @@ public class ExamDetailDto {
         this.status = status;
     }
 
+    public String getCancellationReason() {
+        return cancellationReason;
+    }
+
+    public void setCancellationReason(String cancellationReason) {
+        this.cancellationReason = cancellationReason;
+    }
+
     public int getAllocatedRoomsCount() {
         return allocatedRoomsCount;
     }
@@ -168,12 +193,44 @@ public class ExamDetailDto {
         this.allocatedRoomsCount = allocatedRoomsCount;
     }
 
-    public int getAllocatedStudentsCount() {
-        return allocatedStudentsCount;
+    public int getTotalEligibleCandidates() {
+        return totalEligibleCandidates;
     }
 
-    public void setAllocatedStudentsCount(int allocatedStudentsCount) {
-        this.allocatedStudentsCount = allocatedStudentsCount;
+    public void setTotalEligibleCandidates(int totalEligibleCandidates) {
+        this.totalEligibleCandidates = totalEligibleCandidates;
+    }
+
+    public int getTotalAllocatedCandidates() {
+        return totalAllocatedCandidates;
+    }
+
+    public void setTotalAllocatedCandidates(int totalAllocatedCandidates) {
+        this.totalAllocatedCandidates = totalAllocatedCandidates;
+    }
+
+    public int getTotalUnallocatedCandidates() {
+        return totalUnallocatedCandidates;
+    }
+
+    public void setTotalUnallocatedCandidates(int totalUnallocatedCandidates) {
+        this.totalUnallocatedCandidates = totalUnallocatedCandidates;
+    }
+
+    public int getTotalUsableSeats() {
+        return totalUsableSeats;
+    }
+
+    public void setTotalUsableSeats(int totalUsableSeats) {
+        this.totalUsableSeats = totalUsableSeats;
+    }
+
+    public int getTotalUnavailableSeats() {
+        return totalUnavailableSeats;
+    }
+
+    public void setTotalUnavailableSeats(int totalUnavailableSeats) {
+        this.totalUnavailableSeats = totalUnavailableSeats;
     }
 
     public List<ExamRoomAllocationDto> getRooms() {

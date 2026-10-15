@@ -1,6 +1,7 @@
 package com.campusgrid.dto;
 
 import com.campusgrid.model.ExamAttendanceStatus;
+import com.campusgrid.model.SeatStatus;
 
 public class ExamSeatCellDto {
 
@@ -9,6 +10,7 @@ public class ExamSeatCellDto {
     private int rowNumber;
     private int columnNumber;
     private String rowLabel;
+    private SeatStatus physicalSeatStatus = SeatStatus.AVAILABLE;
     private boolean walkway;
     private boolean allocated;
     private Long studentId;
@@ -23,11 +25,16 @@ public class ExamSeatCellDto {
     }
 
     public ExamSeatCellDto(Long seatId, String seatNumber, int rowNumber, int columnNumber, String rowLabel, boolean walkway) {
+        this(seatId, seatNumber, rowNumber, columnNumber, rowLabel, SeatStatus.AVAILABLE, walkway);
+    }
+
+    public ExamSeatCellDto(Long seatId, String seatNumber, int rowNumber, int columnNumber, String rowLabel, SeatStatus physicalSeatStatus, boolean walkway) {
         this.seatId = seatId;
         this.seatNumber = seatNumber;
         this.rowNumber = rowNumber;
         this.columnNumber = columnNumber;
         this.rowLabel = rowLabel;
+        this.physicalSeatStatus = physicalSeatStatus != null ? physicalSeatStatus : SeatStatus.AVAILABLE;
         this.walkway = walkway;
         this.allocated = false;
     }
@@ -71,6 +78,14 @@ public class ExamSeatCellDto {
 
     public void setRowLabel(String rowLabel) {
         this.rowLabel = rowLabel;
+    }
+
+    public SeatStatus getPhysicalSeatStatus() {
+        return physicalSeatStatus;
+    }
+
+    public void setPhysicalSeatStatus(SeatStatus physicalSeatStatus) {
+        this.physicalSeatStatus = physicalSeatStatus;
     }
 
     public boolean isWalkway() {

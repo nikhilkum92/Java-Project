@@ -1,9 +1,9 @@
 package com.campusgrid.model;
 
 public enum ExamStatus {
+    DRAFT,
     SCHEDULED,
-    SEATING_ALLOCATED,
-    IN_PROGRESS,
-    COMPLETED,
+    ALLOCATION_IN_PROGRESS,
+    ALLOCATION_COMPLETE,
     CANCELLED
 }

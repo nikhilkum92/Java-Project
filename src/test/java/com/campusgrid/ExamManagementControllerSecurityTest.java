@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,5 +88,39 @@ class ExamManagementControllerSecurityTest {
                         .content("{\"title\":\"Midterm\",\"department\":\"Computer Science\",\"semester\":3,\"examDate\":\"2026-10-25\",\"startTime\":\"09:00\",\"endTime\":\"12:00\",\"maxMarks\":100}")
                         .requestAttr("authenticatedRole", Role.ADMIN))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    @DisplayName("Should allow admin to access /api/admin/examinations alias with 200 OK")
+    void testAdminGetExaminationsAliasAllowed() throws Exception {
+        when(examService.filterExams(any(), any(), any(), any())).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/admin/examinations")
+                        .requestAttr("authenticatedRole", Role.ADMIN))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Should block student role from cancelling exams via /api/admin/examinations/1/cancel with 403 Forbidden")
+    void testStudentCancelExamBlocked() throws Exception {
+        mockMvc.perform(post("/api/admin/examinations/1/cancel")
+                        .requestAttr("authenticatedRole", Role.STUDENT))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Should allow admin role to cancel exam with 200 OK")
+    void testAdminCancelExamAllowed() throws Exception {
+        ExamDetailDto dto = new ExamDetailDto();
+        dto.setId(1L);
+        dto.setTitle("Midterm");
+        dto.setStatus(com.campusgrid.model.ExamStatus.CANCELLED);
+        when(examService.cancelExam(anyLong(), any())).thenReturn(dto);
+
+        mockMvc.perform(post("/api/admin/examinations/1/cancel")
+                        .contentType("application/json")
+                        .content("{\"reason\":\"Inclement weather\"}")
+                        .requestAttr("authenticatedRole", Role.ADMIN))
+                .andExpect(status().isOk());
     }
 }

@@ -14,6 +14,8 @@ public class ExamRoomAllocationDto {
     private String invigilatorEmployeeId;
     private int allocatedCapacity;
     private int roomTotalCapacity;
+    private int usableSeatsCount;
+    private int unavailableSeatsCount;
     private int seatedStudentsCount;
     private String notes;
 
@@ -36,6 +38,31 @@ public class ExamRoomAllocationDto {
         this.invigilatorEmployeeId = invigilatorEmployeeId;
         this.allocatedCapacity = allocatedCapacity;
         this.roomTotalCapacity = roomTotalCapacity;
+        this.usableSeatsCount = roomTotalCapacity;
+        this.unavailableSeatsCount = 0;
+        this.seatedStudentsCount = seatedStudentsCount;
+        this.notes = notes;
+    }
+
+    public ExamRoomAllocationDto(Long id, Long examId, Long roomId, String roomCode, String roomName,
+                                 String blockName, int floorNumber, Long invigilatorId, String invigilatorName,
+                                 String invigilatorEmployeeId, int allocatedCapacity, int roomTotalCapacity,
+                                 int usableSeatsCount, int unavailableSeatsCount,
+                                 int seatedStudentsCount, String notes) {
+        this.id = id;
+        this.examId = examId;
+        this.roomId = roomId;
+        this.roomCode = roomCode;
+        this.roomName = roomName;
+        this.blockName = blockName;
+        this.floorNumber = floorNumber;
+        this.invigilatorId = invigilatorId;
+        this.invigilatorName = invigilatorName;
+        this.invigilatorEmployeeId = invigilatorEmployeeId;
+        this.allocatedCapacity = allocatedCapacity;
+        this.roomTotalCapacity = roomTotalCapacity;
+        this.usableSeatsCount = usableSeatsCount;
+        this.unavailableSeatsCount = unavailableSeatsCount;
         this.seatedStudentsCount = seatedStudentsCount;
         this.notes = notes;
     }
@@ -135,6 +162,22 @@ public class ExamRoomAllocationDto {
 
     public void setRoomTotalCapacity(int roomTotalCapacity) {
         this.roomTotalCapacity = roomTotalCapacity;
+    }
+
+    public int getUsableSeatsCount() {
+        return usableSeatsCount;
+    }
+
+    public void setUsableSeatsCount(int usableSeatsCount) {
+        this.usableSeatsCount = usableSeatsCount;
+    }
+
+    public int getUnavailableSeatsCount() {
+        return unavailableSeatsCount;
+    }
+
+    public void setUnavailableSeatsCount(int unavailableSeatsCount) {
+        this.unavailableSeatsCount = unavailableSeatsCount;
     }
 
     public int getSeatedStudentsCount() {

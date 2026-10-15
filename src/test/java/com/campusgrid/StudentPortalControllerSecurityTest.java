@@ -188,4 +188,29 @@ class StudentPortalControllerSecurityTest {
                 .andExpect(jsonPath("$.status").value("ERROR"))
                 .andExpect(jsonPath("$.message").value("Student academic profile not found"));
     }
+
+    @Test
+    @DisplayName("Should block anonymous requests to /api/student/examinations/1/allocation with 401")
+    void testAnonymousAllocationBlocked() throws Exception {
+        mockMvc.perform(get("/api/student/examinations/1/allocation"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value("ERROR"));
+    }
+
+    @Test
+    @DisplayName("Should allow authenticated student to access their own exam allocation")
+    void testStudentExamAllocationAllowed() throws Exception {
+        com.campusgrid.dto.StudentExamAllocationDto allocDto = new com.campusgrid.dto.StudentExamAllocationDto(
+                1L, "Midterm Exam", "CS301", "Data Structures", "2026-11-01", "10:00", "13:00", "A-101", "Hall 1", "Block A", "R1-C1", "SCHEDULED", "Arrive early"
+        );
+        when(studentService.getStudentExamAllocation(10L, 1L)).thenReturn(allocDto);
+
+        mockMvc.perform(get("/api/student/examinations/1/allocation")
+                        .requestAttr("authenticatedUserId", 10L)
+                        .requestAttr("authenticatedRole", Role.STUDENT))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.seatNumber").value("R1-C1"))
+                .andExpect(jsonPath("$.data.roomCode").value("A-101"));
+    }
 }

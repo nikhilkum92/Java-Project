@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/exams")
+@RequestMapping({"/api/admin/examinations", "/api/admin/exams"})
 public class ExamManagementController {
 
     private final ExamService examService;
@@ -53,6 +53,17 @@ public class ExamManagementController {
         return ResponseEntity.ok(ApiResponse.success(list));
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<ExamStatsDto>> getStats(HttpServletRequest request) {
+        if (!checkAdminOrFacultyAuthorization(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Administrative privilege required."));
+        }
+
+        ExamStatsDto stats = examService.getExamStats();
+        return ResponseEntity.ok(ApiResponse.success(stats));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ExamDetailDto>> getExamById(
             @PathVariable("id") Long id,
@@ -70,6 +81,14 @@ public class ExamManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(e.getMessage()));
         }
+    }
+
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<ApiResponse<ExamDetailDto>> getExamSummary(
+            @PathVariable("id") Long id,
+            HttpServletRequest request
+    ) {
+        return getExamById(id, request);
     }
 
     @PostMapping
@@ -115,6 +134,27 @@ public class ExamManagementController {
         }
     }
 
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse<ExamDetailDto>> cancelExam(
+            @PathVariable("id") Long id,
+            @RequestBody(required = false) CancelExamRequest req,
+            HttpServletRequest request
+    ) {
+        if (!checkAdminAuthorization(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Administrator role required."));
+        }
+
+        try {
+            String reason = (req != null && req.getReason() != null) ? req.getReason() : "Cancelled by examination administrator";
+            ExamDetailDto cancelled = examService.cancelExam(id, reason);
+            return ResponseEntity.ok(ApiResponse.success("Examination session cancelled successfully.", cancelled));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteExam(
             @PathVariable("id") Long id,
@@ -134,20 +174,28 @@ public class ExamManagementController {
         }
     }
 
-    @GetMapping("/stats")
-    public ResponseEntity<ApiResponse<ExamStatsDto>> getStats(HttpServletRequest request) {
+    // =========================================================================
+    // ROOM ALLOCATION & AVAILABILITY ENDPOINTS
+    // =========================================================================
+
+    @GetMapping("/{id}/available-rooms")
+    public ResponseEntity<ApiResponse<List<AvailableExamRoomDto>>> getAvailableRooms(
+            @PathVariable("id") Long id,
+            HttpServletRequest request
+    ) {
         if (!checkAdminOrFacultyAuthorization(request)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error("Access denied: Administrative privilege required."));
         }
 
-        ExamStatsDto stats = examService.getExamStats();
-        return ResponseEntity.ok(ApiResponse.success(stats));
+        try {
+            List<AvailableExamRoomDto> rooms = examService.getAvailableRoomsForExam(id);
+            return ResponseEntity.ok(ApiResponse.success(rooms));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
-
-    // =========================================================================
-    // ROOM ALLOCATION & SEATING GENERATION ENDPOINTS
-    // =========================================================================
 
     @PostMapping("/{id}/rooms")
     public ResponseEntity<ApiResponse<ExamRoomAllocationDto>> assignRoom(
@@ -193,10 +241,14 @@ public class ExamManagementController {
         }
     }
 
-    @PostMapping("/{id}/generate-seating")
-    public ResponseEntity<ApiResponse<ExamDetailDto>> generateSeating(
+    // =========================================================================
+    // PHYSICAL SEAT ALLOCATION & GENERATION ENDPOINTS
+    // =========================================================================
+
+    @PostMapping({"/{id}/allocate-seats", "/{id}/generate-seating"})
+    public ResponseEntity<ApiResponse<ExamDetailDto>> allocateSeats(
             @PathVariable("id") Long id,
-            @RequestBody(required = false) GenerateExamSeatingRequest req,
+            @RequestBody(required = false) AllocateSeatsRequest req,
             HttpServletRequest request
     ) {
         if (!checkAdminAuthorization(request)) {
@@ -205,11 +257,11 @@ public class ExamManagementController {
         }
 
         if (req == null) {
-            req = new GenerateExamSeatingRequest();
+            req = new AllocateSeatsRequest();
         }
 
         try {
-            ExamDetailDto result = examService.generateSeatingArrangement(id, req);
+            ExamDetailDto result = examService.allocateSeats(id, req);
             return ResponseEntity.ok(ApiResponse.success("Automated examination seating generated successfully.", result));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -220,7 +272,7 @@ public class ExamManagementController {
         }
     }
 
-    @DeleteMapping("/{id}/seating")
+    @DeleteMapping({"/{id}/allocations", "/{id}/seating"})
     public ResponseEntity<ApiResponse<Void>> clearSeating(
             @PathVariable("id") Long id,
             HttpServletRequest request
@@ -239,10 +291,30 @@ public class ExamManagementController {
         }
     }
 
-    @GetMapping("/{id}/rooms/{roomId}/seating-grid")
-    public ResponseEntity<ApiResponse<ExamSeatingGridDto>> getSeatingGrid(
+    @GetMapping("/{id}/allocations")
+    public ResponseEntity<ApiResponse<List<ExamRosterStudentDto>>> getExamAllocations(
             @PathVariable("id") Long id,
-            @PathVariable("roomId") Long roomId,
+            HttpServletRequest request
+    ) {
+        if (!checkAdminOrFacultyAuthorization(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Administrative or Faculty privilege required."));
+        }
+
+        try {
+            List<ExamRosterStudentDto> list = examService.getExamAllocations(id);
+            return ResponseEntity.ok(ApiResponse.success(list));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    @GetMapping({"/{id}/seating-plan", "/{id}/rooms/{roomId}/seating-plan", "/{id}/rooms/{roomId}/seating-grid"})
+    public ResponseEntity<ApiResponse<ExamSeatingGridDto>> getSeatingPlan(
+            @PathVariable("id") Long id,
+            @PathVariable(name = "roomId", required = false) Long roomId,
+            @RequestParam(name = "roomId", required = false) Long queryRoomId,
             HttpServletRequest request
     ) {
         if (!checkAdminOrFacultyAuthorization(request)) {
@@ -250,8 +322,20 @@ public class ExamManagementController {
                     .body(ApiResponse.error("Access denied."));
         }
 
+        Long targetRoomId = roomId != null ? roomId : queryRoomId;
+
         try {
-            ExamSeatingGridDto grid = examService.getExamRoomSeatingGrid(id, roomId);
+            if (targetRoomId == null) {
+                // Default to the first assigned room of this exam
+                ExamDetailDto exam = examService.getExamById(id);
+                if (exam.getRooms() == null || exam.getRooms().isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(ApiResponse.error("No examination rooms have been assigned to this exam."));
+                }
+                targetRoomId = exam.getRooms().get(0).getRoomId();
+            }
+
+            ExamSeatingGridDto grid = examService.getExamRoomSeatingPlan(id, targetRoomId);
             return ResponseEntity.ok(ApiResponse.success(grid));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -8,7 +8,8 @@ import java.time.LocalTime;
 @Entity
 @Table(name = "exam_sessions", indexes = {
         @Index(name = "idx_exam_dept_sem", columnList = "department, semester"),
-        @Index(name = "idx_exam_date", columnList = "exam_date")
+        @Index(name = "idx_exam_date", columnList = "exam_date"),
+        @Index(name = "idx_exam_status", columnList = "status")
 })
 public class ExamSession {
 
@@ -41,6 +42,12 @@ public class ExamSession {
     @Column(name = "target_section", length = 50)
     private String targetSection = "ALL";
 
+    @Column(name = "candidate_selection_type", length = 50)
+    private String candidateSelectionType = "DEPARTMENT_SEMESTER";
+
+    @Column(name = "candidate_ids_json", length = 2000)
+    private String candidateIdsJson;
+
     @Column(name = "exam_date", nullable = false)
     private LocalDate examDate;
 
@@ -63,8 +70,14 @@ public class ExamSession {
     @Column(name = "status", nullable = false, length = 30)
     private ExamStatus status = ExamStatus.SCHEDULED;
 
+    @Column(name = "cancellation_reason", length = 300)
+    private String cancellationReason;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     public ExamSession() {
     }
@@ -82,6 +95,7 @@ public class ExamSession {
         this.department = department;
         this.semester = semester;
         this.targetSection = targetSection != null ? targetSection : "ALL";
+        this.candidateSelectionType = "DEPARTMENT_SEMESTER";
         this.examDate = examDate;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -96,6 +110,7 @@ public class ExamSession {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
         if (this.subject != null) {
             if (this.courseCode == null || this.courseCode.isBlank()) {
                 this.courseCode = this.subject.getSubjectCode();
@@ -107,6 +122,29 @@ public class ExamSession {
         if (this.durationMinutes <= 0 && this.startTime != null && this.endTime != null) {
             this.durationMinutes = (int) java.time.Duration.between(this.startTime, this.endTime).toMinutes();
         }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+        if (this.durationMinutes <= 0 && this.startTime != null && this.endTime != null) {
+            this.durationMinutes = (int) java.time.Duration.between(this.startTime, this.endTime).toMinutes();
+        }
+    }
+
+    // Lifecycle methods
+    public void cancel(String reason) {
+        this.status = ExamStatus.CANCELLED;
+        this.cancellationReason = reason;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isCancelled() {
+        return this.status == ExamStatus.CANCELLED;
+    }
+
+    public boolean isAllocationComplete() {
+        return this.status == ExamStatus.ALLOCATION_COMPLETE;
     }
 
     // Getters and Setters
@@ -186,6 +224,22 @@ public class ExamSession {
         this.targetSection = targetSection;
     }
 
+    public String getCandidateSelectionType() {
+        return candidateSelectionType;
+    }
+
+    public void setCandidateSelectionType(String candidateSelectionType) {
+        this.candidateSelectionType = candidateSelectionType;
+    }
+
+    public String getCandidateIdsJson() {
+        return candidateIdsJson;
+    }
+
+    public void setCandidateIdsJson(String candidateIdsJson) {
+        this.candidateIdsJson = candidateIdsJson;
+    }
+
     public LocalDate getExamDate() {
         return examDate;
     }
@@ -242,7 +296,19 @@ public class ExamSession {
         this.status = status;
     }
 
+    public String getCancellationReason() {
+        return cancellationReason;
+    }
+
+    public void setCancellationReason(String cancellationReason) {
+        this.cancellationReason = cancellationReason;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

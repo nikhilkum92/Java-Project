@@ -6,6 +6,7 @@ import com.campusgrid.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -24,6 +25,8 @@ public class ExamService {
     private final FacultyRepository facultyRepository;
     private final SubjectRepository subjectRepository;
     private final ExamSeatingEngine examSeatingEngine;
+
+    private TimetableEntryRepository timetableEntryRepository;
 
     public ExamService(
             ExamSessionRepository examSessionRepository,
@@ -47,8 +50,13 @@ public class ExamService {
         this.examSeatingEngine = examSeatingEngine;
     }
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    public void setTimetableEntryRepository(TimetableEntryRepository timetableEntryRepository) {
+        this.timetableEntryRepository = timetableEntryRepository;
+    }
+
     // =========================================================================
-    // EXAM SESSION CRUD & QUERY
+    // EXAM SESSION CRUD & LIFECYCLE
     // =========================================================================
 
     public ExamDetailDto createExam(CreateExamRequest req) {
@@ -107,23 +115,25 @@ public class ExamService {
         ExamSession session = examSessionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Exam session not found with ID: " + id));
 
+        if (session.isCancelled()) {
+            throw new IllegalStateException("Cannot update a cancelled examination session. Reschedule a new session instead.");
+        }
+
         validateExamTimes(req.getStartTime(), req.getEndTime());
 
-        // Check if date or time change causes conflict with already assigned rooms
-        if (!session.getExamDate().equals(req.getExamDate()) ||
-            !session.getStartTime().equals(req.getStartTime()) ||
-            !session.getEndTime().equals(req.getEndTime())) {
+        // Check if date or time change causes conflict with already assigned rooms or timetable
+        boolean timeChanged = !session.getExamDate().equals(req.getExamDate()) ||
+                              !session.getStartTime().equals(req.getStartTime()) ||
+                              !session.getEndTime().equals(req.getEndTime());
 
+        if (timeChanged) {
             List<ExamRoomAllocation> roomAllocs = examRoomAllocationRepository.findByExamSessionId(id);
             for (ExamRoomAllocation ra : roomAllocs) {
-                List<ExamRoomAllocation> conflicts = examRoomAllocationRepository.findConflictingRoomAllocations(
-                        ra.getRoom().getId(), req.getExamDate(), req.getStartTime(), req.getEndTime(), id
-                );
-                if (!conflicts.isEmpty()) {
-                    throw new IllegalStateException("Cannot reschedule exam: Room " + ra.getRoom().getRoomCode() +
-                            " is already booked for another exam during the new time slot.");
-                }
+                verifyRoomAvailability(ra.getRoom(), req.getExamDate(), req.getStartTime(), req.getEndTime(), id);
             }
+            // Date/time changed: invalidate previous seating allocations
+            examSeatAllocationRepository.deleteByExamSessionId(id);
+            session.setStatus(ExamStatus.SCHEDULED);
         }
 
         session.setTitle(req.getTitle().trim());
@@ -149,12 +159,24 @@ public class ExamService {
         if (req.getCourseName() != null && !req.getCourseName().isBlank()) {
             session.setCourseName(req.getCourseName().trim());
         }
-        if (req.getStatus() != null) {
+        if (req.getStatus() != null && req.getStatus() != ExamStatus.CANCELLED) {
             session.setStatus(req.getStatus());
         }
 
         session = examSessionRepository.save(session);
         return getExamById(session.getId());
+    }
+
+    public ExamDetailDto cancelExam(Long id, String reason) {
+        ExamSession session = examSessionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Exam session not found with ID: " + id));
+
+        // Cancelled exams must not continue to occupy seats or block resources
+        examSeatAllocationRepository.deleteByExamSessionId(id);
+        session.cancel(reason != null ? reason : "Cancelled by examination administrator");
+        session = examSessionRepository.save(session);
+
+        return mapToDetailDto(session);
     }
 
     public void deleteExam(Long id) {
@@ -184,16 +206,16 @@ public class ExamService {
     public ExamStatsDto getExamStats() {
         long totalExams = examSessionRepository.count();
         long scheduled = examSessionRepository.findByStatus(ExamStatus.SCHEDULED).size();
-        long seatingAllocated = examSessionRepository.findByStatus(ExamStatus.SEATING_ALLOCATED).size();
-        long completed = examSessionRepository.findByStatus(ExamStatus.COMPLETED).size();
+        long allocationComplete = examSessionRepository.findByStatus(ExamStatus.ALLOCATION_COMPLETE).size();
+        long cancelled = examSessionRepository.findByStatus(ExamStatus.CANCELLED).size();
         long totalAllocatedSeats = examSeatAllocationRepository.count();
         long activeRooms = examRoomAllocationRepository.count();
 
         return new ExamStatsDto(
                 totalExams,
                 scheduled,
-                seatingAllocated,
-                completed,
+                allocationComplete,
+                cancelled,
                 totalAllocatedSeats,
                 activeRooms,
                 totalAllocatedSeats
@@ -201,12 +223,86 @@ public class ExamService {
     }
 
     // =========================================================================
-    // ROOM ALLOCATION & CONFLICT CHECKING
+    // ROOM ALLOCATION & AVAILABILITY
     // =========================================================================
+
+    @Transactional(readOnly = true)
+    public List<AvailableExamRoomDto> getAvailableRoomsForExam(Long examId) {
+        ExamSession session = examSessionRepository.findById(examId)
+                .orElseThrow(() -> new IllegalArgumentException("Exam session not found with ID: " + examId));
+
+        List<Room> allRooms = roomRepository.findAll();
+        List<ExamRoomAllocation> currentAllocs = examRoomAllocationRepository.findByExamSessionId(examId);
+        Set<Long> assignedRoomIds = currentAllocs.stream().map(a -> a.getRoom().getId()).collect(Collectors.toSet());
+
+        List<AvailableExamRoomDto> result = new ArrayList<>();
+
+        for (Room room : allRooms) {
+            boolean isAssigned = assignedRoomIds.contains(room.getId());
+            List<PhysicalSeat> physicalSeats = physicalSeatRepository.findByRoomIdOrderByRowNumberAscColumnNumberAsc(room.getId());
+            int totalPhysical = physicalSeats.size();
+
+            // Usable seats: active, status AVAILABLE, not aisle gap
+            int usable = (int) physicalSeats.stream()
+                    .filter(s -> s.isActive() && s.getStatus() == SeatStatus.AVAILABLE && s.getSeatType() != SeatType.AISLE_GAP)
+                    .count();
+            int unavailable = totalPhysical - usable;
+
+            boolean ready = true;
+            String reason = null;
+
+            if (room.getStatus() == RoomStatus.MAINTENANCE) {
+                ready = false;
+                reason = "Room is under maintenance";
+            } else if (usable == 0) {
+                ready = false;
+                reason = "Physical seating layout is not configured";
+            } else if (!isAssigned) {
+                // Check conflicts if not already assigned to this exam
+                try {
+                    verifyRoomAvailability(room, session.getExamDate(), session.getStartTime(), session.getEndTime(), examId);
+                } catch (IllegalStateException e) {
+                    ready = false;
+                    reason = e.getMessage();
+                }
+            }
+
+            String blockName = (room.getFloor() != null && room.getFloor().getBlock() != null)
+                    ? room.getFloor().getBlock().getName() : "";
+            int floorNum = (room.getFloor() != null) ? room.getFloor().getFloorNumber() : 0;
+
+            AvailableExamRoomDto dto = new AvailableExamRoomDto(
+                    room.getId(),
+                    room.getRoomCode(),
+                    room.getRoomName(),
+                    room.getRoomType(),
+                    blockName,
+                    floorNum,
+                    room.getCapacity(),
+                    totalPhysical,
+                    usable,
+                    unavailable,
+                    ready,
+                    reason,
+                    isAssigned
+            );
+            result.add(dto);
+        }
+
+        // Sort: ready rooms first, then by room code
+        result.sort(Comparator.comparing(AvailableExamRoomDto::isReadyForSeating).reversed()
+                .thenComparing(AvailableExamRoomDto::getRoomCode));
+
+        return result;
+    }
 
     public ExamRoomAllocationDto assignRoomToExam(Long examId, AssignExamRoomRequest req) {
         ExamSession session = examSessionRepository.findById(examId)
                 .orElseThrow(() -> new IllegalArgumentException("Exam session not found with ID: " + examId));
+
+        if (session.isCancelled()) {
+            throw new IllegalStateException("Cannot assign rooms to a cancelled examination session.");
+        }
 
         Room room = roomRepository.findById(req.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("Room not found with ID: " + req.getRoomId()));
@@ -215,23 +311,10 @@ public class ExamService {
             throw new IllegalArgumentException("Room " + room.getRoomCode() + " is already assigned to this exam session.");
         }
 
-        // Room conflict check: Is room occupied by another exam at the same time?
-        List<ExamRoomAllocation> roomConflicts = examRoomAllocationRepository.findConflictingRoomAllocations(
-                room.getId(), session.getExamDate(), session.getStartTime(), session.getEndTime(), examId
-        );
-        if (!roomConflicts.isEmpty()) {
-            ExamRoomAllocation conflict = roomConflicts.get(0);
-            throw new IllegalStateException(String.format(
-                    "Conflict detected: Room %s is already allocated for exam '%s' (%s - %s) on %s.",
-                    room.getRoomCode(),
-                    conflict.getExamSession().getTitle(),
-                    conflict.getExamSession().getStartTime(),
-                    conflict.getExamSession().getEndTime(),
-                    session.getExamDate()
-            ));
-        }
+        // Verify room availability against overlapping exams & timetable entries
+        verifyRoomAvailability(room, session.getExamDate(), session.getStartTime(), session.getEndTime(), examId);
 
-        // Invigilator conflict check
+        // Verify invigilator conflict
         Faculty invigilator = null;
         if (req.getInvigilatorId() != null) {
             invigilator = facultyRepository.findById(req.getInvigilatorId())
@@ -243,7 +326,7 @@ public class ExamService {
             if (!invigConflicts.isEmpty()) {
                 ExamRoomAllocation conflict = invigConflicts.get(0);
                 throw new IllegalStateException(String.format(
-                        "Conflict detected: Faculty %s is already assigned to invigilate exam '%s' in room %s at this time.",
+                        "Conflict detected: Faculty %s is already assigned to invigilate exam '%s' in room %s during this time.",
                         invigilator.getUser().getFullName(),
                         conflict.getExamSession().getTitle(),
                         conflict.getRoom().getRoomCode()
@@ -270,26 +353,34 @@ public class ExamService {
         long remainingSeats = examSeatAllocationRepository.countByExamSessionId(examId);
         if (remainingSeats == 0) {
             ExamSession session = alloc.getExamSession();
-            session.setStatus(ExamStatus.SCHEDULED);
-            examSessionRepository.save(session);
+            if (!session.isCancelled()) {
+                session.setStatus(ExamStatus.SCHEDULED);
+                examSessionRepository.save(session);
+            }
         }
     }
 
     // =========================================================================
-    // AUTOMATED SEATING ALLOCATION ENGINE
+    // PHYSICAL SEAT ALLOCATION ENGINE
     // =========================================================================
 
-    public ExamDetailDto generateSeatingArrangement(Long examId, GenerateExamSeatingRequest req) {
+    public ExamDetailDto allocateSeats(Long examId, AllocateSeatsRequest req) {
         ExamSession session = examSessionRepository.findById(examId)
                 .orElseThrow(() -> new IllegalArgumentException("Exam session not found with ID: " + examId));
 
-        // 1. Clear any existing seating allocation for this exam session
+        if (session.isCancelled()) {
+            throw new IllegalStateException("Cannot allocate seats for a cancelled examination session.");
+        }
+
+        session.setStatus(ExamStatus.ALLOCATION_IN_PROGRESS);
+        examSessionRepository.save(session);
+
+        // 1. Clear any previous seating allocations for this session cleanly
         examSeatAllocationRepository.deleteByExamSessionId(examId);
 
         // 2. Fetch assigned rooms
         List<ExamRoomAllocation> roomAllocs;
         if (req.getRoomIds() != null && !req.getRoomIds().isEmpty()) {
-            // Assign requested rooms if not yet assigned
             for (Long rId : req.getRoomIds()) {
                 if (!examRoomAllocationRepository.existsByExamSessionIdAndRoomId(examId, rId)) {
                     assignRoomToExam(examId, new AssignExamRoomRequest(rId, null, 0, null));
@@ -303,19 +394,23 @@ public class ExamService {
         }
 
         if (roomAllocs.isEmpty()) {
-            throw new IllegalStateException("Cannot generate seating: No exam rooms allocated to exam session '" + session.getTitle() + "'. Please allocate rooms first.");
+            session.setStatus(ExamStatus.SCHEDULED);
+            examSessionRepository.save(session);
+            throw new IllegalStateException("Cannot allocate seats: No examination halls assigned to exam session '" + session.getTitle() + "'. Please assign rooms first.");
         }
 
-        // 3. Gather candidate students
-        List<Student> students = getCandidateStudents(session, req.getSectionNames());
+        // 3. Gather eligible active students
+        List<Student> students = getCandidateStudents(session, req.getCandidateStudentIds(), req.getSectionNames());
         if (students.isEmpty()) {
+            session.setStatus(ExamStatus.SCHEDULED);
+            examSessionRepository.save(session);
             throw new IllegalStateException(String.format(
-                    "No eligible students found in department '%s' (Semester %d) to seat for this exam.",
+                    "No eligible active students found in department '%s' (Semester %d) to seat for this examination.",
                     session.getDepartment(), session.getSemester()
             ));
         }
 
-        // 4. Gather physical seats for each room in order
+        // 4. Gather physical seats from assigned rooms
         Map<Room, List<PhysicalSeat>> roomSeatsMap = new LinkedHashMap<>();
         for (ExamRoomAllocation ra : roomAllocs) {
             Room room = ra.getRoom();
@@ -323,14 +418,23 @@ public class ExamService {
             roomSeatsMap.put(room, seats);
         }
 
-        // 5. Run seating engine
-        SeatingStrategy strategy = req.getStrategy() != null ? req.getStrategy() : SeatingStrategy.ALTERNATING_SECTION;
+        // 5. Run seating engine deterministically
+        SeatingStrategy strategy = req.getStrategy() != null ? req.getStrategy() : SeatingStrategy.ROLL_NUMBER_ASCENDING;
         int spacingGap = req.getSpacingGap();
-        List<ExamSeatingEngine.SeatingAssignment> assignments = examSeatingEngine.computeSeatingArrangement(
-                students, roomSeatsMap, strategy, spacingGap
-        );
 
-        // 6. Persist allocations
+        List<ExamSeatingEngine.SeatingAssignment> assignments;
+        try {
+            assignments = examSeatingEngine.computeSeatingArrangement(
+                    students, roomSeatsMap, strategy, spacingGap
+            );
+        } catch (Exception e) {
+            // Rollback status
+            session.setStatus(ExamStatus.SCHEDULED);
+            examSessionRepository.save(session);
+            throw e;
+        }
+
+        // 6. Persist allocations transactionally
         List<ExamSeatAllocation> toSave = new ArrayList<>();
         for (ExamSeatingEngine.SeatingAssignment assignment : assignments) {
             ExamSeatAllocation alloc = new ExamSeatAllocation(
@@ -343,11 +447,22 @@ public class ExamService {
         }
         examSeatAllocationRepository.saveAll(toSave);
 
-        // 7. Update exam status
-        session.setStatus(ExamStatus.SEATING_ALLOCATED);
+        // 7. Complete allocation lifecycle
+        session.setStatus(ExamStatus.ALLOCATION_COMPLETE);
         examSessionRepository.save(session);
 
         return getExamById(session.getId());
+    }
+
+    public ExamDetailDto generateSeatingArrangement(Long examId, GenerateExamSeatingRequest req) {
+        AllocateSeatsRequest allocReq = new AllocateSeatsRequest(
+                req.getStrategy(),
+                null,
+                req.getRoomIds(),
+                req.getSectionNames(),
+                req.getSpacingGap()
+        );
+        return allocateSeats(examId, allocReq);
     }
 
     public void clearSeatingArrangement(Long examId) {
@@ -355,16 +470,18 @@ public class ExamService {
                 .orElseThrow(() -> new IllegalArgumentException("Exam session not found with ID: " + examId));
 
         examSeatAllocationRepository.deleteByExamSessionId(examId);
-        session.setStatus(ExamStatus.SCHEDULED);
-        examSessionRepository.save(session);
+        if (!session.isCancelled()) {
+            session.setStatus(ExamStatus.SCHEDULED);
+            examSessionRepository.save(session);
+        }
     }
 
     // =========================================================================
-    // VISUAL SEATING GRID & ATTENDANCE ROSTER
+    // VISUAL SEATING PLAN & ALLOCATION OUTPUTS
     // =========================================================================
 
     @Transactional(readOnly = true)
-    public ExamSeatingGridDto getExamRoomSeatingGrid(Long examId, Long roomId) {
+    public ExamSeatingGridDto getExamRoomSeatingPlan(Long examId, Long roomId) {
         ExamSession session = examSessionRepository.findById(examId)
                 .orElseThrow(() -> new IllegalArgumentException("Exam session not found with ID: " + examId));
 
@@ -383,6 +500,16 @@ public class ExamService {
                 .map(ra -> ra.getInvigilator().getUser().getFullName())
                 .orElse("Unassigned Invigilator");
 
+        int usableSeatsCount = (int) physicalSeats.stream()
+                .filter(s -> s.isActive() && s.getStatus() == SeatStatus.AVAILABLE && s.getSeatType() != SeatType.AISLE_GAP)
+                .count();
+        int unavailableSeatsCount = physicalSeats.size() - usableSeatsCount;
+
+        // Unallocated candidates count
+        List<Student> eligibleStudents = getCandidateStudents(session, null, null);
+        long totalAllocatedInExam = examSeatAllocationRepository.countByExamSessionId(examId);
+        int unallocated = Math.max(0, eligibleStudents.size() - (int) totalAllocatedInExam);
+
         ExamSeatingGridDto gridDto = new ExamSeatingGridDto();
         gridDto.setExamId(session.getId());
         gridDto.setExamTitle(session.getTitle());
@@ -393,22 +520,27 @@ public class ExamService {
         gridDto.setRoomCode(room.getRoomCode());
         gridDto.setRoomName(room.getRoomName());
         gridDto.setBlockName((room.getFloor() != null && room.getFloor().getBlock() != null) ? room.getFloor().getBlock().getName() : "");
+        gridDto.setFloorNumber((room.getFloor() != null) ? room.getFloor().getFloorNumber() : 0);
         gridDto.setRowsCount(room.getRowsCount());
         gridDto.setColumnsCount(room.getColumnsCount());
         gridDto.setTotalSeats(physicalSeats.size());
+        gridDto.setUsableSeatsCount(usableSeatsCount);
+        gridDto.setUnavailableSeatsCount(unavailableSeatsCount);
         gridDto.setAllocatedSeats(allocations.size());
-        gridDto.setAvailableSeats(physicalSeats.size() - allocations.size());
+        gridDto.setAvailableSeats(usableSeatsCount - allocations.size());
+        gridDto.setUnallocatedCandidatesCount(unallocated);
         gridDto.setInvigilatorName(invigilatorName);
 
         List<ExamSeatCellDto> cellList = new ArrayList<>();
         for (PhysicalSeat ps : physicalSeats) {
-            boolean isWalkway = (ps.getSeatType() == SeatType.AISLE_GAP || !ps.isActive() || ps.getStatus() == SeatStatus.MAINTENANCE);
+            boolean isWalkway = (ps.getSeatType() == SeatType.AISLE_GAP || !ps.isActive());
             ExamSeatCellDto cell = new ExamSeatCellDto(
                     ps.getId(),
                     ps.getSeatNumber(),
                     ps.getRowNumber(),
                     ps.getColumnNumber(),
                     ps.getRowLabel(),
+                    ps.getStatus(),
                     isWalkway
             );
 
@@ -433,8 +565,41 @@ public class ExamService {
     }
 
     @Transactional(readOnly = true)
+    public ExamSeatingGridDto getExamRoomSeatingGrid(Long examId, Long roomId) {
+        return getExamRoomSeatingPlan(examId, roomId);
+    }
+
+    @Transactional(readOnly = true)
     public List<ExamRosterStudentDto> getExamRoomRoster(Long examId, Long roomId) {
         List<ExamSeatAllocation> allocations = examSeatAllocationRepository.findByExamSessionIdAndRoomIdOrderByRowNumberAscColumnNumberAsc(examId, roomId);
+
+        return allocations.stream().map(a -> {
+            Student s = a.getStudent();
+            String name = (s != null && s.getUser() != null) ? s.getUser().getFullName() : "Student";
+            String roll = s != null ? s.getRollNumber() : "TBA";
+            String dept = s != null ? s.getDepartment() : "";
+            String sec = s != null ? s.getSectionName() : "";
+
+            return new ExamRosterStudentDto(
+                    a.getId(),
+                    a.getSeatNumber(),
+                    a.getRowLabel(),
+                    a.getRowNumber(),
+                    a.getColumnNumber(),
+                    s != null ? s.getId() : null,
+                    roll,
+                    name,
+                    dept,
+                    sec,
+                    a.getAttendanceStatus(),
+                    a.getRemarks()
+            );
+        }).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExamRosterStudentDto> getExamAllocations(Long examId) {
+        List<ExamSeatAllocation> allocations = examSeatAllocationRepository.findByExamSessionId(examId);
 
         return allocations.stream().map(a -> {
             Student s = a.getStudent();
@@ -472,7 +637,7 @@ public class ExamService {
     }
 
     // =========================================================================
-    // STUDENT PORTAL INTEGRATION HOOK
+    // STUDENT PORTAL SECURE ENDPOINTS HOOKS
     // =========================================================================
 
     @Transactional(readOnly = true)
@@ -509,8 +674,39 @@ public class ExamService {
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public StudentExamAllocationDto getStudentExamAllocation(Long userId, Long examId) {
+        List<ExamSeatAllocation> list = examSeatAllocationRepository.findByStudentUserId(userId);
+        return list.stream()
+                .filter(a -> a.getExamSession().getId().equals(examId))
+                .findFirst()
+                .map(sa -> {
+                    ExamSession session = sa.getExamSession();
+                    Room room = sa.getRoom();
+                    String blockName = (room != null && room.getFloor() != null && room.getFloor().getBlock() != null)
+                            ? room.getFloor().getBlock().getName() : "";
+
+                    return new StudentExamAllocationDto(
+                            sa.getId(),
+                            session.getTitle(),
+                            session.getCourseCode(),
+                            session.getCourseName(),
+                            session.getExamDate().toString(),
+                            session.getStartTime().toString(),
+                            session.getEndTime().toString(),
+                            room != null ? room.getRoomCode() : "TBA",
+                            room != null ? room.getRoomName() : "To Be Announced",
+                            blockName,
+                            sa.getSeatNumber(),
+                            session.getStatus().name(),
+                            session.getInstructions()
+                    );
+                })
+                .orElseThrow(() -> new IllegalArgumentException("No allocated examination seat found for this student and exam."));
+    }
+
     // =========================================================================
-    // INITIAL SEEDING FOR DEMO
+    // INITIAL SEEDING
     // =========================================================================
 
     public void seedInitialExams() {
@@ -521,16 +717,15 @@ public class ExamService {
         System.out.println("Seeding Module 4 Examination & Seating Allocation Data...");
 
         LocalDate today = LocalDate.now();
-        LocalDate examDate1 = today.plusDays(7); // Next week
+        LocalDate examDate1 = today.plusDays(7);
         LocalDate examDate2 = today.plusDays(9);
         LocalDate examDate3 = today.plusDays(12);
 
-        // Subject links if available
         Subject dsa = subjectRepository.findBySubjectCode("CS301").orElse(null);
         Subject dbms = subjectRepository.findBySubjectCode("CS302").orElse(null);
         Subject dld = subjectRepository.findBySubjectCode("CS303").orElse(null);
 
-        // 1. Exam Session 1: Data Structures Midterm
+        // Exam 1
         ExamSession exam1 = new ExamSession(
                 "EXAM-2026-CS301",
                 "Mid-Term Exam: Data Structures & Algorithms",
@@ -542,7 +737,7 @@ public class ExamService {
                 LocalTime.of(9, 30),
                 LocalTime.of(12, 30),
                 100,
-                "1. Scientific calculators permitted. 2. Mobile phones and smart watches strictly prohibited. 3. Arrive 15 minutes prior to scheduled start."
+                "Scientific calculators permitted. No smart watches allowed. Arrive 15 minutes prior."
         );
         if (dsa == null) {
             exam1.setCourseCode("CS301");
@@ -550,7 +745,7 @@ public class ExamService {
         }
         exam1 = examSessionRepository.save(exam1);
 
-        // 2. Exam Session 2: DBMS Midterm
+        // Exam 2
         ExamSession exam2 = new ExamSession(
                 "EXAM-2026-CS302",
                 "Mid-Term Exam: Database Management Systems",
@@ -562,7 +757,7 @@ public class ExamService {
                 LocalTime.of(14, 0),
                 LocalTime.of(17, 0),
                 100,
-                "1. Closed book examination. 2. SQL query sheets provided with exam paper."
+                "Closed book examination. SQL reference sheets provided."
         );
         if (dbms == null) {
             exam2.setCourseCode("CS302");
@@ -570,7 +765,7 @@ public class ExamService {
         }
         exam2 = examSessionRepository.save(exam2);
 
-        // 3. Exam Session 3: Digital Logic
+        // Exam 3
         ExamSession exam3 = new ExamSession(
                 "EXAM-2026-CS303",
                 "Mid-Term Exam: Digital Logic & Design",
@@ -582,7 +777,7 @@ public class ExamService {
                 LocalTime.of(10, 0),
                 LocalTime.of(13, 0),
                 100,
-                "1. Logic truth tables provided. 2. No programmable calculators allowed."
+                "Logic truth tables provided."
         );
         if (dld == null) {
             exam3.setCourseCode("CS303");
@@ -590,7 +785,7 @@ public class ExamService {
         }
         exam3 = examSessionRepository.save(exam3);
 
-        // Assign Rooms and Faculty
+        // Assign Rooms
         Optional<Room> roomA101 = roomRepository.findByRoomCode("A-101");
         Optional<Room> roomA102 = roomRepository.findByRoomCode("A-102");
         List<Faculty> facultyList = facultyRepository.findAll();
@@ -610,19 +805,57 @@ public class ExamService {
             examRoomAllocationRepository.save(ra3);
         }
 
-        // Generate automated seating arrangement for Exam 1 & Exam 2
+        // Generate automated seating arrangement
         try {
-            generateSeatingArrangement(exam1.getId(), new GenerateExamSeatingRequest(SeatingStrategy.ALTERNATING_SECTION, null, null, 0));
-            generateSeatingArrangement(exam2.getId(), new GenerateExamSeatingRequest(SeatingStrategy.SPACED_GAP, null, null, 1));
-            System.out.println("Module 4 Seeding Complete: 3 Exam sessions seeded with room allocations and automated anti-cheating seating!");
+            allocateSeats(exam1.getId(), new AllocateSeatsRequest(SeatingStrategy.ROLL_NUMBER_ASCENDING, null, null, null, 0));
+            allocateSeats(exam2.getId(), new AllocateSeatsRequest(SeatingStrategy.SPACED_GAP, null, null, null, 1));
+            System.out.println("Module 4 Seeding Complete: 3 Exam sessions initialized with room allocations and automated seating!");
         } catch (Exception e) {
             System.out.println("Notice during exam seating generation: " + e.getMessage());
         }
     }
 
     // =========================================================================
-    // PRIVATE HELPERS & MAPPERS
+    // PRIVATE HELPERS
     // =========================================================================
+
+    private void verifyRoomAvailability(Room room, LocalDate examDate, LocalTime start, LocalTime end, Long excludeExamId) {
+        // 1. Check overlapping exam room allocations
+        List<ExamRoomAllocation> examConflicts = examRoomAllocationRepository.findConflictingRoomAllocations(
+                room.getId(), examDate, start, end, excludeExamId
+        );
+        if (!examConflicts.isEmpty()) {
+            ExamRoomAllocation conflict = examConflicts.get(0);
+            throw new IllegalStateException(String.format(
+                    "Conflict detected: Room %s is already allocated for exam '%s' (%s - %s) on %s.",
+                    room.getRoomCode(),
+                    conflict.getExamSession().getTitle(),
+                    conflict.getExamSession().getStartTime(),
+                    conflict.getExamSession().getEndTime(),
+                    examDate
+            ));
+        }
+
+        // 2. Check Module 3 Timetable conflicts
+        if (timetableEntryRepository != null) {
+            DayOfWeek day = examDate.getDayOfWeek();
+            List<TimetableEntry> ttEntries = timetableEntryRepository.findConflictingRoomEntries(
+                    room.getId(), day, examDate, start, end, null
+            );
+            if (!ttEntries.isEmpty()) {
+                TimetableEntry tt = ttEntries.get(0);
+                String subjectTitle = tt.getSubject() != null ? tt.getSubject().getSubjectName() : "Regular Class";
+                throw new IllegalStateException(String.format(
+                        "Conflict detected: Room %s is occupied by timetable schedule '%s' (%s - %s) on %s.",
+                        room.getRoomCode(),
+                        subjectTitle,
+                        tt.getStartTime(),
+                        tt.getEndTime(),
+                        day
+                ));
+            }
+        }
+    }
 
     private void validateExamTimes(LocalTime start, LocalTime end) {
         if (start == null || end == null) {
@@ -642,9 +875,23 @@ public class ExamService {
         return String.format("EXAM-%s-%s-%s", deptPrefix, course, randomSuffix);
     }
 
-    private List<Student> getCandidateStudents(ExamSession session, List<String> sectionNames) {
+    private List<Student> getCandidateStudents(ExamSession session, List<Long> candidateStudentIds, List<String> sectionNames) {
+        List<Student> allStudents = studentRepository.findAll();
+
+        // STRICT: filter only ACTIVE students (Section 6: inactive or cancelled students must not be allocated)
+        List<Student> activeStudents = allStudents.stream()
+                .filter(s -> s.getUser() != null && s.getUser().isActive())
+                .collect(Collectors.toList());
+
+        if (candidateStudentIds != null && !candidateStudentIds.isEmpty()) {
+            Set<Long> idSet = new HashSet<>(candidateStudentIds);
+            return activeStudents.stream()
+                    .filter(s -> idSet.contains(s.getId()))
+                    .collect(Collectors.toList());
+        }
+
         if (sectionNames != null && !sectionNames.isEmpty()) {
-            return studentRepository.findAll().stream()
+            return activeStudents.stream()
                     .filter(s -> session.getDepartment().equalsIgnoreCase(s.getDepartment()))
                     .filter(s -> s.getCurrentSemester() == session.getSemester())
                     .filter(s -> sectionNames.stream().anyMatch(sec -> sec.equalsIgnoreCase(s.getSectionName())))
@@ -652,14 +899,14 @@ public class ExamService {
         }
 
         if (session.getTargetSection() != null && !"ALL".equalsIgnoreCase(session.getTargetSection().trim())) {
-            return studentRepository.findAll().stream()
+            return activeStudents.stream()
                     .filter(s -> session.getDepartment().equalsIgnoreCase(s.getDepartment()))
                     .filter(s -> s.getCurrentSemester() == session.getSemester())
                     .filter(s -> session.getTargetSection().equalsIgnoreCase(s.getSectionName()))
                     .collect(Collectors.toList());
         }
 
-        return studentRepository.findAll().stream()
+        return activeStudents.stream()
                 .filter(s -> session.getDepartment().equalsIgnoreCase(s.getDepartment()))
                 .filter(s -> s.getCurrentSemester() == session.getSemester())
                 .collect(Collectors.toList());
@@ -683,10 +930,32 @@ public class ExamService {
         dto.setMaxMarks(s.getMaxMarks());
         dto.setInstructions(s.getInstructions());
         dto.setStatus(s.getStatus());
+        dto.setCancellationReason(s.getCancellationReason());
 
         List<ExamRoomAllocation> roomAllocs = examRoomAllocationRepository.findByExamSessionId(s.getId());
         dto.setAllocatedRoomsCount(roomAllocs.size());
-        dto.setAllocatedStudentsCount((int) examSeatAllocationRepository.countByExamSessionId(s.getId()));
+
+        int totalAllocated = (int) examSeatAllocationRepository.countByExamSessionId(s.getId());
+        dto.setTotalAllocatedCandidates(totalAllocated);
+
+        // Calculate eligible candidates and unallocated
+        List<Student> eligible = getCandidateStudents(s, null, null);
+        dto.setTotalEligibleCandidates(eligible.size());
+        dto.setTotalUnallocatedCandidates(Math.max(0, eligible.size() - totalAllocated));
+
+        // Calculate total usable vs unavailable seats in assigned rooms
+        int usableSeatsSum = 0;
+        int unavailableSeatsSum = 0;
+        for (ExamRoomAllocation ra : roomAllocs) {
+            List<PhysicalSeat> pSeats = physicalSeatRepository.findByRoomIdOrderByRowNumberAscColumnNumberAsc(ra.getRoom().getId());
+            int usable = (int) pSeats.stream()
+                    .filter(ps -> ps.isActive() && ps.getStatus() == SeatStatus.AVAILABLE && ps.getSeatType() != SeatType.AISLE_GAP)
+                    .count();
+            usableSeatsSum += usable;
+            unavailableSeatsSum += (pSeats.size() - usable);
+        }
+        dto.setTotalUsableSeats(usableSeatsSum);
+        dto.setTotalUnavailableSeats(unavailableSeatsSum);
 
         dto.setRooms(roomAllocs.stream().map(this::mapToRoomAllocationDto).collect(Collectors.toList()));
         return dto;
@@ -696,6 +965,12 @@ public class ExamService {
         Room r = ra.getRoom();
         Faculty f = ra.getInvigilator();
         int seatedCount = (int) examSeatAllocationRepository.countByExamSessionIdAndRoomId(ra.getExamSession().getId(), r.getId());
+
+        List<PhysicalSeat> pSeats = physicalSeatRepository.findByRoomIdOrderByRowNumberAscColumnNumberAsc(r.getId());
+        int usable = (int) pSeats.stream()
+                .filter(ps -> ps.isActive() && ps.getStatus() == SeatStatus.AVAILABLE && ps.getSeatType() != SeatType.AISLE_GAP)
+                .count();
+        int unavailable = pSeats.size() - usable;
 
         return new ExamRoomAllocationDto(
                 ra.getId(),
@@ -710,6 +985,8 @@ public class ExamService {
                 f != null ? f.getEmployeeId() : "",
                 ra.getAllocatedCapacity(),
                 r.getCapacity(),
+                usable,
+                unavailable,
                 seatedCount,
                 ra.getNotes()
         );

@@ -92,12 +92,12 @@ public class ExamServiceTest {
 
         User stuUser1 = new User("rahul", "rahul@college.ac.in", "hash", "Rahul Sharma", Role.STUDENT);
         stuUser1.setId(301L);
-        student1 = new Student(stuUser1, "23CSE001", "Computer Science", "CSE-A", 2, 3);
+        student1 = new Student(stuUser1, "23CSE001", "Computer Science", "CSE-A", 2, 3, "9876543210");
         student1.setId(401L);
 
         User stuUser2 = new User("arjun", "arjun@college.ac.in", "hash", "Arjun Mehta", Role.STUDENT);
         stuUser2.setId(302L);
-        student2 = new Student(stuUser2, "23CSE002", "Computer Science", "CSE-B", 2, 3);
+        student2 = new Student(stuUser2, "23CSE002", "Computer Science", "CSE-B", 2, 3, "9876543211");
         student2.setId(402L);
 
         seat1 = new PhysicalSeat(sampleRoom, "R1-C1", 1, 1, "R1", SeatType.REGULAR, SeatStatus.AVAILABLE);
@@ -214,7 +214,7 @@ public class ExamServiceTest {
 
         // Verify allocations saved
         verify(examSeatAllocationRepository).saveAll(anyList());
-        assertEquals(ExamStatus.SEATING_ALLOCATED, sampleExam.getStatus());
+        assertEquals(ExamStatus.ALLOCATION_COMPLETE, sampleExam.getStatus());
     }
 
     @Test

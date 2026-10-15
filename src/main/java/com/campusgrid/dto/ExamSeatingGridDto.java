@@ -15,11 +15,15 @@ public class ExamSeatingGridDto {
     private String roomCode;
     private String roomName;
     private String blockName;
+    private int floorNumber;
     private int rowsCount;
     private int columnsCount;
     private int totalSeats;
+    private int usableSeatsCount;
+    private int unavailableSeatsCount;
     private int allocatedSeats;
     private int availableSeats;
+    private int unallocatedCandidatesCount;
     private String invigilatorName;
     private List<ExamSeatCellDto> seats = new ArrayList<>();
 
@@ -99,6 +103,14 @@ public class ExamSeatingGridDto {
         this.blockName = blockName;
     }
 
+    public int getFloorNumber() {
+        return floorNumber;
+    }
+
+    public void setFloorNumber(int floorNumber) {
+        this.floorNumber = floorNumber;
+    }
+
     public int getRowsCount() {
         return rowsCount;
     }
@@ -123,6 +135,22 @@ public class ExamSeatingGridDto {
         this.totalSeats = totalSeats;
     }
 
+    public int getUsableSeatsCount() {
+        return usableSeatsCount;
+    }
+
+    public void setUsableSeatsCount(int usableSeatsCount) {
+        this.usableSeatsCount = usableSeatsCount;
+    }
+
+    public int getUnavailableSeatsCount() {
+        return unavailableSeatsCount;
+    }
+
+    public void setUnavailableSeatsCount(int unavailableSeatsCount) {
+        this.unavailableSeatsCount = unavailableSeatsCount;
+    }
+
     public int getAllocatedSeats() {
         return allocatedSeats;
     }
@@ -137,6 +165,14 @@ public class ExamSeatingGridDto {
 
     public void setAvailableSeats(int availableSeats) {
         this.availableSeats = availableSeats;
+    }
+
+    public int getUnallocatedCandidatesCount() {
+        return unallocatedCandidatesCount;
+    }
+
+    public void setUnallocatedCandidatesCount(int unallocatedCandidatesCount) {
+        this.unallocatedCandidatesCount = unallocatedCandidatesCount;
     }
 
     public String getInvigilatorName() {

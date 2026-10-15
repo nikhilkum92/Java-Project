@@ -33,13 +33,13 @@ public class ExamSeatingEngine {
     }
 
     /**
-     * Allocates students to physical seats across one or more exam rooms according to the selected strategy.
+     * Allocates students to physical seats across assigned exam rooms deterministically.
      *
-     * @param students List of enrolled candidate students eligible for this exam.
-     * @param roomSeatsMap Map of Room -> List of active PhysicalSeats in that room (ordered by row & column).
-     * @param strategy The seating strategy (ALTERNATING_SECTION, ROLL_NUMBER_ASCENDING, SPACED_GAP).
-     * @param spacingGap Desired desk spacing gap (e.g., 0 for consecutive, 1 for every second seat).
-     * @return List of computed SeatingAssignment pairings.
+     * @param students List of eligible candidate students.
+     * @param roomSeatsMap Map of Room -> List of PhysicalSeats in that room.
+     * @param strategy The seating strategy (ROLL_NUMBER_ASCENDING, ALTERNATING_SECTION, SPACED_GAP).
+     * @param spacingGap 0 for consecutive, 1 for alternate seats.
+     * @return List of deterministic SeatingAssignment pairings.
      */
     public List<SeatingAssignment> computeSeatingArrangement(
             List<Student> students,
@@ -51,41 +51,58 @@ public class ExamSeatingEngine {
             return Collections.emptyList();
         }
 
-        // 1. Order candidates based on strategy
+        // 1. Order candidates stably and deterministically
         List<Student> orderedStudents = orderCandidates(students, strategy);
 
-        // 2. Prepare the available physical seat sequence across all allocated rooms
+        // 2. Prepare the available usable physical seat sequence across all allocated rooms
         List<Map.Entry<Room, PhysicalSeat>> eligibleSeats = new ArrayList<>();
         boolean applySpacing = (strategy == SeatingStrategy.SPACED_GAP || spacingGap > 0);
 
-        for (Map.Entry<Room, List<PhysicalSeat>> entry : roomSeatsMap.entrySet()) {
-            Room room = entry.getKey();
-            List<PhysicalSeat> seats = entry.getValue();
+        // Sort rooms stably by room code
+        List<Map.Entry<Room, List<PhysicalSeat>>> sortedRooms = new ArrayList<>(roomSeatsMap.entrySet());
+        sortedRooms.sort(Comparator.comparing(e -> e.getKey().getRoomCode() != null ? e.getKey().getRoomCode() : ""));
 
-            // Filter only available active seats that are not marked as BLOCKED or MAINTENANCE
+        int totalUnavailableInAssignedRooms = 0;
+
+        for (Map.Entry<Room, List<PhysicalSeat>> entry : sortedRooms) {
+            Room room = entry.getKey();
+            List<PhysicalSeat> seats = new ArrayList<>(entry.getValue());
+
+            // Stably sort seats by row, column, seatNumber
+            seats.sort(Comparator.comparingInt(PhysicalSeat::getRowNumber)
+                    .thenComparingInt(PhysicalSeat::getColumnNumber)
+                    .thenComparing(s -> s.getSeatNumber() != null ? s.getSeatNumber() : ""));
+
             int seatCounter = 0;
             for (PhysicalSeat seat : seats) {
-                if (seat.isActive() && seat.getStatus() == SeatStatus.AVAILABLE) {
+                // Strict check: only active seats with status AVAILABLE and NOT aisle walkways
+                boolean isUsable = seat.isActive() &&
+                                   seat.getStatus() == SeatStatus.AVAILABLE &&
+                                   seat.getSeatType() != SeatType.AISLE_GAP;
+
+                if (isUsable) {
                     if (!applySpacing || (seatCounter % 2 == 0)) {
                         eligibleSeats.add(Map.entry(room, seat));
                     }
                     seatCounter++;
+                } else {
+                    totalUnavailableInAssignedRooms++;
                 }
             }
         }
 
         if (eligibleSeats.isEmpty()) {
-            throw new IllegalStateException("No available physical seats found in the assigned exam rooms.");
+            throw new IllegalStateException("No usable physical seats found in the assigned examination rooms. All seats are either unconfigured, blocked, or under maintenance.");
         }
 
         if (orderedStudents.size() > eligibleSeats.size()) {
-            throw new IllegalArgumentException(String.format(
-                    "Insufficient seating capacity! Candidates to seat: %d, Available seats: %d. Please assign additional exam rooms or reduce spacing.",
-                    orderedStudents.size(), eligibleSeats.size()
+            throw new IllegalStateException(String.format(
+                    "Insufficient seating capacity! Eligible candidates: %d, Usable seats available: %d (%d seats in assigned rooms are blocked or unavailable). Please assign additional rooms.",
+                    orderedStudents.size(), eligibleSeats.size(), totalUnavailableInAssignedRooms
             ));
         }
 
-        // 3. Map students to seats
+        // 3. Map students to seats deterministically
         List<SeatingAssignment> assignments = new ArrayList<>();
         for (int i = 0; i < orderedStudents.size(); i++) {
             Student candidate = orderedStudents.get(i);
@@ -97,28 +114,27 @@ public class ExamSeatingEngine {
     }
 
     /**
-     * Orders candidate students to achieve anti-cheating separation or roll number order.
+     * Stably orders candidate students.
      */
     private List<Student> orderCandidates(List<Student> rawList, SeatingStrategy strategy) {
         List<Student> candidates = new ArrayList<>(rawList);
 
         if (strategy == SeatingStrategy.ROLL_NUMBER_ASCENDING) {
-            candidates.sort(Comparator.comparing(s -> s.getRollNumber() != null ? s.getRollNumber() : ""));
+            candidates.sort(Comparator.comparing(s -> s.getRollNumber() != null ? s.getRollNumber() : "", String::compareTo));
             return candidates;
         }
 
         if (strategy == SeatingStrategy.ALTERNATING_SECTION) {
-            // Group students by section
+            // Group students by section with stable roll number order inside each section
+            candidates.sort(Comparator.comparing(s -> s.getRollNumber() != null ? s.getRollNumber() : "", String::compareTo));
             Map<String, Queue<Student>> sectionQueues = new LinkedHashMap<>();
-            // Sort internally by roll number
-            candidates.sort(Comparator.comparing(s -> s.getRollNumber() != null ? s.getRollNumber() : ""));
 
             for (Student s : candidates) {
-                String sec = s.getSectionName() != null ? s.getSectionName() : "DEFAULT";
+                String sec = s.getSectionName() != null ? s.getSectionName().trim().toUpperCase() : "GENERAL";
                 sectionQueues.computeIfAbsent(sec, k -> new LinkedList<>()).add(s);
             }
 
-            // Interleave sections round-robin: Sec A student, Sec B student, Sec C student, Sec A student...
+            // Interleave sections deterministically: Sec A student 1, Sec B student 1, Sec C student 1...
             List<Student> interleaved = new ArrayList<>();
             boolean hasMore = true;
             while (hasMore) {
@@ -134,7 +150,7 @@ public class ExamSeatingEngine {
         }
 
         // Default: Sort by roll number
-        candidates.sort(Comparator.comparing(s -> s.getRollNumber() != null ? s.getRollNumber() : ""));
+        candidates.sort(Comparator.comparing(s -> s.getRollNumber() != null ? s.getRollNumber() : "", String::compareTo));
         return candidates;
     }
 }

@@ -147,4 +147,12 @@ public class StudentService {
         }
         return Collections.emptyList();
     }
+
+    public StudentExamAllocationDto getStudentExamAllocation(Long userId, Long examId) {
+        Student student = getStudentByUserId(userId);
+        if (examService != null) {
+            return examService.getStudentExamAllocation(userId, examId);
+        }
+        throw new IllegalStateException("Exam service is not available.");
+    }
 }
