@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examination &amp; Seating Allocation — CampusGrid</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Examination specific styling */
+        .exam-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .exam-stat-card {
+            background: #FFFFFF;
+            border: 1px solid var(--cg-border);
+            border-radius: var(--cg-radius-md);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .exam-stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-tabs-cg {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--cg-border);
+            margin-bottom: 24px;
+        }
+        .nav-tab-cg {
+            padding: 12px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--cg-text-secondary);
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-tab-cg:hover {
+            color: var(--cg-primary-blue);
+        }
+        .nav-tab-cg.active {
+            color: var(--cg-primary-blue);
+            border-bottom-color: var(--cg-primary-blue);
+        }
+        .seat-desk-box {
+            width: 105px;
+            height: 75px;
+            border: 1px solid var(--cg-border);
+            border-radius: 6px;
+            background: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px 8px;
+            font-size: 11px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        .seat-desk-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            border-color: var(--cg-primary-blue);
+        }
+        .seat-desk-box.allocated {
+            background: #F0FDF4;
+            border-color: #86EFAC;
+        }
+        .seat-desk-box.absent {
+            background: #FEF2F2;
+            border-color: #FCA5A5;
+        }
+        .seat-desk-box.walkway {
+            background: transparent;
+            border: 1px dashed #CBD5E1;
+            opacity: 0.45;
+            cursor: default;
+        }
+        .seat-desk-box.walkway:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #CBD5E1;
+        }
+        .print-only {
+            display: none;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableRosterSection, #printableRosterSection * {
+                visibility: visible;
+            }
+            #printableRosterSection {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar no-print">
+            <a href="/admin/dashboard" class="sidebar-brand">
+                <span class="sidebar-brand-pill">CG</span>
+                <span>CampusGrid</span>
+            </a>
+
+            <div class="sidebar-nav">
+                <div class="sidebar-category">Space Management</div>
+                <a href="/admin/campus" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Campus &amp; Blocks</span>
+                </a>
+                <a href="/admin/rooms" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                    </svg>
+                    <span>Rooms &amp; Labs</span>
+                </a>
+                <a href="/admin/seating" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M8 12h8"></path>
+                        <path d="M12 8v8"></path>
+                    </svg>
+                    <span>Seat Layouts</span>
+                </a>
+
+                <div class="sidebar-category">Academics</div>
+                <a href="/admin/users" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>User Management</span>
+                </a>
+                <a href="/admin/timetable" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>Timetable &amp; Allocation</span>
+                </a>
+
+                <div class="sidebar-category">Examinations</div>
+                <a href="/admin/examinations" class="sidebar-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Examinations</span>
+                </a>
+
+                <div class="sidebar-category">System</div>
+                <a href="#" onclick="openNotificationCenter(); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span>Notifications</span>
+                </a>
+                <a href="#" onclick="openSystemReports(); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Topbar -->
+        <header class="topbar no-print">
+            <div class="topbar-left">
+                <div class="input-with-icon" style="width: 320px;">
+                    <span class="input-icon-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" id="globalExamSearch" class="global-search-input" placeholder="Search exams by code or title... (Ctrl+K)">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div style="font-size: 12px; font-weight: 500; color: var(--cg-text-muted);" id="currentDateStr"></div>
+                <div class="profile-dropdown">
+                    <div class="profile-chip" onclick="document.getElementById('modalLogoutConfirm').classList.add('show')" title="Click to logout">
+                        <div class="avatar-circle" id="userAvatar">A</div>
+                        <div class="profile-info">
+                            <span class="profile-name" id="userDisplayName">Administrator</span>
+                            <span class="profile-role">ADMIN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Wrapper -->
+        <main class="main-content">
+            <!-- Breadcrumbs & Title -->
+            <div class="breadcrumb-cg no-print">
+                <span>CampusGrid</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span>Examinations</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span style="color: var(--cg-text-primary); font-weight: 600;">Examination &amp; Seating Allocation</span>
+            </div>
+
+            <div class="page-header no-print">
+                <div>
+                    <h1 class="page-title">Examination &amp; Seating Management</h1>
+                    <div style="font-size: 13px; color: var(--cg-text-muted); margin-top: 3px;">
+                        Manage examination schedules, allocate examination halls, and run automated anti-cheating seat placement.
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" onclick="ExamMgmt.openRosterPrintModal()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                        <span>Print Door Notice</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="ExamMgmt.openScheduleModal()">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Schedule Exam</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="exam-stat-grid no-print">
+                <div class="exam-stat-card">
+                    <div class="exam-stat-icon" style="background:#EEF2FF; color:#4F46E5;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); text-transform: uppercase; font-weight: 600;">Total Exams</div>
+                        <div style="font-size: 22px; font-weight: 700; color: var(--cg-text-primary);" id="statTotalExams">0</div>
+                    </div>
+                </div>
+
+                <div class="exam-stat-card">
+                    <div class="exam-stat-icon" style="background:#ECFDF5; color:#10B981;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); text-transform: uppercase; font-weight: 600;">Seated Candidates</div>
+                        <div style="font-size: 22px; font-weight: 700; color: #10B981;" id="statAllocatedSeats">0</div>
+                    </div>
+                </div>
+
+                <div class="exam-stat-card">
+                    <div class="exam-stat-icon" style="background:#EFF6FF; color:#2563EB;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); text-transform: uppercase; font-weight: 600;">Active Exam Halls</div>
+                        <div style="font-size: 22px; font-weight: 700; color: #2563EB;" id="statActiveHalls">0</div>
+                    </div>
+                </div>
+
+                <div class="exam-stat-card">
+                    <div class="exam-stat-icon" style="background:#FDF2F8; color:#DB2777;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); text-transform: uppercase; font-weight: 600;">Upcoming Sessions</div>
+                        <div style="font-size: 22px; font-weight: 700; color: #DB2777;" id="statScheduledExams">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="nav-tabs-cg no-print">
+                <a class="nav-tab-cg active" id="tabLinkSchedules" onclick="ExamMgmt.switchTab('schedules')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>1. Exam Sessions &amp; Schedules</span>
+                </a>
+                <a class="nav-tab-cg" id="tabLinkAllocator" onclick="ExamMgmt.switchTab('allocator')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>2. Hall &amp; Seating Engine</span>
+                </a>
+                <a class="nav-tab-cg" id="tabLinkMatrix" onclick="ExamMgmt.switchTab('matrix')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                    <span>3. Visual Seating Matrix</span>
+                </a>
+                <a class="nav-tab-cg" id="tabLinkRoster" onclick="ExamMgmt.switchTab('roster')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    <span>4. Attendance &amp; Door Roster</span>
+                </a>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 1: EXAM SCHEDULES & DIRECTORY                              -->
+            <!-- ============================================================== -->
+            <div id="tabContentSchedules" class="tab-pane-cg">
+                <!-- Filter Bar -->
+                <div class="card" style="padding: 16px 20px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="form-group-cg" style="margin-bottom:0; min-width: 180px;">
+                            <label class="form-label-cg">Department</label>
+                            <select id="filterDept" class="input-cg" style="height: 38px;" onchange="ExamMgmt.loadExams()">
+                                <option value="">All Departments</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics">Electronics</option>
+                            </select>
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0; width: 130px;">
+                            <label class="form-label-cg">Semester</label>
+                            <select id="filterSemester" class="input-cg" style="height: 38px;" onchange="ExamMgmt.loadExams()">
+                                <option value="">All Semesters</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3" selected>Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                                <option value="7">Semester 7</option>
+                                <option value="8">Semester 8</option>
+                            </select>
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0; width: 160px;">
+                            <label class="form-label-cg">Status</label>
+                            <select id="filterStatus" class="input-cg" style="height: 38px;" onchange="ExamMgmt.loadExams()">
+                                <option value="">All Statuses</option>
+                                <option value="SCHEDULED">SCHEDULED</option>
+                                <option value="SEATING_ALLOCATED">SEATING ALLOCATED</option>
+                                <option value="IN_PROGRESS">IN PROGRESS</option>
+                                <option value="COMPLETED">COMPLETED</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline" style="height: 38px;" onclick="ExamMgmt.resetFilters()">Reset Filters</button>
+                    </div>
+                </div>
+
+                <!-- Exams Table Card -->
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-responsive">
+                        <table class="table-cg" id="examsTable">
+                            <thead>
+                                <tr>
+                                    <th>Exam Code</th>
+                                    <th>Title &amp; Course</th>
+                                    <th>Dept / Sem</th>
+                                    <th>Date &amp; Time</th>
+                                    <th>Allocated Halls</th>
+                                    <th>Seated Candidates</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="examsTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 40px; color: var(--cg-text-muted);">
+                                        Loading examination sessions...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 2: HALL & SEATING ENGINE CONTROLS                          -->
+            <!-- ============================================================== -->
+            <div id="tabContentAllocator" class="tab-pane-cg" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                    <!-- Panel 1: Examination Hall Assigner -->
+                    <div class="card" style="padding: 20px;">
+                        <h2 style="font-size: 15px; font-weight: 700; color: var(--cg-text-primary); margin-bottom: 4px;">
+                            Step 1: Assign Examination Halls &amp; Invigilators
+                        </h2>
+                        <div style="font-size: 12.5px; color: var(--cg-text-muted); margin-bottom: 16px;">
+                            Select target exam session, assign available rooms, and appoint faculty invigilators.
+                        </div>
+
+                        <div class="form-group-cg">
+                            <label class="form-label-cg">Target Exam Session *</label>
+                            <select id="allocatorExamSelect" class="input-cg" onchange="ExamMgmt.onExamSelectedForAllocation()"></select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group-cg">
+                                <label class="form-label-cg">Available Hall / Room *</label>
+                                <select id="allocatorRoomSelect" class="input-cg"></select>
+                            </div>
+                            <div class="form-group-cg">
+                                <label class="form-label-cg">Faculty Invigilator</label>
+                                <select id="allocatorFacultySelect" class="input-cg"></select>
+                            </div>
+                        </div>
+
+                        <div class="form-group-cg">
+                            <label class="form-label-cg">Special Hall Instructions / Notes</label>
+                            <input type="text" id="allocatorRoomNotes" class="input-cg" placeholder="e.g. Extra question papers at front desk">
+                        </div>
+
+                        <button class="btn btn-outline" style="width: 100%; justify-content: center;" onclick="ExamMgmt.assignHallToExam()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+                            <span>Add Hall to Examination</span>
+                        </button>
+
+                        <div style="margin-top: 20px;">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--cg-text-muted); text-transform: uppercase; margin-bottom: 8px;">
+                                Currently Assigned Halls for Selected Exam:
+                            </div>
+                            <div id="assignedHallsList" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="font-size: 12px; color: var(--cg-text-muted);">Please select an exam to view assigned halls.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: Automated Anti-Cheating Seating Engine -->
+                    <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <h2 style="font-size: 15px; font-weight: 700; color: var(--cg-text-primary); margin-bottom: 4px;">
+                                Step 2: Automated Anti-Cheating Seating Generator
+                            </h2>
+                            <div style="font-size: 12.5px; color: var(--cg-text-muted); margin-bottom: 16px;">
+                                Automatically distributes candidates into physical room desks according to selected institutional algorithms.
+                            </div>
+
+                            <div class="form-group-cg">
+                                <label class="form-label-cg">Anti-Cheating Seating Algorithm *</label>
+                                <select id="allocatorStrategySelect" class="input-cg" style="font-weight: 600;">
+                                    <option value="ALTERNATING_SECTION">⚡ Alternating Sections (Interleaved Anti-Cheating)</option>
+                                    <option value="SPACED_GAP">🛡️ Spaced Desks (1 Empty Seat Gap / Social Distance)</option>
+                                    <option value="ROLL_NUMBER_ASCENDING">📝 Roll Number Ascending (Sequential Placement)</option>
+                                </select>
+                                <div style="font-size: 11.5px; color: var(--cg-text-muted); margin-top: 4px;">
+                                    * Alternating Sections ensures adjacent students belong to different sections/paper sets.
+                                </div>
+                            </div>
+
+                            <div class="form-group-cg">
+                                <label class="form-label-cg">Spacing Gap</label>
+                                <select id="allocatorSpacingGap" class="input-cg">
+                                    <option value="0">0 Desks (100% Desk Capacity)</option>
+                                    <option value="1">1 Desk Gap (50% Exam Density Spacing)</option>
+                                </select>
+                            </div>
+
+                            <div style="background: #F8FAFC; border: 1px solid var(--cg-border); border-radius: 6px; padding: 14px; margin-top: 14px; font-size: 12px; line-height: 1.5; color: var(--cg-text-secondary);">
+                                <strong>System Checks Enforced:</strong><br>
+                                &bull; Detects overlapping room reservations &amp; faculty conflicts.<br>
+                                &bull; Automatically verifies physical desk status (skips maintenance/walkway aisles).<br>
+                                &bull; Live updates student portal for candidate seat discovery.
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 24px;">
+                            <button class="btn btn-primary" style="flex: 1; justify-content: center; height: 42px;" onclick="ExamMgmt.runAutomatedSeatingEngine()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                <span>Run Automated Seating Engine</span>
+                            </button>
+                            <button class="btn btn-outline" style="color: var(--cg-danger); border-color: #FECACA; height: 42px;" onclick="ExamMgmt.clearSeatingAllocation()">
+                                <span>Clear Seating</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 3: VISUAL HALL SEATING MATRIX                             -->
+            <!-- ============================================================== -->
+            <div id="tabContentMatrix" class="tab-pane-cg" style="display: none;">
+                <!-- Header Filter -->
+                <div class="card" style="padding: 16px 20px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+                        <div class="form-group-cg" style="margin-bottom:0; min-width: 260px;">
+                            <label class="form-label-cg">Exam Session</label>
+                            <select id="matrixExamSelect" class="input-cg" onchange="ExamMgmt.onMatrixExamChanged()"></select>
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0; min-width: 220px;">
+                            <label class="form-label-cg">Examination Hall</label>
+                            <select id="matrixRoomSelect" class="input-cg" onchange="ExamMgmt.loadVisualSeatingMatrix()"></select>
+                        </div>
+                        <button class="btn btn-primary" style="height: 38px;" onclick="ExamMgmt.loadVisualSeatingMatrix()">
+                            <span>Refresh Grid</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Matrix Stage Canvas -->
+                <div class="card" style="padding: 24px; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--cg-border); padding-bottom: 14px;">
+                        <div>
+                            <h2 style="font-size: 16px; font-weight: 700; color: var(--cg-brand-black);" id="matrixHallTitle">Select an exam &amp; hall to render seating matrix</h2>
+                            <div style="font-size: 12px; color: var(--cg-text-muted); margin-top: 2px;" id="matrixHallMeta">--</div>
+                        </div>
+                        <div style="display: flex; gap: 16px;">
+                            <div style="text-align: right;">
+                                <div style="font-size: 11px; color: var(--cg-text-muted); text-transform: uppercase;">Candidates Seated</div>
+                                <div style="font-size: 18px; font-weight: 700; color: #10B981;" id="matrixCountSeated">0 / 0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Screen / Front Indicator -->
+                    <div style="background: #0F172A; color: #FFFFFF; text-align: center; padding: 7px; border-radius: 4px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 24px;">
+                        FRONT &bull; EXAMINATION PODIUM / WHITEBOARD &bull; INVIGILATOR DESK
+                    </div>
+
+                    <!-- Grid Desks Stage -->
+                    <div id="visualMatrixContainer" style="overflow-x: auto; padding: 10px 0; min-height: 250px; display: flex; justify-content: center;">
+                        <div style="padding: 40px; text-align: center; color: var(--cg-text-muted);">
+                            Please select an exam session and room above.
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div style="display: flex; gap: 20px; justify-content: center; margin-top: 24px; font-size: 12px; color: var(--cg-text-secondary); border-top: 1px solid var(--cg-border); padding-top: 16px; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="width: 14px; height: 14px; background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 3px;"></span>
+                            <span>Allocated Candidate Desk</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="width: 14px; height: 14px; background: #FFFFFF; border: 1px solid var(--cg-border); border-radius: 3px;"></span>
+                            <span>Unoccupied Desk</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="width: 14px; height: 14px; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 3px;"></span>
+                            <span>Marked Absent</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="width: 14px; height: 14px; background: transparent; border: 1px dashed #CBD5E1; border-radius: 3px;"></span>
+                            <span>Walkway / Corridor Gap</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 4: OFFICIAL ATTENDANCE & PRINTABLE DOOR ROSTER             -->
+            <!-- ============================================================== -->
+            <div id="tabContentRoster" class="tab-pane-cg" style="display: none;">
+                <div class="card no-print" style="padding: 16px 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <div class="form-group-cg" style="margin-bottom:0; min-width: 260px;">
+                                <label class="form-label-cg">Exam Session</label>
+                                <select id="rosterExamSelect" class="input-cg" onchange="ExamMgmt.onRosterExamChanged()"></select>
+                            </div>
+                            <div class="form-group-cg" style="margin-bottom:0; min-width: 220px;">
+                                <label class="form-label-cg">Examination Hall</label>
+                                <select id="rosterRoomSelect" class="input-cg" onchange="ExamMgmt.loadRoster()"></select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="window.print()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            <span>Print Hall Notice / Attendance Sheet</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Printable Document Sheet -->
+                <div id="printableRosterSection" class="card" style="padding: 30px; background: #FFFFFF;">
+                    <div style="text-align: center; border-bottom: 2px solid #0F172A; padding-bottom: 16px; margin-bottom: 20px;">
+                        <h1 style="font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; text-transform: uppercase;">
+                            CampusGrid University Examination Board
+                        </h1>
+                        <div style="font-size: 13px; font-weight: 600; color: #475569;" id="rosterDocTitle">
+                            OFFICIAL EXAMINATION SEATING ROSTER &amp; DOOR NOTICE
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; font-size: 13px; line-height: 1.6; background: #F8FAFC; padding: 14px 18px; border-radius: 6px; border: 1px solid #E2E8F0;">
+                        <div>
+                            <div><strong>Examination:</strong> <span id="docExamTitle">--</span></div>
+                            <div><strong>Course Code:</strong> <span id="docCourseCode">--</span></div>
+                            <div><strong>Date &amp; Time:</strong> <span id="docDateTime">--</span></div>
+                        </div>
+                        <div>
+                            <div><strong>Examination Hall:</strong> <span id="docHall">--</span></div>
+                            <div><strong>Invigilator:</strong> <span id="docInvigilator">--</span></div>
+                            <div><strong>Total Candidates:</strong> <span id="docCandidateCount">0</span></div>
+                        </div>
+                    </div>
+
+                    <table class="table-cg" style="width: 100%; border: 1px solid #E2E8F0;" id="rosterTable">
+                        <thead>
+                            <tr style="background: #F1F5F9;">
+                                <th style="width: 70px;">Desk #</th>
+                                <th>Roll Number</th>
+                                <th>Candidate Full Name</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th style="width: 120px;">Attendance</th>
+                                <th style="width: 140px;">Candidate Signature</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rosterTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 24px; color: var(--cg-text-muted);">
+                                    Please select an examination and hall above.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; color: #475569; padding-top: 20px; border-top: 1px dashed #CBD5E1;">
+                        <div>
+                            <div>Invigilator Signature: _______________________</div>
+                            <div style="margin-top: 4px;">Name: <span id="docSignInvigilator">--</span></div>
+                        </div>
+                        <div>
+                            <div>Chief Superintendent Seal: _______________________</div>
+                            <div style="margin-top: 4px;">Date Verified: <span id="docDateVerified">--</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODALS                                                         -->
+    <!-- ============================================================== -->
+
+    <!-- Modal 1: Schedule Exam Modal -->
+    <div class="modal-cg" id="modalScheduleExam">
+        <div class="modal-box-cg" style="max-width: 580px;">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 16px;">Schedule New Examination Session</div>
+                <button class="btn-action-cg" style="border:none;" onclick="ExamMgmt.closeScheduleModal()">&times;</button>
+            </div>
+            <form id="formScheduleExam" onsubmit="ExamMgmt.submitScheduleExam(event)">
+                <div class="modal-body-cg" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Exam Title *</label>
+                        <input type="text" id="schedTitle" class="input-cg" placeholder="e.g. Mid-Term Examination: Operating Systems" required>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Exam Code (Optional)</label>
+                            <input type="text" id="schedExamCode" class="input-cg" placeholder="Auto-generated if empty">
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Link Subject (Optional)</label>
+                            <select id="schedSubjectSelect" class="input-cg" onchange="ExamMgmt.onSubjectAutoFill()"></select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Department *</label>
+                            <select id="schedDept" class="input-cg" required>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics">Electronics</option>
+                            </select>
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Semester *</label>
+                            <select id="schedSemester" class="input-cg" required>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3" selected>Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                                <option value="7">Semester 7</option>
+                                <option value="8">Semester 8</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Course Code</label>
+                            <input type="text" id="schedCourseCode" class="input-cg" placeholder="e.g. CS304">
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Course Name</label>
+                            <input type="text" id="schedCourseName" class="input-cg" placeholder="e.g. Operating Systems">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Date *</label>
+                            <input type="date" id="schedDate" class="input-cg" required>
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">Start Time *</label>
+                            <input type="time" id="schedStartTime" class="input-cg" value="09:30" required>
+                        </div>
+                        <div class="form-group-cg" style="margin-bottom:0;">
+                            <label class="form-label-cg">End Time *</label>
+                            <input type="time" id="schedEndTime" class="input-cg" value="12:30" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group-cg" style="margin-bottom:0;">
+                        <label class="form-label-cg">Candidate Instructions</label>
+                        <textarea id="schedInstructions" class="input-cg" style="height: 60px; padding: 8px;" placeholder="e.g. Carry valid admit card and student ID. No smart watches allowed."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer-cg">
+                    <button type="button" class="btn btn-outline" onclick="ExamMgmt.closeScheduleModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Examination</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Attendance Marking Modal -->
+    <div class="modal-cg" id="modalAttendance">
+        <div class="modal-box-cg" style="max-width: 420px;">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px;">Mark Candidate Attendance</div>
+                <button class="btn-action-cg" style="border:none;" onclick="ExamMgmt.closeAttendanceModal()">&times;</button>
+            </div>
+            <div class="modal-body-cg" style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="hidden" id="attAllocId">
+                <div style="background: #F8FAFC; padding: 12px; border-radius: 6px; border: 1px solid var(--cg-border); font-size: 13px; line-height: 1.5;">
+                    <div><strong>Candidate:</strong> <span id="attCandidateName">--</span></div>
+                    <div><strong>Roll Number:</strong> <span id="attCandidateRoll">--</span></div>
+                    <div><strong>Desk Assigned:</strong> <span id="attSeatNumber" style="font-weight: 700; color: var(--cg-primary-blue);">--</span></div>
+                </div>
+
+                <div class="form-group-cg" style="margin-bottom:0;">
+                    <label class="form-label-cg">Attendance Status *</label>
+                    <select id="attStatusSelect" class="input-cg">
+                        <option value="PRESENT">✅ PRESENT</option>
+                        <option value="ABSENT">❌ ABSENT</option>
+                        <option value="DISQUALIFIED">⚠️ DISQUALIFIED</option>
+                        <option value="ALLOCATED">⏳ PENDING ALLOCATION</option>
+                    </select>
+                </div>
+
+                <div class="form-group-cg" style="margin-bottom:0;">
+                    <label class="form-label-cg">Remarks (Optional)</label>
+                    <input type="text" id="attRemarks" class="input-cg" placeholder="e.g. Late entry by 10 minutes">
+                </div>
+            </div>
+            <div class="modal-footer-cg">
+                <button type="button" class="btn btn-outline" onclick="ExamMgmt.closeAttendanceModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="ExamMgmt.submitAttendance()">Save Attendance</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Logout Confirmation -->
+    <div class="modal-cg" id="modalLogoutConfirm">
+        <div class="modal-box-cg" style="max-width: 380px;">
+            <div class="modal-header-cg">
+                <div style="font-weight: 700; font-size: 15px;">Confirm Sign Out</div>
+                <button class="btn-action-cg" style="border:none;" onclick="document.getElementById('modalLogoutConfirm').classList.remove('show')">&times;</button>
+            </div>
+            <div class="modal-body-cg" style="font-size: 13px; color: var(--cg-text-secondary);">
+                Are you sure you want to log out of your administrative session?
+            </div>
+            <div class="modal-footer-cg">
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('modalLogoutConfirm').classList.remove('show')">Stay</button>
+                <button type="button" class="btn btn-primary" style="background: var(--cg-danger); border-color: var(--cg-danger);" onclick="Auth.logout()">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/examination-management.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            ExamMgmt.init();
+        });
+    </script>
+</body>
+</html>

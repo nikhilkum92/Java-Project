@@ -18,7 +18,8 @@ public class CampusGridApplication {
     public CommandLineRunner initDatabase(
             org.springframework.beans.factory.ObjectProvider<UserService> userServiceProvider,
             org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.SpaceService> spaceServiceProvider,
-            org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.TimetableService> timetableServiceProvider
+            org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.TimetableService> timetableServiceProvider,
+            org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.ExamService> examServiceProvider
     ) {
         return args -> {
             try {
@@ -33,6 +34,10 @@ public class CampusGridApplication {
                 com.campusgrid.service.TimetableService timetableService = timetableServiceProvider.getIfAvailable();
                 if (timetableService != null) {
                     timetableService.seedInitialSubjectsAndTimetable();
+                }
+                com.campusgrid.service.ExamService examService = examServiceProvider.getIfAvailable();
+                if (examService != null) {
+                    examService.seedInitialExams();
                 }
                 System.out.println("=================================================");
                 System.out.println(" CampusGrid Platform Initialized Successfully! ");

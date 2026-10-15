@@ -20,6 +20,7 @@ public class StudentService {
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private com.campusgrid.repository.TimetableEntryRepository timetableEntryRepository;
+    private ExamService examService;
 
     public StudentService(UserRepository userRepository, StudentRepository studentRepository) {
         this.userRepository = userRepository;
@@ -29,6 +30,11 @@ public class StudentService {
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     public void setTimetableEntryRepository(com.campusgrid.repository.TimetableEntryRepository timetableEntryRepository) {
         this.timetableEntryRepository = timetableEntryRepository;
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    public void setExamService(ExamService examService) {
+        this.examService = examService;
     }
 
     public Student getStudentByUserId(Long userId) {
@@ -136,8 +142,9 @@ public class StudentService {
 
     public List<StudentExamAllocationDto> getStudentExaminations(Long userId) {
         Student student = getStudentByUserId(userId);
-        // Examination & seating allocation persistence (Module 4) is pending integration by the exams module.
-        // Returns real persisted records or an accurate empty collection (never fabricated fake data).
+        if (examService != null) {
+            return examService.getStudentExaminations(userId);
+        }
         return Collections.emptyList();
     }
 }
