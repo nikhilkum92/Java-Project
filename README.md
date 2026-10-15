@@ -110,3 +110,397 @@ CampusGrid employs an ACID-compliant Relational Database Architecture (MySQL for
 * **Scalability & Maintainability**:
   * Clean separation of concerns across Controller, Service, DTO, Repository, and Entity layers.
   * Modular design enabling each of the 5 functional engines to be maintained, tested, or scaled independently.
+
+---
+
+## Week 3: System Architecture & UML Design
+
+### 1. Inter-Module Integration & Data Flow Architecture
+
+The following architectural diagram illustrates how all five functional modules integrate with each other, sharing live data contracts across authentication, spatial hierarchy, scheduling, anti-cheating exam seating, and student self-service.
+
+```mermaid
+flowchart TD
+    subgraph M1["Module 1: Authentication & User Management (Priyanshu)"]
+        AUTH["Auth Service & JWT Provider"]
+        RBAC["RBAC Gatekeeper (ADMIN, FACULTY, STUDENT)"]
+        USER_DB[("Users & Credentials")]
+    end
+
+    subgraph M2["Module 2: Campus & Space Management (Nikhil)"]
+        SPATIAL["Campus & Room Hierarchy Engine"]
+        SEAT_ENG["Interactive Seating Grid Designer"]
+        SPACE_DB[("Campuses, Blocks, Rooms & Physical Seats")]
+    end
+
+    subgraph M3["Module 3: Timetable & Room Allocation (Bhawni)"]
+        SCHED["Class Scheduling Engine"]
+        CONFLICT["Dual-Vector Conflict Detection\n(Room & Faculty Collisions)"]
+        TT_DB[("Subjects & Timetable Entries")]
+    end
+
+    subgraph M4["Module 4: Examination & Seat Allocation (Kashish)"]
+        EXAM["Exam Session & Hall Allocator"]
+        ANTI_CHEAT["Anti-Cheating Seating Engine\n(Checkerboard / Alternating Pattern)"]
+        EXAM_DB[("Exam Rooms & Seat Allocations")]
+    end
+
+    subgraph M5["Module 5: Student Portal & System Telemetry (Palak)"]
+        STUDENT_PORTAL["Student Self-Service Portal\n(Personal Timetable & Digital Hall Ticket)"]
+        FACULTY_PORTAL["Faculty Portal\n(Teaching Schedule & Invigilation Roster)"]
+        ANALYTICS["Executive Platform Telemetry\n(4-Pillar Cross-Module Analytics)"]
+    end
+
+    %% Cross-Module Data Pipelines
+    M1 -- "Faculty & Student Identities" --> M3
+    M1 -- "Invigilators & Examinees" --> M4
+    M1 -- "Session Auth & User Profiles" --> M5
+
+    M2 -- "Available Rooms & Layouts" --> M3
+    M2 -- "Room Capacities & Physical Seat Grids" --> M4
+    M2 -- "Interactive Space Directory & Floorplans" --> M5
+
+    M3 -- "Class Timetable Schedules" --> M5
+    M4 -- "Digital Exam Hall Tickets & Seat Numbers" --> M5
+    M4 -- "Invigilation Rosters" --> FACULTY_PORTAL
+
+    M1 -. "Telemetry Data" .-> ANALYTICS
+    M2 -. "Telemetry Data" .-> ANALYTICS
+    M3 -. "Telemetry Data" .-> ANALYTICS
+    M4 -. "Telemetry Data" .-> ANALYTICS
+```
+
+---
+
+### 2. Comprehensive UML Class Diagram
+
+This class diagram models all domain entities, relationships, attributes, and enumerations across the five integrated modules:
+
+```mermaid
+classDiagram
+    direction TB
+
+    class Role {
+        <<enumeration>>
+        ADMIN
+        FACULTY
+        STUDENT
+    }
+
+    class RoomType {
+        <<enumeration>>
+        CLASSROOM
+        LAB
+        AUDITORIUM
+        SEMINAR_HALL
+    }
+
+    class RoomStatus {
+        <<enumeration>>
+        AVAILABLE
+        OCCUPIED
+        MAINTENANCE
+    }
+
+    class User {
+        +Long id
+        +String uid
+        +String username
+        +String email
+        +String password
+        +String fullName
+        +Role role
+        +String specificId
+        +String department
+        +String section
+        +Integer year
+        +Integer semester
+        +Boolean active
+    }
+
+    class UserSession {
+        +Long id
+        +String token
+        +String ipAddress
+        +String userAgent
+        +LocalDateTime loginTime
+        +LocalDateTime lastAccessTime
+        +Boolean active
+    }
+
+    class RefreshToken {
+        +Long id
+        +String token
+        +Instant expiryDate
+        +Boolean revoked
+    }
+
+    class Campus {
+        +Long id
+        +String code
+        +String name
+        +String address
+        +String city
+        +Boolean active
+    }
+
+    class Block {
+        +Long id
+        +String code
+        +String name
+        +Integer totalFloors
+        +Boolean active
+    }
+
+    class Floor {
+        +Long id
+        +Integer floorNumber
+        +String floorName
+        +Boolean active
+    }
+
+    class Room {
+        +Long id
+        +String roomCode
+        +String roomName
+        +RoomType roomType
+        +Integer capacity
+        +Integer rowsCount
+        +Integer columnsCount
+        +RoomStatus status
+    }
+
+    class RoomSeat {
+        +Long id
+        +Integer rowIndex
+        +Integer colIndex
+        +String seatLabel
+        +Boolean isUsable
+    }
+
+    class Subject {
+        +Long id
+        +String subjectCode
+        +String subjectName
+        +String department
+        +Integer semester
+        +Integer credits
+        +Boolean isLab
+    }
+
+    class TimetableEntry {
+        +Long id
+        +String dayOfWeek
+        +String timeSlot
+        +LocalTime startTime
+        +LocalTime endTime
+        +Integer academicYear
+        +Integer semester
+        +String section
+        +String status
+    }
+
+    class ExamSession {
+        +Long id
+        +String examName
+        +String courseCode
+        +String courseName
+        +LocalDate examDate
+        +LocalTime startTime
+        +LocalTime endTime
+        +String instructions
+        +String status
+    }
+
+    class ExamRoom {
+        +Long id
+        +Integer allocatedCapacity
+        +String notes
+    }
+
+    class ExamSeatAllocation {
+        +Long id
+        +String seatNumber
+        +String seatStatus
+    }
+
+    User "1" --> "*" UserSession : logs
+    User "1" --> "*" RefreshToken : generates
+    User --> Role : has_role
+
+    Campus "1" *-- "*" Block : contains
+    Block "1" *-- "*" Floor : contains
+    Floor "1" *-- "*" Room : contains
+    Room "1" *-- "*" RoomSeat : configures
+    Room --> RoomType : typed_as
+    Room --> RoomStatus : state
+
+    Subject "1" <-- "*" TimetableEntry : scheduled_for
+    User "1" <-- "*" TimetableEntry : instructor
+    Room "1" <-- "*" TimetableEntry : hosted_in
+
+    ExamSession "1" *-- "*" ExamRoom : schedules
+    Room "1" <-- "*" ExamRoom : allocated_hall
+    User "1" <-- "*" ExamRoom : invigilator
+
+    ExamRoom "1" *-- "*" ExamSeatAllocation : binds_room
+    User "1" <-- "*" ExamSeatAllocation : allocated_student
+    RoomSeat "1" <-- "*" ExamSeatAllocation : assigned_physical_seat
+```
+
+---
+
+### 3. Entity-Relationship (ER) Diagram
+
+The ER diagram defines the relational persistence model, foreign key linkages, and table schemas managed by Spring Data JPA:
+
+```mermaid
+erDiagram
+    USERS ||--o{ USER_SESSIONS : "creates"
+    USERS ||--o{ REFRESH_TOKENS : "owns"
+    USERS ||--o{ TIMETABLE_ENTRIES : "instructs"
+    USERS ||--o{ EXAM_ROOMS : "invigilates"
+    USERS ||--o{ EXAM_SEAT_ALLOCATIONS : "sits_for"
+
+    CAMPUSES ||--|{ BLOCKS : "contains"
+    BLOCKS ||--|{ FLOORS : "has"
+    FLOORS ||--|{ ROOMS : "houses"
+    ROOMS ||--|{ ROOM_SEATS : "configures"
+
+    ROOMS ||--o{ TIMETABLE_ENTRIES : "hosts_class"
+    SUBJECTS ||--o{ TIMETABLE_ENTRIES : "taught_in"
+
+    EXAM_SESSIONS ||--|{ EXAM_ROOMS : "utilizes"
+    ROOMS ||--o{ EXAM_ROOMS : "assigned_hall"
+    EXAM_ROOMS ||--|{ EXAM_SEAT_ALLOCATIONS : "allocates"
+    ROOM_SEATS ||--o{ EXAM_SEAT_ALLOCATIONS : "maps_to"
+
+    USERS {
+        bigint id PK
+        string uid UK
+        string username UK
+        string email UK
+        string password
+        string full_name
+        string role "ADMIN|FACULTY|STUDENT"
+        string specific_id
+        string department
+        string section
+        int year
+        int semester
+        boolean active
+    }
+
+    USER_SESSIONS {
+        bigint id PK
+        bigint user_id FK
+        string token
+        string ip_address
+        string user_agent
+        timestamp login_time
+        timestamp last_access_time
+        boolean active
+    }
+
+    CAMPUSES {
+        bigint id PK
+        string code UK
+        string name
+        string address
+        string city
+        boolean active
+    }
+
+    BLOCKS {
+        bigint id PK
+        bigint campus_id FK
+        string code
+        string name
+        int total_floors
+        boolean active
+    }
+
+    FLOORS {
+        bigint id PK
+        bigint block_id FK
+        int floor_number
+        string floor_name
+        boolean active
+    }
+
+    ROOMS {
+        bigint id PK
+        bigint floor_id FK
+        string room_code UK
+        string room_name
+        string room_type "CLASSROOM|LAB|AUDITORIUM|SEMINAR_HALL"
+        int capacity
+        int rows_count
+        int columns_count
+        string status "AVAILABLE|OCCUPIED|MAINTENANCE"
+    }
+
+    ROOM_SEATS {
+        bigint id PK
+        bigint room_id FK
+        int row_index
+        int col_index
+        string seat_label
+        boolean is_usable
+    }
+
+    SUBJECTS {
+        bigint id PK
+        string subject_code UK
+        string subject_name
+        string department
+        int semester
+        int credits
+        boolean is_lab
+    }
+
+    TIMETABLE_ENTRIES {
+        bigint id PK
+        bigint subject_id FK
+        bigint faculty_id FK
+        bigint room_id FK
+        string day_of_week
+        string time_slot
+        time start_time
+        time end_time
+        int academic_year
+        int semester
+        string section
+        string status
+    }
+
+    EXAM_SESSIONS {
+        bigint id PK
+        string exam_name
+        string course_code
+        string course_name
+        date exam_date
+        time start_time
+        time end_time
+        string instructions
+        string status
+    }
+
+    EXAM_ROOMS {
+        bigint id PK
+        bigint exam_session_id FK
+        bigint room_id FK
+        bigint invigilator_id FK
+        int allocated_capacity
+        string notes
+    }
+
+    EXAM_SEAT_ALLOCATIONS {
+        bigint id PK
+        bigint exam_room_id FK
+        bigint student_id FK
+        bigint seat_id FK
+        string seat_number
+        string seat_status
+    }
+```
