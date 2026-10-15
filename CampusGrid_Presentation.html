@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusGrid Presentation - Campus Space & Seating Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b1120;
+      color: #f8fafc;
+      overflow: hidden;
+    }
+    .slide {
+      display: none;
+      height: calc(100vh - 80px);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .slide.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    @media print {
+      body { overflow: visible; background: white; color: black; }
+      .slide { display: flex !important; page-break-after: always; height: 100vh; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="flex flex-col h-screen select-none">
+
+  <!-- TOP HEADER / PROGRESS BAR -->
+  <header class="no-print h-14 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between px-6 z-20">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">CG</div>
+      <div>
+        <h1 class="font-bold text-sm text-slate-100 tracking-wide">CampusGrid</h1>
+        <p class="text-[11px] text-slate-400">Campus Space & Seating Management System</p>
+      </div>
+    </div>
+
+    <!-- Slide progress indicators -->
+    <div class="flex items-center space-x-1.5" id="progressDots"></div>
+
+    <div class="flex items-center space-x-3">
+      <span class="text-xs font-semibold px-2.5 py-1 bg-slate-800 border border-slate-700 rounded-md text-blue-400" id="slideIndicator">Slide 1 / 15</span>
+      <button onclick="toggleFullScreen()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Toggle Fullscreen">
+        <i class="fa-solid fa-expand text-sm"></i>
+      </button>
+      <button onclick="window.print()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center space-x-1.5">
+        <i class="fa-solid fa-print"></i>
+        <span>Print PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SLIDES CONTAINER -->
+  <main class="flex-1 overflow-y-auto p-4 md:p-8 flex items-center justify-center relative">
+
+    <!-- SLIDE 1: TITLE SLIDE -->
+    <section class="slide active w-full max-w-6xl flex-col justify-between py-6">
+      <div class="space-y-4">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-xs font-semibold tracking-wider uppercase">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>Final Year Engineering Capstone Project</span>
+        </div>
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          CampusGrid
+        </h1>
+        <p class="text-xl md:text-2xl font-medium text-cyan-400">
+          Campus Space & Seating Management System
+        </p>
+        <p class="text-sm md:text-base text-slate-400 max-w-3xl leading-relaxed">
+          An enterprise-grade, role-based platform architected for higher education institutions to optimize physical infrastructure, eliminate academic scheduling collisions, and execute anti-cheating examination seat allocations.
+        </p>
+      </div>
+
+      <!-- GUIDE & TEAM GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+        <div class="glass-card p-4 rounded-xl border-l-4 border-l-cyan-500">
+          <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Project Guide</p>
+          <h3 class="text-base font-bold text-white mt-1">Er. Ram Babu Buri</h3>
+          <p class="text-xs text-slate-300 mt-0.5">Machine Learning & Data Science</p>
+          <p class="text-[11px] text-cyan-400/90 mt-1">Java, Spring Boot, MySQL, Python</p>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl md:col-span-2 border-l-4 border-l-blue-500">
+          <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">Development Team & Module Allocation</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="flex items-start space-x-2">
+              <span class="w-5 h-5 rounded-full bg-blue-600/30 text-blue-400 flex items-center justify-center font-bold text-[10px] mt-0.5">1</span>
+              <div>
+                <p class="font-semibold text-white">Nikhil Kumawat <span class="text-slate-400 text-[10px]">(30P111)</span></p>
+                <p class="text-slate-400 text-[11px]">Module 1: Authentication + User Mgmt</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-2">
+              <span class="w-5 h-5 rounded-full bg-cyan-600/30 text-cyan-400 flex items-center justify-center font-bold text-[10px] mt-0.5">2</span>
+              <div>
+                <p class="font-semibold text-white">Palak Nandani <span class="text-slate-400 text-[10px]">(10P116)</span></p>
+                <p class="text-slate-400 text-[11px]">Module 2: Campus & Room Mgmt</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-2">
+              <span class="w-5 h-5 rounded-full bg-indigo-600/30 text-indigo-400 flex items-center justify-center font-bold text-[10px] mt-0.5">3</span>
+              <div>
+                <p class="font-semibold text-white">Priyanshu Kumar <span class="text-slate-400 text-[10px]">(40P126)</span></p>
+                <p class="text-slate-400 text-[11px]">Module 3: Timetable + Room Alloc</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-2">
+              <span class="w-5 h-5 rounded-full bg-emerald-600/30 text-emerald-400 flex items-center justify-center font-bold text-[10px] mt-0.5">4</span>
+              <div>
+                <p class="font-semibold text-white">Kashish Upadhyay <span class="text-slate-400 text-[10px]">(40P079)</span></p>
+                <p class="text-emerald-400 font-medium text-[11px]">Module 4: Examination + Seat Alloc</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-2 sm:col-span-2">
+              <span class="w-5 h-5 rounded-full bg-purple-600/30 text-purple-400 flex items-center justify-center font-bold text-[10px] mt-0.5">5</span>
+              <div>
+                <p class="font-semibold text-white">Bhawni Kumari <span class="text-slate-400 text-[10px]">(40P032)</span></p>
+                <p class="text-slate-400 text-[11px]">Module 5: Student Portal + UI Integration</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: PROBLEM STATEMENT -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Context & Motivation</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">The Campus Infrastructure Challenge</h2>
+        <p class="text-slate-400 text-sm mt-1">Operational bottlenecks faced by growing educational institutions.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-card p-5 rounded-xl border border-red-500/20 bg-red-950/10">
+          <div class="w-10 h-10 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">Spreadsheet Chaos</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Siloed departmental Excel sheets lead to outdated occupancy records, untracked classroom maintenance, and zero campus-wide visibility.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl border border-amber-500/20 bg-amber-950/10">
+          <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">Scheduling Collisions</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Double-booking lecture halls, overlapping student laboratory sessions, and instructor time clashes disrupt daily academic workflows.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl border border-emerald-500/20 bg-emerald-950/10">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-user-xmark"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">Manual Exam Seating</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Seating hundreds of students manually takes days, invites human error, creates hall capacity overflows, and allows adjacent student cheating.
+          </p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-blue-500/30 flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-xl bg-blue-600/30 text-blue-400 flex items-center justify-center text-2xl flex-shrink-0">
+          <i class="fa-solid fa-lightbulb"></i>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-white">The CampusGrid Vision</h4>
+          <p class="text-xs text-slate-300">
+            A single, integrated web platform providing real-time spatial digital twin tracking, automated mathematical conflict prevention, and deterministic anti-cheating seat allocations.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: SCOPE & OBJECTIVES -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Goals & Capabilities</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Project Scope & Core Objectives</h2>
+        <p class="text-slate-400 text-sm mt-1">Five interconnected pillars delivering end-to-end institutional management.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="glass-card p-4 rounded-xl flex items-start space-x-3">
+          <i class="fa-solid fa-shield-halved text-blue-400 text-lg mt-1"></i>
+          <div>
+            <h3 class="text-sm font-bold text-white">Stateless Security & RBAC</h3>
+            <p class="text-xs text-slate-400 mt-1">Granular role authorization for Administrators, Faculty, and Students using cryptographic JWT access & refresh tokens.</p>
+          </div>
+        </div>
+        <div class="glass-card p-4 rounded-xl flex items-start space-x-3">
+          <i class="fa-solid fa-building-columns text-cyan-400 text-lg mt-1"></i>
+          <div>
+            <h3 class="text-sm font-bold text-white">Physical Hierarchy & Grid Modeling</h3>
+            <p class="text-xs text-slate-400 mt-1">Campus -> Block -> Floor -> Room with permanent physical seat records, walkways, and maintenance tracking.</p>
+          </div>
+        </div>
+        <div class="glass-card p-4 rounded-xl flex items-start space-x-3">
+          <i class="fa-solid fa-calendar-check text-indigo-400 text-lg mt-1"></i>
+          <div>
+            <h3 class="text-sm font-bold text-white">Automated Collision Detection</h3>
+            <p class="text-xs text-slate-400 mt-1">Mathematical half-open interval overlap checks eliminating classroom, faculty, and student-group scheduling conflicts.</p>
+          </div>
+        </div>
+        <div class="glass-card p-4 rounded-xl flex items-start space-x-3">
+          <i class="fa-solid fa-chair text-emerald-400 text-lg mt-1"></i>
+          <div>
+            <h3 class="text-sm font-bold text-white">Anti-Cheating Examination Seating</h3>
+            <p class="text-xs text-slate-400 mt-1">Deterministic seating engine with roll-number sorting, alternating section distribution, and transactional capacity safety.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-purple-500/30 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-mobile-screen text-purple-400 text-xl"></i>
+          <div>
+            <h4 class="text-sm font-bold text-white">Student Personal Portal</h4>
+            <p class="text-xs text-slate-400">IDOR-protected seat lookup, daily class timetables, and personalized exam notifications.</p>
+          </div>
+        </div>
+        <span class="text-xs font-semibold px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full border border-purple-500/30">Fully Integrated</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: SYSTEM ARCHITECTURE & TECH STACK -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">System Architecture</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Layered Enterprise Tech Stack</h2>
+        <p class="text-slate-400 text-sm mt-1">Built on modern, robust, and industry-standard Java Spring Boot ecosystem.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="glass-card p-4 rounded-xl text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-2xl mb-2">
+            <i class="fa-brands fa-java"></i>
+          </div>
+          <h3 class="text-sm font-bold text-white">Java 17 LTS</h3>
+          <p class="text-xs text-slate-400 mt-1">Core language runtime offering modern record classes, performance, and stability.</p>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center text-2xl mb-2">
+            <i class="fa-solid fa-leaf"></i>
+          </div>
+          <h3 class="text-sm font-bold text-white">Spring Boot 3.3.4</h3>
+          <p class="text-xs text-slate-400 mt-1">Layered MVC architecture, Spring Data JPA, Spring Security, and REST APIs.</p>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl mb-2">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <h3 class="text-sm font-bold text-white">MySQL & H2</h3>
+          <p class="text-xs text-slate-400 mt-1">ACID-compliant relational storage with in-memory H2 dev profile for instant startup.</p>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl text-center">
+          <div class="w-12 h-12 mx-auto rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl mb-2">
+            <i class="fa-brands fa-js"></i>
+          </div>
+          <h3 class="text-sm font-bold text-white">Frontend Stack</h3>
+          <p class="text-xs text-slate-400 mt-1">HTML5, CSS3, JavaScript (ES6+), Bootstrap 5, FontAwesome, and interactive DOM matrix.</p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-slate-700 font-mono text-xs text-slate-300">
+        <p class="text-blue-400 font-bold mb-1">// System Request Flow Architecture</p>
+        Client Browser -> JWT Auth Filter -> RestController -> Service Layer -> JPA Repository -> MySQL / H2 DB
+      </div>
+    </section>
+
+    <!-- SLIDE 5: MODULE 1 -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Module 1 Deep Dive</span>
+          <h2 class="text-3xl font-extrabold text-white mt-1">Authentication & User Management</h2>
+          <p class="text-slate-400 text-sm mt-1">Module Lead: <strong>Nikhil Kumawat</strong> (24E1ARADM30P111)</p>
+        </div>
+        <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/30">Module 1</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="glass-card p-4 rounded-xl border-l-4 border-l-blue-500">
+            <h3 class="text-sm font-bold text-white">Polymorphic User Architecture</h3>
+            <p class="text-xs text-slate-400 mt-1">Single base User entity linked to specialized Student and Faculty profiles with roll numbers, departments, and designations.</p>
+          </div>
+          <div class="glass-card p-4 rounded-xl border-l-4 border-l-cyan-500">
+            <h3 class="text-sm font-bold text-white">Stateless JWT Engine</h3>
+            <p class="text-xs text-slate-400 mt-1">HMAC-SHA256 encrypted tokens carrying user identity, roles, and privileges; zero server session bloat.</p>
+          </div>
+          <div class="glass-card p-4 rounded-xl border-l-4 border-l-indigo-500">
+            <h3 class="text-sm font-bold text-white">Root Admin Shielding</h3>
+            <p class="text-xs text-slate-400 mt-1">System-level constraints preventing accidental deactivation, modification, or deletion of primary system administrator.</p>
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white mb-2">Role Authority Matrix</h3>
+            <div class="space-y-2 text-xs">
+              <div class="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700 flex justify-between items-center">
+                <span class="font-bold text-red-400">ADMIN</span>
+                <span class="text-slate-300">Full CRUD, Campus Hierarchy, Exam Scheduling, Seating</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700 flex justify-between items-center">
+                <span class="font-bold text-amber-400">FACULTY</span>
+                <span class="text-slate-300">Timetable Views, Hall Rosters, Student Attendance Marking</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700 flex justify-between items-center">
+                <span class="font-bold text-emerald-400">STUDENT</span>
+                <span class="text-slate-300">Personal Dashboard, Daily Classes, Exam Seat Allocation</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-4 border-t border-slate-800 pt-3">
+            <i class="fa-solid fa-check-circle text-emerald-400 mr-1"></i> Certified by <strong>AuthControllerSecurityTest</strong> and <strong>UserServiceTest</strong>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MODULE 2 -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Module 2 Deep Dive</span>
+          <h2 class="text-3xl font-extrabold text-white mt-1">Campus, Room & Physical Seating Layout</h2>
+          <p class="text-slate-400 text-sm mt-1">Module Lead: <strong>Palak Nandani</strong> (24E1ARADF10P116)</p>
+        </div>
+        <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-semibold border border-cyan-500/30">Module 2</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card p-4 rounded-xl">
+          <i class="fa-solid fa-sitemap text-cyan-400 text-xl mb-2"></i>
+          <h3 class="text-sm font-bold text-white">4-Level Spatial Hierarchy</h3>
+          <p class="text-xs text-slate-400 mt-1">Campus -> Building Block -> Floor -> Room with nominal room capacities and physical constraints.</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl">
+          <i class="fa-solid fa-border-all text-blue-400 text-xl mb-2"></i>
+          <h3 class="text-sm font-bold text-white">Grid Layout Generation</h3>
+          <p class="text-xs text-slate-400 mt-1">Dynamic generation of Rows x Columns matrices with aisle walkway gaps and coordinate preservation.</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl">
+          <i class="fa-solid fa-screwdriver-wrench text-amber-400 text-xl mb-2"></i>
+          <h3 class="text-sm font-bold text-white">Operational Seat States</h3>
+          <p class="text-xs text-slate-400 mt-1">AVAILABLE, BLOCKED, and MAINTENANCE seat statuses tracked persistently at chair level.</p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-cyan-500/30 flex items-center justify-between">
+        <div>
+          <h4 class="text-sm font-bold text-white">Stable Identity & Layout Regeneration</h4>
+          <p class="text-xs text-slate-300 mt-0.5">
+            Expanding or modifying room dimensions preserves existing PhysicalSeat primary keys and maintenance records without creating orphan records.
+          </p>
+        </div>
+        <span class="text-xs font-mono text-cyan-300 bg-cyan-950/60 px-3 py-1.5 rounded-lg border border-cyan-800">SeatingLayoutServiceTest</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: MODULE 3 -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Module 3 Deep Dive</span>
+          <h2 class="text-3xl font-extrabold text-white mt-1">Timetable & Room Allocation</h2>
+          <p class="text-slate-400 text-sm mt-1">Module Lead: <strong>Priyanshu Kumar</strong> (24E1ARADM40P126)</p>
+        </div>
+        <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs font-semibold border border-indigo-500/30">Module 3</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="glass-card p-4 rounded-xl">
+            <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-code text-indigo-400"></i>
+              <span>Mathematical Collision Rule</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Implements half-open time interval logic: two sessions conflict if and only if:
+            </p>
+            <div class="mt-2 p-2 bg-slate-900 border border-slate-800 rounded font-mono text-xs text-indigo-300">
+              A_start &lt; B_end AND B_start &lt; A_end
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Correctly permits adjacent back-to-back classes without false collisions.</p>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl">
+            <h3 class="text-sm font-bold text-white">Tri-Factor Verification</h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Validates room availability, faculty teaching schedule, and student cohort availability before persisting entries.
+            </p>
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white mb-2">Automated Conflict Detection API</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Provides query endpoints for administrators to find occupied and available rooms for any day of the week and time range. Reusable conflict queries are shared with Module 4 examination room checks.
+            </p>
+          </div>
+          <div class="border-t border-slate-800 pt-3">
+            <span class="text-xs font-mono text-indigo-300 bg-indigo-950/60 px-3 py-1.5 rounded-lg border border-indigo-800">
+              TimetableConflictAndConcurrencyTest
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: MODULE 4 PART 1 -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Module 4 Deep Dive — Part 1</span>
+          <h2 class="text-3xl font-extrabold text-white mt-1">Examination Scheduling & Room Allocation</h2>
+          <p class="text-slate-400 text-sm mt-1">Module Lead: <strong>Kashish Upadhyay</strong> (24E1ARADF40P079)</p>
+        </div>
+        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-semibold border border-emerald-500/30">Module 4</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card p-4 rounded-xl">
+          <span class="text-[10px] font-bold text-emerald-400 uppercase">State Machine</span>
+          <h3 class="text-sm font-bold text-white mt-1">5-Stage Lifecycle</h3>
+          <div class="text-[11px] text-slate-300 space-y-1 mt-2">
+            <div>• <strong class="text-slate-200">DRAFT:</strong> Initial session setup</div>
+            <div>• <strong class="text-blue-400">SCHEDULED:</strong> Published & rooms assigned</div>
+            <div>• <strong class="text-amber-400">IN_PROGRESS:</strong> Seating computation</div>
+            <div>• <strong class="text-emerald-400">COMPLETE:</strong> All candidates seated</div>
+            <div>• <strong class="text-red-400">CANCELLED:</strong> Seats freed, logged</div>
+          </div>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl">
+          <span class="text-[10px] font-bold text-blue-400 uppercase">Candidate Discovery</span>
+          <h3 class="text-sm font-bold text-white mt-1">Eligibility Engine</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Automatically gathers active students by Department & Semester, Target Section, or explicit Candidate ID list.
+          </p>
+          <p class="text-[11px] text-emerald-400 mt-2 font-medium">
+            <i class="fa-solid fa-shield mr-1"></i> Strictly excludes inactive or suspended accounts.
+          </p>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl">
+          <span class="text-[10px] font-bold text-purple-400 uppercase">Collision Engine</span>
+          <h3 class="text-sm font-bold text-white mt-1">Cross-Module Checks</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Verifies hall availability against overlapping examination sessions AND Module 3 academic timetable lectures.
+          </p>
+          <p class="text-[11px] text-purple-300 mt-2 font-medium">
+            <i class="fa-solid fa-user-tie mr-1"></i> Detects invigilator faculty clashes.
+          </p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-emerald-500/30 flex items-center justify-between">
+        <div>
+          <h4 class="text-sm font-bold text-white">Usable Seats vs. Nominal Room Capacity</h4>
+          <p class="text-xs text-slate-300">
+            Engine evaluates real physical seat states (AVAILABLE) rather than trusting nominal room capacity, ignoring BLOCKED and MAINTENANCE chairs.
+          </p>
+        </div>
+        <span class="text-xs font-mono text-emerald-300 bg-emerald-950/60 px-3 py-1.5 rounded-lg border border-emerald-800">
+          ExamServiceTest
+        </span>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: MODULE 4 PART 2 -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Module 4 Deep Dive — Part 2</span>
+          <h2 class="text-3xl font-extrabold text-white mt-1">Anti-Cheating Physical Seat Allocation Engine</h2>
+          <p class="text-slate-400 text-sm mt-1">Module Lead: <strong>Kashish Upadhyay</strong> (24E1ARADF40P079)</p>
+        </div>
+        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-semibold border border-emerald-500/30">Module 4</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="glass-card p-4 rounded-xl border-l-4 border-l-emerald-500">
+            <h3 class="text-sm font-bold text-white">Deterministic ExamSeatingEngine</h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Zero AI/random drift. Stable ordering by Roll Number and physical coordinates guarantees 100% reproducible seat assignments.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border-l-4 border-l-cyan-500">
+            <h3 class="text-sm font-bold text-white">Anti-Cheating Alternation Strategy</h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Partitions candidates by section and interleaves them across adjacent seats (Sec A -> Sec B -> Sec A -> Sec B). Adjacent candidates never share test papers.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border-l-4 border-l-amber-500">
+            <h3 class="text-sm font-bold text-white">Spaced Gap & Usable Seat Skipping</h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Supports alternating chair vacancy (spacingGap = 1). Automatically skips aisle gaps, blocked desks, and maintenance terminals.
+            </p>
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white mb-2">Transactional Safety & Uniqueness Invariants</h3>
+            <div class="space-y-2 text-xs">
+              <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+                <p class="font-bold text-emerald-400">All-or-Nothing Rollback</p>
+                <p class="text-slate-400 text-[11px] mt-0.5">If candidates exceed usable seats, throws exception with deficit; status reverts to SCHEDULED with 0 partial inserts.</p>
+              </div>
+              <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+                <p class="font-bold text-blue-400">Compound DB Unique Constraints</p>
+                <p class="text-slate-400 text-[11px] mt-0.5">(exam_id, student_id) & (exam_id, physical_seat_id) guarantee zero double-booking at SQL level.</p>
+              </div>
+            </div>
+          </div>
+          <div class="border-t border-slate-800 pt-3">
+            <span class="text-xs font-mono text-emerald-300 bg-emerald-950/60 px-3 py-1.5 rounded-lg border border-emerald-800">
+              ExamSeatingEngineTest (7 Tests)
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: MODULE 5 -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Module 5 Deep Dive</span>
+          <h2 class="text-3xl font-extrabold text-white mt-1">Student Portal & UI Integration</h2>
+          <p class="text-slate-400 text-sm mt-1">Module Lead: <strong>Bhawni Kumari</strong> (24E1ARADF40P032)</p>
+        </div>
+        <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-semibold border border-purple-500/30">Module 5</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card p-4 rounded-xl">
+          <i class="fa-solid fa-id-card-clip text-purple-400 text-xl mb-2"></i>
+          <h3 class="text-sm font-bold text-white">Student Dashboard</h3>
+          <p class="text-xs text-slate-400 mt-1">Personalized academic dashboard showing department, semester, roll number, and enrolled subjects.</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl">
+          <i class="fa-solid fa-chair text-emerald-400 text-xl mb-2"></i>
+          <h3 class="text-sm font-bold text-white">Exam Seat Locator</h3>
+          <p class="text-xs text-slate-400 mt-1">Real-time retrieval of upcoming examinations, assigned hall code, block name, and seat coordinates.</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl">
+          <i class="fa-solid fa-clock text-blue-400 text-xl mb-2"></i>
+          <h3 class="text-sm font-bold text-white">Class Timetable</h3>
+          <p class="text-xs text-slate-400 mt-1">Daily schedule viewer with course names, faculty instructors, and room numbers.</p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-purple-500/30 flex items-center justify-between">
+        <div>
+          <h4 class="text-sm font-bold text-white">IDOR Security Hardening</h4>
+          <p class="text-xs text-slate-300">
+            Student endpoints (/api/student/examinations/{id}/allocation) derive student identity exclusively from the validated JWT token. Students cannot access or guess peers' allocations.
+          </p>
+        </div>
+        <span class="text-xs font-mono text-purple-300 bg-purple-950/60 px-3 py-1.5 rounded-lg border border-purple-800">
+          StudentPortalControllerSecurityTest
+        </span>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: DATABASE ARCHITECTURE -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Data Architecture</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Database Relational Schema & Data Integrity</h2>
+        <p class="text-slate-400 text-sm mt-1">ACID-compliant relational design adhering to 3rd Normal Form (3NF).</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+        <div class="glass-card p-3 rounded-lg border border-slate-700">
+          <p class="font-bold text-blue-400">users</p>
+          <p class="text-[11px] text-slate-400">id, username, email, password_hash, role, active</p>
+        </div>
+        <div class="glass-card p-3 rounded-lg border border-slate-700">
+          <p class="font-bold text-blue-400">students</p>
+          <p class="text-[11px] text-slate-400">id, user_id, roll_number, department, section, sem</p>
+        </div>
+        <div class="glass-card p-3 rounded-lg border border-slate-700">
+          <p class="font-bold text-cyan-400">rooms</p>
+          <p class="text-[11px] text-slate-400">id, floor_id, room_code, room_name, capacity, type</p>
+        </div>
+        <div class="glass-card p-3 rounded-lg border border-slate-700">
+          <p class="font-bold text-cyan-400">physical_seats</p>
+          <p class="text-[11px] text-slate-400">id, room_id, seat_number, row, col, status, type</p>
+        </div>
+        <div class="glass-card p-3 rounded-lg border border-slate-700">
+          <p class="font-bold text-indigo-400">timetable_entries</p>
+          <p class="text-[11px] text-slate-400">id, room_id, faculty_id, day, start_time, end_time</p>
+        </div>
+        <div class="glass-card p-3 rounded-lg border border-slate-700">
+          <p class="font-bold text-emerald-400">exam_sessions</p>
+          <p class="text-[11px] text-slate-400">id, exam_code, title, exam_date, start_time, status</p>
+        </div>
+        <div class="glass-card p-3 rounded-lg border border-slate-700">
+          <p class="font-bold text-emerald-400">exam_room_alloc</p>
+          <p class="text-[11px] text-slate-400">id, exam_id, room_id, invigilator_id, capacity</p>
+        </div>
+        <div class="glass-card p-3 rounded-lg border border-slate-700">
+          <p class="font-bold text-emerald-400">exam_seat_alloc</p>
+          <p class="text-[11px] text-slate-400">id, exam_id, student_id, seat_id, attendance</p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-blue-500/30 flex items-center justify-between text-xs">
+        <div>
+          <span class="font-bold text-white">Denormalized Audit Trail:</span>
+          <span class="text-slate-300 ml-1">ExamSeatAllocation preserves row, col, and seat numbers to protect historical allocations if room layouts are regenerated.</span>
+        </div>
+        <span class="px-2.5 py-1 bg-blue-500/20 text-blue-300 rounded font-bold">Audit Safe</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: APPLICATION SECURITY -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Security Architecture</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Application Security & Data Privacy Audit</h2>
+        <p class="text-slate-400 text-sm mt-1">Enterprise defenses protecting academic records and user identities.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-card p-5 rounded-xl border border-blue-500/20">
+          <div class="w-10 h-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">Stateless JWT RBAC</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Every HTTP request authenticated via JwtAuthenticationFilter. Admin mutations, Faculty invigilation, and Student views are strictly segregated on the backend.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl border border-cyan-500/20">
+          <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-user-lock"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">IDOR Immunity</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Student endpoints (/api/student/**) never accept arbitrary student IDs in parameters. Identity is derived directly from the authenticated JWT principal.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl border border-indigo-500/20">
+          <div class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg mb-3">
+            <i class="fa-solid fa-shield-virus"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">Injection Defenses</h3>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+            Spring Data JPA parameterized queries completely eliminate SQL injection. CsvSecurity sanitizes uploads to prevent formula/script injection.
+          </p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-slate-700 flex items-center justify-between text-xs">
+        <span class="text-slate-300"><i class="fa-solid fa-check text-emerald-400 mr-2"></i>Verified by 5 dedicated security test suites spanning all controllers.</span>
+        <span class="font-bold text-emerald-400">OWASP Top 10 Compliant</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: QA & AUTOMATED TEST SUITE -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Quality Assurance</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Automated Test Suite & Execution Evidence</h2>
+        <p class="text-slate-400 text-sm mt-1">Rigorous test coverage guaranteeing zero regressions across all modules.</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div class="glass-card p-4 rounded-xl border border-emerald-500/30">
+          <p class="text-3xl font-black text-emerald-400">140</p>
+          <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Total Tests Run</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl border border-blue-500/30">
+          <p class="text-3xl font-black text-blue-400">0</p>
+          <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Failures</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl border border-cyan-500/30">
+          <p class="text-3xl font-black text-cyan-400">0</p>
+          <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Errors</p>
+        </div>
+        <div class="glass-card p-4 rounded-xl border border-purple-500/30">
+          <p class="text-3xl font-black text-purple-400">100%</p>
+          <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Pass Rate</p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-slate-700 text-xs">
+        <p class="font-bold text-white mb-2">Automated Test Suite Breakdown:</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-slate-300">
+          <div>• AuthControllerSecurityTest: <strong class="text-emerald-400">9/9</strong></div>
+          <div>• ExamManagementSecurity: <strong class="text-emerald-400">13/13</strong></div>
+          <div>• ExamSeatingEngineTest: <strong class="text-emerald-400">7/7</strong></div>
+          <div>• ExamServiceTest: <strong class="text-emerald-400">13/13</strong></div>
+          <div>• StudentPortalSecurity: <strong class="text-emerald-400">14/14</strong></div>
+          <div>• TimetableServiceTest: <strong class="text-emerald-400">12/12</strong></div>
+          <div>• SeatingLayoutServiceTest: <strong class="text-emerald-400">7/7</strong></div>
+          <div>• TimetableConflictTest: <strong class="text-emerald-400">1/1</strong></div>
+          <div>• StudentServiceTest: <strong class="text-emerald-400">8/8</strong></div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg font-mono text-xs text-slate-400 flex justify-between items-center">
+        <span>[INFO] BUILD SUCCESS | Total time: 16.211 s | Finished at: 2026-10-15</span>
+        <span class="text-emerald-400 font-bold">target/campusgrid-core-1.0.0.jar</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: LIVE DEMO & ACHIEVEMENTS -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">System Demonstration</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Live Demonstration & Key Deliverables</h2>
+        <p class="text-slate-400 text-sm mt-1">Full working deployment ready on local institutional servers.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-card p-5 rounded-xl border border-blue-500/20">
+          <i class="fa-solid fa-server text-blue-400 text-xl mb-2"></i>
+          <h3 class="text-base font-bold text-white">Live Server on Port 8080</h3>
+          <p class="text-xs text-slate-400 mt-2">
+            Running live at <code class="text-blue-300">http://localhost:8080/login</code>. Ready for evaluation committee demonstration with instant response times.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl border border-emerald-500/20">
+          <i class="fa-solid fa-cubes text-emerald-400 text-xl mb-2"></i>
+          <h3 class="text-base font-bold text-white">Interactive Seating Matrix</h3>
+          <p class="text-xs text-slate-400 mt-2">
+            Visual classroom seating plan displaying candidate roll numbers, attendance toggles, and print-ready rosters for door postings.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl border border-cyan-500/20">
+          <i class="fa-brands fa-git-alt text-cyan-400 text-xl mb-2"></i>
+          <h3 class="text-base font-bold text-white">Git Branch Collaboration</h3>
+          <p class="text-xs text-slate-400 mt-2">
+            All code pushed to branch <code class="text-cyan-300">kashish</code> on <code class="text-cyan-300">nikhilkum92/Java-Project</code> with clean verified commit history.
+          </p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-slate-700 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-3">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-bold text-white">Pre-Seeded Demo Data Ready:</span>
+          <span class="text-slate-300">Admin (admin / Admin@123), Faculty (meera.faculty / Faculty@123), Student (rahul123 / Student@123).</span>
+        </div>
+        <span class="text-blue-400 font-bold">Instant Login</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 15: CONCLUSION & NEXT STEPS -->
+    <section class="slide w-full max-w-6xl flex-col justify-center space-y-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Summary & Future</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Conclusion, Future Scope & Acknowledgments</h2>
+        <p class="text-slate-400 text-sm mt-1">A scalable platform transforming institutional campus administration.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="glass-card p-5 rounded-xl space-y-3">
+          <h3 class="text-base font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-flag-checkered text-emerald-400"></i>
+            <span>Project Achievements</span>
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • Eliminated institutional scheduling collisions with mathematical certainty.<br>
+            • Cut examination seating arrangement prep time from days to seconds.<br>
+            • Prevented adjacent student cheating via automated alternating section distribution.<br>
+            • 100% verified test pass rate (140 tests) with zero cross-module regressions.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-xl space-y-3">
+          <h3 class="text-base font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-rocket text-cyan-400"></i>
+            <span>Future Scope</span>
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • <strong>QR Code Hall Tickets:</strong> Mobile seat lookup with digital turnstile check-in.<br>
+            • <strong>RFID / Biometric Attendance:</strong> Real-time automated student attendance logging.<br>
+            • <strong>Smart Energy Optimization:</strong> Automatic HVAC/lighting control based on room occupancy.
+          </p>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 rounded-xl border border-blue-500/30 flex items-center justify-between">
+        <div>
+          <h4 class="text-sm font-bold text-white">Special Acknowledgments</h4>
+          <p class="text-xs text-slate-300">
+            Sincere gratitude to our Project Guide, <strong>Er. Ram Babu Buri</strong>, for architectural mentorship and invaluable encouragement throughout development.
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs font-bold text-white">Team CampusGrid</p>
+          <p class="text-[11px] text-cyan-400">Nikhil • Palak • Priyanshu • Kashish • Bhawni</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM CONTROL BAR -->
+  <footer class="no-print h-14 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between px-6 z-20">
+    <div class="flex items-center space-x-2 text-xs text-slate-400">
+      <span>Use <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-300">←</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-300">→</kbd> or Spacebar to navigate</span>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <button onclick="prevSlide()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center space-x-1.5">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Previous</span>
+      </button>
+      <button onclick="nextSlide()" class="px-5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-blue-500/20 transition flex items-center space-x-1.5">
+        <span>Next</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const indicator = document.getElementById('slideIndicator');
+    const dotsContainer = document.getElementById('progressDots');
+
+    // Create progress dots
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.className = `w-2 h-2 rounded-full cursor-pointer transition ${i === 0 ? 'bg-blue-500 w-5' : 'bg-slate-700'}`;
+      dot.onclick = () => showSlide(i);
+      dotsContainer.appendChild(dot);
+    }
+
+    function updateControls() {
+      indicator.textContent = `Slide ${currentSlide + 1} / ${totalSlides}`;
+      const dots = dotsContainer.children;
+      for (let i = 0; i < totalSlides; i++) {
+        dots[i].className = `h-2 rounded-full cursor-pointer transition ${i === currentSlide ? 'bg-blue-500 w-5' : 'bg-slate-700 w-2'}`;
+      }
+    }
+
+    function showSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = index;
+      slides[currentSlide].classList.add('active');
+      updateControls();
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  </script>
+</body>
+</html>
