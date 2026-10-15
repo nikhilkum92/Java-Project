@@ -1000,7 +1000,17 @@ Once the terminal displays `Started CampusGridApplication in X.XXX seconds`, acc
 
 ---
 
-### 3. Future Scope & System Enhancements
+### 3. Project Deliverables & Submission Artifacts
+
+| Deliverable | Description | Access Link |
+| :--- | :--- | :--- |
+| 📄 **Final Project Report** | Complete technical report covering system requirements, architectural designs, implementation details, and evaluation results. | [View Project Report (PDF)](#) |
+| 📊 **Project Presentation (PPT)** | Comprehensive slide deck prepared for final project defense, technical review, and viva examination. | [View Project Presentation (PPT / Slides)](#) |
+| 🎥 **Demonstration Video** | End-to-end video walkthrough showcasing live workflows across all 5 modules (Auth, Spaces, Timetable, Exams, Student Portal). | [Watch Video Demonstration](#) |
+
+---
+
+### 4. Future Scope & System Enhancements
 
 * **Mobile Native Applications**: Extending student and faculty workflows to cross-platform mobile apps (Flutter / React Native) with push notifications for instant class rescheduling alerts.
 * **IoT Smart Classroom Integration**: Interfacing physical room turnstiles and RFID scanners with Module 2 for automated, hands-free student attendance and real-time room occupancy verification.
@@ -1009,7 +1019,7 @@ Once the terminal displays `Started CampusGridApplication in X.XXX seconds`, acc
 
 ---
 
-### 4. Project Conclusion & Institutional Acknowledgement
+### 5. Project Conclusion & Institutional Acknowledgement
 
 CampusGrid successfully bridges the operational gap between physical university infrastructure and digital resource management. By converging five core engines — Identity Management, Spatial Hierarchy, Automated Collision-Free Timetabling, Anti-Cheating Exam Seating, and Student Self-Service Portals — the platform delivers an enterprise-grade solution that eliminates administrative double-bookings, upholds examination integrity, and optimizes campus resource allocation.
 
