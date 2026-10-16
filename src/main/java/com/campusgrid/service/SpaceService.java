@@ -381,7 +381,7 @@ public class SpaceService {
             List<Block> blocks = blockRepository.findByCampusIdOrderByCodeAsc(c.getId());
 
             for (Block b : blocks) {
-                CampusTreeDto.BlockTreeDto bDto = new CampusTreeDto.BlockTreeDto(b.getId(), b.getName(), b.getCode());
+                CampusTreeDto.BlockTreeDto bDto = new CampusTreeDto.BlockTreeDto(b.getId(), b.getName(), b.getCode(), b.getDescription());
                 List<Floor> floors = floorRepository.findByBlockIdOrderByFloorNumberAsc(b.getId());
 
                 for (Floor f : floors) {
@@ -445,60 +445,87 @@ public class SpaceService {
 
     @Transactional
     public void seedInitialSpaces() {
-        if (campusRepository.count() > 0) {
-            return; // Already initialized
+        if (campusRepository.count() > 0 && blockRepository.count() >= 5) {
+            return; // Already initialized with all 5 blocks
         }
 
-        System.out.println("Seeding Module 2 Campus & Space Data...");
+        System.out.println("Seeding Campus & Space Directory (Blocks A to E)...");
 
-        Campus mainCampus = new Campus("Main Campus", "MC", "100 University Avenue, Academic District");
-        mainCampus = campusRepository.save(mainCampus);
+        Campus mainCampus = campusRepository.findAll().stream().findFirst().orElse(null);
+        if (mainCampus == null) {
+            mainCampus = campusRepository.save(new Campus("Main Campus", "MC", "100 University Avenue, Academic District"));
+        }
 
-        // Block A: Academic Block
-        Block blockA = new Block(mainCampus, "Academic Block A", "BLK-A");
-        blockA = blockRepository.save(blockA);
+        // 1. Block A — Computer Science
+        if (!blockRepository.existsByCode("BLK-A")) {
+            Block blockA = blockRepository.save(new Block(mainCampus, "Block A — Computer Science", "BLK-A", "Computer Science"));
+            Floor floorA1 = floorRepository.save(new Floor(blockA, 1, "First Floor"));
+            createRoomWithLayout(floorA1, "A101", "Lecture Hall A101", RoomType.CLASSROOM, 50, "Smart Projector, Whiteboard, Audio Amplifier", LayoutTemplate.STANDARD_GRID, 5, 10, 0);
+            createRoomWithLayout(floorA1, "A102", "Interactive Classroom A102", RoomType.CLASSROOM, 40, "Interactive Display, High-Speed Wi-Fi", LayoutTemplate.STANDARD_GRID, 5, 8, 0);
+            createRoomWithLayout(floorA1, "A103", "Classroom A103", RoomType.CLASSROOM, 40, "Digital Board, Ceiling Audio", LayoutTemplate.STANDARD_GRID, 5, 8, 0);
+            createRoomWithLayout(floorA1, "A104", "Software Development Lab A104", RoomType.LABORATORY, 35, "35 Workstations, LAN Switch, Air Conditioning", LayoutTemplate.LABORATORY, 5, 7, 35);
+            createRoomWithLayout(floorA1, "A105", "CS Seminar Hall A105", RoomType.AUDITORIUM, 70, "Central AC, Stage Podium, Dual Projectors", LayoutTemplate.CENTRAL_AISLE, 7, 10, 0);
+        }
 
-        // Block B: Science & Engineering Block
-        Block blockB = new Block(mainCampus, "Science & Engineering Block B", "BLK-B");
-        blockB = blockRepository.save(blockB);
+        // 2. Block B — Artificial Intelligence & Data Science
+        if (!blockRepository.existsByCode("BLK-B")) {
+            Block blockB = blockRepository.save(new Block(mainCampus, "Block B — Artificial Intelligence & Data Science", "BLK-B", "Artificial Intelligence & Data Science"));
+            Floor floorB1 = floorRepository.save(new Floor(blockB, 1, "First Floor"));
+            createRoomWithLayout(floorB1, "B101", "AI & Robotics Lab B101", RoomType.LABORATORY, 35, "GPU Workstations, Robotics Kits, Sensor Stations", LayoutTemplate.LABORATORY, 5, 7, 35);
+            createRoomWithLayout(floorB1, "B102", "Classroom B102", RoomType.CLASSROOM, 40, "Smart Board, Acoustic Panels", LayoutTemplate.STANDARD_GRID, 5, 8, 0);
+            createRoomWithLayout(floorB1, "B103", "Classroom B103", RoomType.CLASSROOM, 40, "Projector, High-Speed Wi-Fi", LayoutTemplate.STANDARD_GRID, 5, 8, 0);
+            createRoomWithLayout(floorB1, "B104", "Data Analytics Lab B104", RoomType.LABORATORY, 35, "35 High-Performance Terminals, Gigabit Network", LayoutTemplate.LABORATORY, 5, 7, 35);
+            createRoomWithLayout(floorB1, "B105", "Machine Learning Studio B105", RoomType.CLASSROOM, 40, "Collaborative Display Hubs, Telepresence", LayoutTemplate.H_PATTERN, 5, 8, 0);
+        }
 
-        // Floors for Block A
-        Floor groundFloorA = floorRepository.save(new Floor(blockA, 0, "Ground Floor"));
-        Floor firstFloorA = floorRepository.save(new Floor(blockA, 1, "First Floor"));
-        Floor secondFloorA = floorRepository.save(new Floor(blockA, 2, "Second Floor"));
+        // 3. Block C — Electronics
+        if (!blockRepository.existsByCode("BLK-C")) {
+            Block blockC = blockRepository.save(new Block(mainCampus, "Block C — Electronics", "BLK-C", "Electronics"));
+            Floor floorC1 = floorRepository.save(new Floor(blockC, 1, "First Floor"));
+            createRoomWithLayout(floorC1, "C101", "VLSI Design Lab C101", RoomType.LABORATORY, 35, "Oscilloscopes, FPGA Kits, Embedded Dev Boards", LayoutTemplate.LABORATORY, 5, 7, 35);
+            createRoomWithLayout(floorC1, "C102", "Classroom C102", RoomType.CLASSROOM, 40, "Digital Whiteboard, Sound System", LayoutTemplate.STANDARD_GRID, 5, 8, 0);
+            createRoomWithLayout(floorC1, "C103", "Classroom C103", RoomType.CLASSROOM, 40, "Lecture Projection, Air Conditioning", LayoutTemplate.STANDARD_GRID, 5, 8, 0);
+            createRoomWithLayout(floorC1, "C104", "Embedded Systems Lab C104", RoomType.LABORATORY, 35, "Microcontroller Units, Logic Analyzers", LayoutTemplate.LABORATORY, 5, 7, 35);
+            createRoomWithLayout(floorC1, "C105", "Circuit Theory Hall C105", RoomType.CLASSROOM, 50, "Tiered Seating, Dual Screens", LayoutTemplate.STANDARD_GRID, 5, 10, 0);
+        }
 
-        // Floors for Block B
-        Floor firstFloorB = floorRepository.save(new Floor(blockB, 1, "First Floor"));
+        // 4. Block D — Mechanical Engineering
+        if (!blockRepository.existsByCode("BLK-D")) {
+            Block blockD = blockRepository.save(new Block(mainCampus, "Block D — Mechanical Engineering", "BLK-D", "Mechanical Engineering"));
+            Floor floorD1 = floorRepository.save(new Floor(blockD, 1, "First Floor"));
+            createRoomWithLayout(floorD1, "D101", "CAD/CAM Center D101", RoomType.LABORATORY, 35, "CAD Workstations, 3D Plotters, SolidWorks License", LayoutTemplate.LABORATORY, 5, 7, 35);
+            createRoomWithLayout(floorD1, "D102", "Classroom D102", RoomType.CLASSROOM, 40, "Overhead Projection, Ergonomic Desks", LayoutTemplate.STANDARD_GRID, 5, 8, 0);
+            createRoomWithLayout(floorD1, "D103", "Classroom D103", RoomType.CLASSROOM, 40, "Interactive Display, Audio Amplifier", LayoutTemplate.STANDARD_GRID, 5, 8, 0);
+            createRoomWithLayout(floorD1, "D104", "Thermodynamics Lab D104", RoomType.LABORATORY, 30, "Simulation Terminals, Thermal Imaging", LayoutTemplate.LABORATORY, 5, 6, 30);
+            createRoomWithLayout(floorD1, "D105", "Mechatronics Workshop D105", RoomType.CLASSROOM, 40, "Smart Board, Robotic Arm Demonstrator", LayoutTemplate.H_PATTERN, 5, 8, 0);
+        }
 
-        // Rooms for Block A
-        Room audA001 = new Room(groundFloorA, "A-001", "Main Auditorium", RoomType.AUDITORIUM, 120, "Projector, Sound System, Central AC, Stage Lights");
-        audA001.setLayoutTemplate(LayoutTemplate.CENTRAL_AISLE);
-        audA001 = roomRepository.save(audA001);
-        seatingLayoutService.configureAndGenerateLayout(audA001.getId(), new ConfigureLayoutRequest(LayoutTemplate.CENTRAL_AISLE, 10, 13, 0));
+        // 5. Block E — Examination and Academic Facilities
+        if (!blockRepository.existsByCode("BLK-E")) {
+            Block blockE = blockRepository.save(new Block(mainCampus, "Block E — Examination and Academic Facilities", "BLK-E", "Examination and Academic Facilities"));
+            Floor floorE1 = floorRepository.save(new Floor(blockE, 1, "First Floor"));
+            createRoomWithLayout(floorE1, "E101", "Central Examination Hall E101", RoomType.AUDITORIUM, 80, "Spaced Seating Layout, CCTV Surveillance, Exam Monitoring", LayoutTemplate.CENTRAL_AISLE, 8, 10, 0);
+            createRoomWithLayout(floorE1, "E102", "Central Examination Hall E102", RoomType.AUDITORIUM, 80, "Isolated Desk Configuration, High Luminance, Secure Entry", LayoutTemplate.CENTRAL_AISLE, 8, 10, 0);
+            createRoomWithLayout(floorE1, "E103", "Academic Evaluation Center E103", RoomType.CLASSROOM, 50, "Evaluation Desks, Document Scanners, Biometric Access", LayoutTemplate.STANDARD_GRID, 5, 10, 0);
+            createRoomWithLayout(floorE1, "E104", "Academic Council Hall E104", RoomType.AUDITORIUM, 60, "Conference Audio System, Delegate Mic Units", LayoutTemplate.CENTRAL_AISLE, 6, 10, 0);
+            createRoomWithLayout(floorE1, "E105", "Main University Auditorium E105", RoomType.AUDITORIUM, 100, "Acoustic Walls, Central AC, Stage Lights, Sound System", LayoutTemplate.CENTRAL_AISLE, 10, 10, 0);
+        }
 
-        Room clsA101 = new Room(firstFloorA, "A-101", "Lecture Hall 101", RoomType.CLASSROOM, 40, "Projector, Whiteboard, Audio Amplifier");
-        clsA101.setLayoutTemplate(LayoutTemplate.STANDARD_GRID);
-        clsA101 = roomRepository.save(clsA101);
-        seatingLayoutService.configureAndGenerateLayout(clsA101.getId(), new ConfigureLayoutRequest(LayoutTemplate.STANDARD_GRID, 6, 6, 0));
+        System.out.println("Campus & Space Seeding Complete: 1 Campus, 5 Blocks (A-E), 25 Rooms with physical seating layouts.");
+    }
 
-        Room clsA102 = new Room(firstFloorA, "A-102", "Interactive Classroom", RoomType.CLASSROOM, 36, "Smart Board, High-Speed Wi-Fi");
-        clsA102.setLayoutTemplate(LayoutTemplate.STANDARD_GRID);
-        clsA102 = roomRepository.save(clsA102);
-        seatingLayoutService.configureAndGenerateLayout(clsA102.getId(), new ConfigureLayoutRequest(LayoutTemplate.STANDARD_GRID, 6, 6, 0));
-
-        Room clsA201 = new Room(secondFloorA, "A-201", "Seminar Room", RoomType.CLASSROOM, 30, "Projector, Podium, Teleconferencing");
-        clsA201.setLayoutTemplate(LayoutTemplate.H_PATTERN);
-        clsA201 = roomRepository.save(clsA201);
-        seatingLayoutService.configureAndGenerateLayout(clsA201.getId(), new ConfigureLayoutRequest(LayoutTemplate.H_PATTERN, 5, 7, 0));
-
-        // Rooms for Block B
-        Room labB101 = new Room(firstFloorB, "B-101", "Computer Systems Lab", RoomType.LABORATORY, 30, "30 Workstations, LAN Switch, Air Conditioning");
-        labB101.setLayoutTemplate(LayoutTemplate.LABORATORY);
-        labB101.setSystemCount(30);
-        labB101 = roomRepository.save(labB101);
-        seatingLayoutService.configureAndGenerateLayout(labB101.getId(), new ConfigureLayoutRequest(LayoutTemplate.LABORATORY, 5, 9, 30));
-
-        System.out.println("Module 2 Space Seeding Complete: 1 Campus, 2 Blocks, 4 Floors, 5 Rooms with configured layouts.");
+    private void createRoomWithLayout(Floor floor, String roomCode, String roomName, RoomType type, int capacity, String facilities, LayoutTemplate template, int rows, int cols, int systems) {
+        Room room = new Room(floor, roomCode, roomName, type, capacity, facilities);
+        room.setLayoutTemplate(template);
+        if (systems > 0) {
+            room.setSystemCount(systems);
+        }
+        room = roomRepository.save(room);
+        try {
+            seatingLayoutService.configureAndGenerateLayout(room.getId(), new ConfigureLayoutRequest(template, rows, cols, systems));
+        } catch (Exception e) {
+            System.err.println("Notice: Seating layout generation for " + roomCode + ": " + e.getMessage());
+        }
     }
 
     // ==========================================
@@ -510,7 +537,7 @@ public class SpaceService {
     }
 
     private BlockDto mapToBlockDto(Block b) {
-        return new BlockDto(b.getId(), b.getCampus().getId(), b.getCampus().getName(), b.getName(), b.getCode(), b.isActive());
+        return new BlockDto(b.getId(), b.getCampus().getId(), b.getCampus().getName(), b.getName(), b.getCode(), b.getDescription(), b.isActive());
     }
 
     private FloorDto mapToFloorDto(Floor f) {

@@ -1,17 +1,21 @@
 package com.campusgrid.service;
 
 import com.campusgrid.dto.*;
-import com.campusgrid.model.Role;
-import com.campusgrid.model.Student;
-import com.campusgrid.model.User;
+import com.campusgrid.model.*;
+import com.campusgrid.repository.BlockRepository;
+import com.campusgrid.repository.ExamScheduleRepository;
 import com.campusgrid.repository.StudentRepository;
+import com.campusgrid.repository.TimetableEntryRepository;
+import com.campusgrid.repository.TimetableRepository;
 import com.campusgrid.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -19,22 +23,53 @@ public class StudentService {
 
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
-    private com.campusgrid.repository.TimetableEntryRepository timetableEntryRepository;
+    private TimetableEntryRepository timetableEntryRepository;
     private ExamService examService;
+    private TimetableRepository timetableRepository;
+    private ExamScheduleRepository examScheduleRepository;
+    private BlockRepository blockRepository;
 
     public StudentService(UserRepository userRepository, StudentRepository studentRepository) {
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
     }
 
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    public void setTimetableEntryRepository(com.campusgrid.repository.TimetableEntryRepository timetableEntryRepository) {
+    @Autowired(required = false)
+    public StudentService(UserRepository userRepository,
+                          StudentRepository studentRepository,
+                          TimetableRepository timetableRepository,
+                          ExamScheduleRepository examScheduleRepository,
+                          BlockRepository blockRepository) {
+        this.userRepository = userRepository;
+        this.studentRepository = studentRepository;
+        this.timetableRepository = timetableRepository;
+        this.examScheduleRepository = examScheduleRepository;
+        this.blockRepository = blockRepository;
+    }
+
+    @Autowired(required = false)
+    public void setTimetableEntryRepository(TimetableEntryRepository timetableEntryRepository) {
         this.timetableEntryRepository = timetableEntryRepository;
     }
 
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    @Autowired(required = false)
     public void setExamService(ExamService examService) {
         this.examService = examService;
+    }
+
+    @Autowired(required = false)
+    public void setTimetableRepository(TimetableRepository timetableRepository) {
+        this.timetableRepository = timetableRepository;
+    }
+
+    @Autowired(required = false)
+    public void setExamScheduleRepository(ExamScheduleRepository examScheduleRepository) {
+        this.examScheduleRepository = examScheduleRepository;
+    }
+
+    @Autowired(required = false)
+    public void setBlockRepository(BlockRepository blockRepository) {
+        this.blockRepository = blockRepository;
     }
 
     public Student getStudentByUserId(Long userId) {
@@ -92,58 +127,147 @@ public class StudentService {
         dashboard.setUpcomingExamsCount(exams.size());
         dashboard.setExaminationsAvailable(!exams.isEmpty());
 
-        dashboard.setTotalEnrolledSubjects(0);
+        dashboard.setTotalEnrolledSubjects(schedule.size());
 
         return dashboard;
     }
 
+    // ==========================================
+    // Section-Wise Timetable Methods
+    // ==========================================
+
     public List<StudentTimetableEntryDto> getStudentTimetable(Long userId) {
         Student student = getStudentByUserId(userId);
-        if (timetableEntryRepository == null) {
+        if (student.getSectionName() == null || student.getSectionName().trim().isEmpty()) {
             return Collections.emptyList();
         }
-
-        List<com.campusgrid.model.TimetableEntry> entries = timetableEntryRepository
-                .findByDepartmentAndSectionNameAndActiveTrueOrderByDayOfWeekAscStartTimeAsc(
-                        student.getDepartment(), student.getSectionName()
-                );
-
-        if (entries == null || entries.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<StudentTimetableEntryDto> result = new ArrayList<>();
-        for (var e : entries) {
-            String roomCode = e.getRoom() != null ? e.getRoom().getRoomCode() : "TBA";
-            String roomName = e.getRoom() != null ? e.getRoom().getRoomName() : "To Be Assigned";
-            String blockName = (e.getRoom() != null && e.getRoom().getFloor() != null && e.getRoom().getFloor().getBlock() != null)
-                    ? e.getRoom().getFloor().getBlock().getName() : "";
-            String facultyName = (e.getFaculty() != null && e.getFaculty().getUser() != null)
-                    ? e.getFaculty().getUser().getFullName() : "Faculty TBA";
-
-            StudentTimetableEntryDto dto = new StudentTimetableEntryDto(
-                    e.getId(),
-                    e.getDayOfWeek().name(),
-                    e.getStartTime() + " - " + e.getEndTime(),
-                    e.getStartTime().toString(),
-                    e.getEndTime().toString(),
-                    e.getSubject() != null ? e.getSubject().getSubjectCode() : "",
-                    e.getSubject() != null ? e.getSubject().getSubjectName() : "",
-                    roomCode,
-                    roomName,
-                    blockName,
-                    facultyName,
-                    e.getStatus().name()
-            );
-            result.add(dto);
-        }
-        return result;
+        return getSectionTimetable(student.getSectionName().trim());
     }
+
+    public List<StudentTimetableEntryDto> getSectionTimetable(String sectionName) {
+        if (sectionName == null || sectionName.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        if (timetableRepository != null) {
+            List<TimetableEntry> entries = timetableRepository.findBySectionNameIgnoreCaseOrderByDayOfWeekAscStartTimeAsc(sectionName.trim());
+            if (entries != null && !entries.isEmpty()) {
+                return entries.stream().map(this::mapToTimetableDto).collect(Collectors.toList());
+            }
+        }
+
+        if (timetableEntryRepository != null) {
+            List<TimetableEntry> entries = timetableEntryRepository.findAll().stream()
+                    .filter(e -> e.isActive() && sectionName.trim().equalsIgnoreCase(e.getSectionName()))
+                    .sorted((a, b) -> {
+                        int dayCmp = a.getDayOfWeek().compareTo(b.getDayOfWeek());
+                        if (dayCmp != 0) return dayCmp;
+                        return a.getStartTime().compareTo(b.getStartTime());
+                    })
+                    .collect(Collectors.toList());
+
+            if (entries != null && !entries.isEmpty()) {
+                return entries.stream().map(this::mapToTimetableDto).collect(Collectors.toList());
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    public List<String> getAvailableTimetableSections() {
+        if (timetableRepository != null) {
+            List<String> sections = timetableRepository.findDistinctSections();
+            if (sections != null && !sections.isEmpty()) {
+                return sections;
+            }
+        }
+        if (timetableEntryRepository != null) {
+            List<String> list = timetableEntryRepository.findAll().stream()
+                    .filter(TimetableEntry::isActive)
+                    .map(TimetableEntry::getSectionName)
+                    .filter(s -> s != null && !s.isBlank())
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+            if (!list.isEmpty()) {
+                return list;
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private StudentTimetableEntryDto mapToTimetableDto(TimetableEntry t) {
+        String roomCode = t.getRoom() != null ? t.getRoom().getRoomCode() : (t.getRoomCode() != null ? t.getRoomCode() : "TBA");
+        String roomName = t.getRoom() != null ? t.getRoom().getRoomName() : (t.getRoomName() != null ? t.getRoomName() : "To Be Assigned");
+        String blockName = (t.getRoom() != null && t.getRoom().getFloor() != null && t.getRoom().getFloor().getBlock() != null)
+                ? t.getRoom().getFloor().getBlock().getName() : (t.getBlockName() != null ? t.getBlockName() : "");
+        String facultyName = (t.getFaculty() != null && t.getFaculty().getUser() != null)
+                ? t.getFaculty().getUser().getFullName() : (t.getFacultyName() != null ? t.getFacultyName() : "Faculty TBA");
+        String subjectCode = t.getSubject() != null ? t.getSubject().getSubjectCode() : (t.getSubjectCode() != null ? t.getSubjectCode() : "");
+        String subjectName = t.getSubject() != null ? t.getSubject().getSubjectName() : (t.getSubjectName() != null ? t.getSubjectName() : "");
+        String dayOfWeekStr = t.getDayOfWeek() != null ? t.getDayOfWeek().name() : "MONDAY";
+        String startTimeStr = t.getStartTime() != null ? t.getStartTime().toString() : "";
+        String endTimeStr = t.getEndTime() != null ? t.getEndTime().toString() : "";
+        String statusStr = t.getStatus() != null ? t.getStatus().name() : "SCHEDULED";
+
+        return new StudentTimetableEntryDto(
+                t.getId(),
+                t.getSectionName(),
+                dayOfWeekStr,
+                startTimeStr + " - " + endTimeStr,
+                startTimeStr,
+                endTimeStr,
+                subjectCode,
+                subjectName,
+                roomCode,
+                roomName,
+                blockName,
+                facultyName,
+                statusStr
+        );
+    }
+
+    // ==========================================
+    // Section-Wise Examination Methods
+    // ==========================================
 
     public List<StudentExamAllocationDto> getStudentExaminations(Long userId) {
         Student student = getStudentByUserId(userId);
         if (examService != null) {
-            return examService.getStudentExaminations(userId);
+            List<StudentExamAllocationDto> fromExamService = examService.getStudentExaminations(userId);
+            if (fromExamService != null && !fromExamService.isEmpty()) {
+                return fromExamService;
+            }
+        }
+
+        if (student.getSectionName() != null && !student.getSectionName().trim().isEmpty()) {
+            return getSectionExaminations(student.getSectionName().trim());
+        }
+
+        return Collections.emptyList();
+    }
+
+    public List<StudentExamAllocationDto> getSectionExaminations(String sectionName) {
+        if (sectionName == null || sectionName.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        if (examScheduleRepository != null) {
+            List<ExamSchedule> list = examScheduleRepository.findBySectionNameIgnoreCaseOrderByExamDateAscStartTimeAsc(sectionName.trim());
+            if (list != null && !list.isEmpty()) {
+                return list.stream().map(this::mapExamScheduleToDto).collect(Collectors.toList());
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    public List<String> getAvailableExamSections() {
+        if (examScheduleRepository != null) {
+            List<String> list = examScheduleRepository.findDistinctSections();
+            if (list != null && !list.isEmpty()) {
+                return list;
+            }
         }
         return Collections.emptyList();
     }
@@ -154,5 +278,129 @@ public class StudentService {
             return examService.getStudentExamAllocation(userId, examId);
         }
         throw new IllegalStateException("Exam service is not available.");
+    }
+
+    private StudentExamAllocationDto mapExamScheduleToDto(ExamSchedule s) {
+        return new StudentExamAllocationDto(
+                s.getId(),
+                s.getExamName(),
+                s.getCourseCode(),
+                s.getCourseName(),
+                s.getExamDate(),
+                s.getStartTime(),
+                s.getEndTime(),
+                s.getRoomCode(),
+                s.getRoomName(),
+                s.getBlockName(),
+                s.getSeatNumber(),
+                s.getStatus(),
+                s.getInstructions(),
+                s.getSectionName(),
+                s.getBlockId()
+        );
+    }
+
+    // ==========================================
+    // Database Seeding for Academic Timetable and Exams
+    // ==========================================
+
+    @Transactional
+    public void seedInitialAcademicData() {
+        if (timetableRepository != null && timetableRepository.count() == 0) {
+            System.out.println("Seeding Academic Section Timetables (CSE-A, CSE-B, AI-DS-A, AI-DS-B)...");
+            List<TimetableEntry> ttList = new ArrayList<>();
+
+            // 1. CSE-A
+            ttList.add(new TimetableEntry("CSE-A", "Monday", "09:00 AM", "10:00 AM", "CS301", "Data Mining & Warehousing", "Dr. Meera Faculty", "Block A — Computer Science", "A101", "Lecture Hall A101"));
+            ttList.add(new TimetableEntry("CSE-A", "Monday", "10:15 AM", "11:15 AM", "CS302", "Distributed Systems", "Prof. Amit Sharma", "Block A — Computer Science", "A102", "Interactive Classroom A102"));
+            ttList.add(new TimetableEntry("CSE-A", "Tuesday", "09:00 AM", "10:00 AM", "CS303", "Mobile Application Development", "Prof. Amit Sharma", "Block A — Computer Science", "A103", "Classroom A103"));
+            ttList.add(new TimetableEntry("CSE-A", "Wednesday", "11:30 AM", "01:30 PM", "CS304L", "Advanced Java & Cloud Computing Lab", "Dr. Meera Faculty", "Block A — Computer Science", "A104", "Software Development Lab A104"));
+            ttList.add(new TimetableEntry("CSE-A", "Thursday", "02:00 PM", "03:00 PM", "CS305", "Compiler Design", "Dr. Meera Faculty", "Block A — Computer Science", "A101", "Lecture Hall A101"));
+            ttList.add(new TimetableEntry("CSE-A", "Friday", "10:15 AM", "11:15 AM", "CS306", "Cyber Security & Forensics", "Prof. Amit Sharma", "Block A — Computer Science", "A102", "Interactive Classroom A102"));
+
+            // 2. CSE-B
+            ttList.add(new TimetableEntry("CSE-B", "Monday", "10:15 AM", "11:15 AM", "CS311", "Cloud Infrastructure & DevOps", "Dr. Sunita Rao", "Block A — Computer Science", "A103", "Classroom A103"));
+            ttList.add(new TimetableEntry("CSE-B", "Tuesday", "11:30 AM", "01:30 PM", "CS312L", "Full-Stack Web Technologies Lab", "Dr. Sunita Rao", "Block A — Computer Science", "A104", "Software Development Lab A104"));
+            ttList.add(new TimetableEntry("CSE-B", "Wednesday", "09:00 AM", "10:00 AM", "CS313", "Software Testing & QA", "Prof. Vikas Gupta", "Block A — Computer Science", "A101", "Lecture Hall A101"));
+            ttList.add(new TimetableEntry("CSE-B", "Thursday", "10:00 AM", "11:00 AM", "CS314", "Cryptography & Network Security", "Dr. Sunita Rao", "Block A — Computer Science", "A102", "Interactive Classroom A102"));
+            ttList.add(new TimetableEntry("CSE-B", "Friday", "09:00 AM", "10:00 AM", "CS315", "Artificial Intelligence Basics", "Dr. Sunita Rao", "Block A — Computer Science", "A103", "Classroom A103"));
+
+            // 3. AI-DS-A
+            ttList.add(new TimetableEntry("AI-DS-A", "Monday", "09:00 AM", "10:00 AM", "AI301", "Machine Learning Foundations", "Dr. Ananya Sen", "Block B — Artificial Intelligence & Data Science", "B102", "Classroom B102"));
+            ttList.add(new TimetableEntry("AI-DS-A", "Monday", "11:30 AM", "01:30 PM", "AI302L", "AI & Robotics Practical Lab", "Dr. Ananya Sen", "Block B — Artificial Intelligence & Data Science", "B101", "AI & Robotics Lab B101"));
+            ttList.add(new TimetableEntry("AI-DS-A", "Tuesday", "10:15 AM", "11:15 AM", "AI303", "Deep Learning Architectures", "Prof. Suresh Iyer", "Block B — Artificial Intelligence & Data Science", "B103", "Classroom B103"));
+            ttList.add(new TimetableEntry("AI-DS-A", "Wednesday", "09:00 AM", "10:00 AM", "AI304", "Big Data Analytics & Spark", "Dr. Ananya Sen", "Block B — Artificial Intelligence & Data Science", "B105", "Machine Learning Studio B105"));
+            ttList.add(new TimetableEntry("AI-DS-A", "Thursday", "02:00 PM", "04:00 PM", "AI305L", "Data Analytics Lab", "Prof. Suresh Iyer", "Block B — Artificial Intelligence & Data Science", "B104", "Data Analytics Lab B104"));
+            ttList.add(new TimetableEntry("AI-DS-A", "Friday", "11:30 AM", "12:30 PM", "AI306", "Python for Scientific Computing", "Prof. Suresh Iyer", "Block B — Artificial Intelligence & Data Science", "B102", "Classroom B102"));
+
+            // 4. AI-DS-B
+            ttList.add(new TimetableEntry("AI-DS-B", "Monday", "10:15 AM", "11:15 AM", "AI311", "Natural Language Processing", "Dr. Kavita Nair", "Block B — Artificial Intelligence & Data Science", "B103", "Classroom B103"));
+            ttList.add(new TimetableEntry("AI-DS-B", "Tuesday", "02:00 PM", "04:00 PM", "AI312L", "Neural Networks Lab", "Dr. Kavita Nair", "Block B — Artificial Intelligence & Data Science", "B101", "AI & Robotics Lab B101"));
+            ttList.add(new TimetableEntry("AI-DS-B", "Wednesday", "10:15 AM", "11:15 AM", "AI313", "Computer Vision & Pattern Recognition", "Prof. Rakesh Verma", "Block B — Artificial Intelligence & Data Science", "B105", "Machine Learning Studio B105"));
+            ttList.add(new TimetableEntry("AI-DS-B", "Thursday", "09:00 AM", "10:00 AM", "AI314", "Reinforcement Learning", "Dr. Kavita Nair", "Block B — Artificial Intelligence & Data Science", "B102", "Classroom B102"));
+            ttList.add(new TimetableEntry("AI-DS-B", "Friday", "02:00 PM", "03:00 PM", "AI315", "AI Ethics & Model Governance", "Prof. Rakesh Verma", "Block B — Artificial Intelligence & Data Science", "B103", "Classroom B103"));
+
+            timetableRepository.saveAll(ttList);
+            System.out.println("Timetable Seeding Complete: " + ttList.size() + " entries published across 4 sections.");
+        }
+
+        if (examScheduleRepository != null && examScheduleRepository.count() == 0) {
+            System.out.println("Seeding Examination Schedules & Venues (CSE-A, CSE-B, AI-DS-A, AI-DS-B)...");
+            List<ExamSchedule> exList = new ArrayList<>();
+
+            Long blkAId = getBlockIdByCode("BLK-A");
+            Long blkBId = getBlockIdByCode("BLK-B");
+            Long blkEId = getBlockIdByCode("BLK-E");
+
+            // 1. CSE-A Examinations
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "CSE-A", "CS301", "Data Mining",
+                    "18 Nov 2026", "10:00 AM", "01:00 PM", blkAId, "Block A — Computer Science", "A101", "Lecture Hall A101",
+                    "Desk A-101", "Report 15 minutes before scheduled start with institutional ID card and hall ticket."));
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "CSE-A", "CS302", "Distributed Systems",
+                    "21 Nov 2026", "10:00 AM", "01:00 PM", blkAId, "Block A — Computer Science", "A102", "Interactive Classroom A102",
+                    "Desk A-102", "Standard examination stationery allowed. Scientific calculators permitted."));
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "CSE-A", "CS304", "Compiler Design",
+                    "25 Nov 2026", "10:00 AM", "01:00 PM", blkEId, "Block E — Examination and Academic Facilities", "E101", "Central Examination Hall E101",
+                    "Desk E-101", "Biometric attendance verification at main hall entrance."));
+
+            // 2. CSE-B Examinations
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "CSE-B", "CS311", "Cloud Computing",
+                    "18 Nov 2026", "02:00 PM", "05:00 PM", blkAId, "Block A — Computer Science", "A103", "Classroom A103",
+                    "Desk A-103", "Report 15 minutes before scheduled start with institutional ID card."));
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "CSE-B", "CS314", "Cryptography & Network Security",
+                    "21 Nov 2026", "02:00 PM", "05:00 PM", blkAId, "Block A — Computer Science", "A104", "Software Development Lab A104",
+                    "Desk A-104", "Closed-book examination. All electronic devices must be deposited outside."));
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "CSE-B", "CS312", "Software Engineering",
+                    "25 Nov 2026", "02:00 PM", "05:00 PM", blkEId, "Block E — Examination and Academic Facilities", "E102", "Central Examination Hall E102",
+                    "Desk E-102", "Biometric verification required at hall entrance."));
+
+            // 3. AI-DS-A Examinations
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "AI-DS-A", "AI301", "Machine Learning Foundations",
+                    "19 Nov 2026", "10:00 AM", "01:00 PM", blkBId, "Block B — Artificial Intelligence & Data Science", "B101", "AI & Robotics Lab B101",
+                    "Desk B-101", "Report 15 minutes before scheduled start with ID card."));
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "AI-DS-A", "AI303", "Deep Learning Architectures",
+                    "23 Nov 2026", "10:00 AM", "01:00 PM", blkBId, "Block B — Artificial Intelligence & Data Science", "B102", "Classroom B102",
+                    "Desk B-102", "Formula sheets will be provided in the examination hall."));
+
+            // 4. AI-DS-B Examinations
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "AI-DS-B", "AI311", "Natural Language Processing",
+                    "19 Nov 2026", "02:00 PM", "05:00 PM", blkBId, "Block B — Artificial Intelligence & Data Science", "B104", "Data Analytics Lab B104",
+                    "Desk B-104", "Report 15 minutes before scheduled start with ID card."));
+            exList.add(new ExamSchedule("End Semester Examination Fall 2026", "AI-DS-B", "AI313", "Computer Vision",
+                    "23 Nov 2026", "02:00 PM", "05:00 PM", blkEId, "Block E — Examination and Academic Facilities", "E102", "Central Examination Hall E102",
+                    "Desk E-105", "Biometric verification required at hall entrance."));
+
+            examScheduleRepository.saveAll(exList);
+            System.out.println("Examination Seeding Complete: " + exList.size() + " examination venue records published.");
+        }
+    }
+
+    private Long getBlockIdByCode(String code) {
+        if (blockRepository == null) return null;
+        return blockRepository.findAll().stream()
+                .filter(b -> code.equalsIgnoreCase(b.getCode()))
+                .map(Block::getId)
+                .findFirst()
+                .orElse(null);
     }
 }

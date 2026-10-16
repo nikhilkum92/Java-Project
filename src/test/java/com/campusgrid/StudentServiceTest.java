@@ -33,6 +33,15 @@ class StudentServiceTest {
     @Mock
     private StudentRepository studentRepository;
 
+    @Mock
+    private com.campusgrid.repository.TimetableRepository timetableRepository;
+
+    @Mock
+    private com.campusgrid.repository.ExamScheduleRepository examScheduleRepository;
+
+    @Mock
+    private com.campusgrid.repository.BlockRepository blockRepository;
+
     @InjectMocks
     private StudentService studentService;
 
@@ -181,5 +190,63 @@ class StudentServiceTest {
         assertThrows(IllegalArgumentException.class, () ->
                 studentService.getStudentExaminations(99L)
         );
+    }
+
+    @Test
+    @DisplayName("Should retrieve section-wise class timetable entries for specified section")
+    void testGetSectionTimetable_Success() {
+        com.campusgrid.model.TimetableEntry entry = new com.campusgrid.model.TimetableEntry(
+                "CSE-A", "Monday", "09:00 AM", "10:00 AM", "CS301", "Data Mining",
+                "Dr. Meera Faculty", "Block A — Computer Science", "A101", "Lecture Hall A101"
+        );
+        entry.setId(100L);
+        when(timetableRepository.findBySectionNameIgnoreCaseOrderByDayOfWeekAscStartTimeAsc("CSE-A"))
+                .thenReturn(List.of(entry));
+
+        List<StudentTimetableEntryDto> result = studentService.getSectionTimetable("CSE-A");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("CSE-A", result.get(0).getSectionName());
+        assertEquals("Data Mining", result.get(0).getSubjectName());
+        assertEquals("A101", result.get(0).getRoomCode());
+        assertEquals("Block A — Computer Science", result.get(0).getBlockName());
+    }
+
+    @Test
+    @DisplayName("Should retrieve examination schedules and venues for specified section")
+    void testGetSectionExaminations_Success() {
+        com.campusgrid.model.ExamSchedule exam = new com.campusgrid.model.ExamSchedule(
+                "End Semester Exam", "CSE-A", "CS301", "Data Mining", "18 Nov 2026",
+                "10:00 AM", "01:00 PM", 1L, "Block A — Computer Science", "A101",
+                "Lecture Hall A101", "Desk A-101", "ID required."
+        );
+        exam.setId(200L);
+        when(examScheduleRepository.findBySectionNameIgnoreCaseOrderByExamDateAscStartTimeAsc("CSE-A"))
+                .thenReturn(List.of(exam));
+
+        List<StudentExamAllocationDto> result = studentService.getSectionExaminations("CSE-A");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("CSE-A", result.get(0).getSectionName());
+        assertEquals("Data Mining", result.get(0).getCourseName());
+        assertEquals("Desk A-101", result.get(0).getSeatNumber());
+        assertEquals("18 Nov 2026", result.get(0).getExamDate());
+    }
+
+    @Test
+    @DisplayName("Should retrieve distinct timetable and examination sections")
+    void testGetAvailableSections_Success() {
+        when(timetableRepository.findDistinctSections()).thenReturn(List.of("AI-DS-A", "CSE-A", "CSE-B"));
+        when(examScheduleRepository.findDistinctSections()).thenReturn(List.of("AI-DS-A", "CSE-A", "CSE-B"));
+
+        List<String> ttSections = studentService.getAvailableTimetableSections();
+        List<String> examSections = studentService.getAvailableExamSections();
+
+        assertEquals(3, ttSections.size());
+        assertTrue(ttSections.contains("CSE-A"));
+        assertEquals(3, examSections.size());
+        assertTrue(examSections.contains("CSE-A"));
     }
 }

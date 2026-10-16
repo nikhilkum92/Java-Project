@@ -1,5 +1,9 @@
 package com.campusgrid;
 
+import com.campusgrid.service.ExamService;
+import com.campusgrid.service.SpaceService;
+import com.campusgrid.service.StudentService;
+import com.campusgrid.service.TimetableService;
 import com.campusgrid.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,9 +21,10 @@ public class CampusGridApplication {
     @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "campusgrid.seeding.enabled", havingValue = "true", matchIfMissing = true)
     public CommandLineRunner initDatabase(
             org.springframework.beans.factory.ObjectProvider<UserService> userServiceProvider,
-            org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.SpaceService> spaceServiceProvider,
-            org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.TimetableService> timetableServiceProvider,
-            org.springframework.beans.factory.ObjectProvider<com.campusgrid.service.ExamService> examServiceProvider
+            org.springframework.beans.factory.ObjectProvider<SpaceService> spaceServiceProvider,
+            org.springframework.beans.factory.ObjectProvider<TimetableService> timetableServiceProvider,
+            org.springframework.beans.factory.ObjectProvider<ExamService> examServiceProvider,
+            org.springframework.beans.factory.ObjectProvider<StudentService> studentServiceProvider
     ) {
         return args -> {
             try {
@@ -27,17 +32,21 @@ public class CampusGridApplication {
                 if (userService != null) {
                     userService.seedInitialUsers();
                 }
-                com.campusgrid.service.SpaceService spaceService = spaceServiceProvider.getIfAvailable();
+                SpaceService spaceService = spaceServiceProvider.getIfAvailable();
                 if (spaceService != null) {
                     spaceService.seedInitialSpaces();
                 }
-                com.campusgrid.service.TimetableService timetableService = timetableServiceProvider.getIfAvailable();
+                TimetableService timetableService = timetableServiceProvider.getIfAvailable();
                 if (timetableService != null) {
                     timetableService.seedInitialSubjectsAndTimetable();
                 }
-                com.campusgrid.service.ExamService examService = examServiceProvider.getIfAvailable();
+                ExamService examService = examServiceProvider.getIfAvailable();
                 if (examService != null) {
                     examService.seedInitialExams();
+                }
+                StudentService studentService = studentServiceProvider.getIfAvailable();
+                if (studentService != null) {
+                    studentService.seedInitialAcademicData();
                 }
                 System.out.println("=================================================");
                 System.out.println(" CampusGrid Platform Initialized Successfully! ");

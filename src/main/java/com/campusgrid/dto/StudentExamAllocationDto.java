@@ -15,13 +15,16 @@ public class StudentExamAllocationDto {
     private String seatNumber;
     private String status; // "ALLOCATED", "PENDING", "COMPLETED"
     private String instructions;
+    private String sectionName;
+    private Long blockId;
 
     public StudentExamAllocationDto() {
     }
 
     public StudentExamAllocationDto(Long id, String examName, String courseCode, String courseName, String examDate,
                                     String startTime, String endTime, String roomCode, String roomName,
-                                    String blockName, String seatNumber, String status, String instructions) {
+                                    String blockName, String seatNumber, String status, String instructions,
+                                    String sectionName, Long blockId) {
         this.id = id;
         this.examName = examName;
         this.courseCode = courseCode;
@@ -35,6 +38,14 @@ public class StudentExamAllocationDto {
         this.seatNumber = seatNumber;
         this.status = status;
         this.instructions = instructions;
+        this.sectionName = sectionName;
+        this.blockId = blockId;
+    }
+
+    public StudentExamAllocationDto(Long id, String examName, String courseCode, String courseName, String examDate,
+                                    String startTime, String endTime, String roomCode, String roomName,
+                                    String blockName, String seatNumber, String status, String instructions) {
+        this(id, examName, courseCode, courseName, examDate, startTime, endTime, roomCode, roomName, blockName, seatNumber, status, instructions, null, null);
     }
 
     public Long getId() {
@@ -139,5 +150,21 @@ public class StudentExamAllocationDto {
 
     public void setInstructions(String instructions) {
         this.instructions = instructions;
+    }
+
+    public String getSectionName() {
+        return sectionName;
+    }
+
+    public void setSectionName(String sectionName) {
+        this.sectionName = sectionName;
+    }
+
+    public Long getBlockId() {
+        return blockId;
+    }
+
+    public void setBlockId(Long blockId) {
+        this.blockId = blockId;
     }
 }

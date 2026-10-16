@@ -107,6 +107,24 @@
                 </div>
             </div>
 
+            <!-- Campus Academic Blocks Overview Cards -->
+            <div style="margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--cg-brand-black);">Campus Academic Blocks</div>
+                        <div style="font-size: 12px; color: var(--cg-text-muted);">Select any block to explore departments, available classrooms, laboratories, and facilities.</div>
+                    </div>
+                    <button class="btn-action-cg" id="btnResetBlockFilter" onclick="Student.clearBlockFilter()" style="display: none;">
+                        <span>Show All Blocks</span> &times;
+                    </button>
+                </div>
+                <div id="campusBlocksContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 14px;">
+                    <div style="padding: 24px; text-align: center; color: var(--cg-text-muted); background: #FFFFFF; border: 1px solid var(--cg-border); border-radius: var(--cg-radius-md);">
+                        Loading campus blocks...
+                    </div>
+                </div>
+            </div>
+
             <!-- Filter & Search Bar -->
             <div class="table-card" style="padding: 16px 20px; margin-bottom: 20px;">
                 <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">

@@ -6,10 +6,7 @@ import com.campusgrid.service.StudentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -79,7 +76,10 @@ public class StudentPortalController {
     }
 
     @GetMapping("/timetable")
-    public ResponseEntity<ApiResponse<List<StudentTimetableEntryDto>>> getTimetable(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<List<StudentTimetableEntryDto>>> getTimetable(
+            @RequestParam(name = "section", required = false) String section,
+            HttpServletRequest request
+    ) {
         Long userId = getAuthenticatedUserId(request);
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -91,7 +91,12 @@ public class StudentPortalController {
         }
 
         try {
-            List<StudentTimetableEntryDto> timetable = studentService.getStudentTimetable(userId);
+            List<StudentTimetableEntryDto> timetable;
+            if (section != null && !section.trim().isEmpty()) {
+                timetable = studentService.getSectionTimetable(section.trim());
+            } else {
+                timetable = studentService.getStudentTimetable(userId);
+            }
             return ResponseEntity.ok(ApiResponse.success(timetable));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -99,8 +104,27 @@ public class StudentPortalController {
         }
     }
 
+    @GetMapping("/timetable/sections")
+    public ResponseEntity<ApiResponse<List<String>>> getTimetableSections(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required."));
+        }
+        if (!isAuthorizedStudent(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Student access required."));
+        }
+
+        List<String> sections = studentService.getAvailableTimetableSections();
+        return ResponseEntity.ok(ApiResponse.success(sections));
+    }
+
     @GetMapping("/examinations")
-    public ResponseEntity<ApiResponse<List<StudentExamAllocationDto>>> getExaminations(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<List<StudentExamAllocationDto>>> getExaminations(
+            @RequestParam(name = "section", required = false) String section,
+            HttpServletRequest request
+    ) {
         Long userId = getAuthenticatedUserId(request);
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -112,12 +136,33 @@ public class StudentPortalController {
         }
 
         try {
-            List<StudentExamAllocationDto> exams = studentService.getStudentExaminations(userId);
+            List<StudentExamAllocationDto> exams;
+            if (section != null && !section.trim().isEmpty()) {
+                exams = studentService.getSectionExaminations(section.trim());
+            } else {
+                exams = studentService.getStudentExaminations(userId);
+            }
             return ResponseEntity.ok(ApiResponse.success(exams));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(e.getMessage()));
         }
+    }
+
+    @GetMapping("/examinations/sections")
+    public ResponseEntity<ApiResponse<List<String>>> getExamSections(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required."));
+        }
+        if (!isAuthorizedStudent(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: Student access required."));
+        }
+
+        List<String> sections = studentService.getAvailableExamSections();
+        return ResponseEntity.ok(ApiResponse.success(sections));
     }
 
     @GetMapping("/examinations/{id}/allocation")
