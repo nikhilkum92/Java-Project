@@ -59,6 +59,10 @@ public class ApiResponse<T> {
         return timestamp;
     }
 
+    public boolean isSuccess() {
+        return "SUCCESS".equalsIgnoreCase(status);
+    }
+
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }

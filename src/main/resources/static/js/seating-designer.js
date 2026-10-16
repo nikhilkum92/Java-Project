@@ -32,6 +32,10 @@ function updateDateDisplay() {
     }
 }
 
+function isSuccess(res) {
+    return res && (res.success === true || res.status === 'SUCCESS');
+}
+
 function authHeaders() {
     return {
         'Content-Type': 'application/json',
@@ -46,7 +50,7 @@ async function populateRoomsDropdown() {
     try {
         const res = await fetch('/api/spaces/rooms', { headers: authHeaders() });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             json.data.forEach(r => {
                 select.innerHTML += `<option value="${r.id}">${escapeHtml(r.roomCode)} &mdash; ${escapeHtml(r.roomName)} (${r.capacity} seats)</option>`;
             });
@@ -86,7 +90,7 @@ async function loadRoomGrid(roomId) {
     try {
         const res = await fetch(`/api/spaces/rooms/${roomId}/grid`, { headers: authHeaders() });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             currentGridData = json.data;
             renderSeatingGrid(currentGridData);
         } else {
@@ -187,7 +191,7 @@ async function toggleSeatStatus(seatId, currentStatus) {
             headers: authHeaders()
         });
         const json = await res.json();
-        if (json.success) {
+        if (isSuccess(json)) {
             // Reload grid
             loadRoomGrid(currentRoomId);
         } else {
@@ -230,7 +234,7 @@ async function applyLayoutConfiguration() {
             body: JSON.stringify(payload)
         });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             currentGridData = json.data;
             renderSeatingGrid(currentGridData);
         } else {

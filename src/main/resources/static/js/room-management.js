@@ -37,6 +37,10 @@ function updateDateDisplay() {
     }
 }
 
+function isSuccess(res) {
+    return res && (res.success === true || res.status === 'SUCCESS');
+}
+
 function authHeaders() {
     return {
         'Content-Type': 'application/json',
@@ -49,7 +53,7 @@ async function populateBlockFilters() {
     try {
         const res = await fetch('/api/spaces/tree', { headers: authHeaders() });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             filterBlock.innerHTML = '<option value="">All Blocks</option>';
             json.data.forEach(c => {
                 (c.blocks || []).forEach(b => {
@@ -67,7 +71,7 @@ async function populateFloorDropdown() {
     try {
         const res = await fetch('/api/spaces/tree', { headers: authHeaders() });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             select.innerHTML = '<option value="">Select Floor...</option>';
             json.data.forEach(c => {
                 (c.blocks || []).forEach(b => {
@@ -93,7 +97,7 @@ async function loadRoomsTable(params = {}) {
     try {
         const res = await fetch(url, { headers: authHeaders() });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             globalRooms = json.data;
             renderRooms(globalRooms);
         } else {
@@ -193,7 +197,7 @@ async function viewRoomDetail(roomId) {
     try {
         const res = await fetch(`/api/spaces/rooms/${roomId}`, { headers: authHeaders() });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             const d = json.data;
             const r = d.room;
             const content = document.getElementById('roomDetailContent');
@@ -312,7 +316,7 @@ async function handleSaveRoom(e) {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data.success) {
+        if (isSuccess(data)) {
             closeModal('roomModal');
             loadRoomsTable();
         } else {
@@ -331,7 +335,7 @@ async function deleteRoom(id) {
             headers: authHeaders()
         });
         const data = await res.json();
-        if (data.success) {
+        if (isSuccess(data)) {
             loadRoomsTable();
         } else {
             alert(data.message);

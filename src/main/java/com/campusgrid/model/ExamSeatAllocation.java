@@ -36,10 +36,10 @@ public class ExamSeatAllocation {
     @Column(name = "seat_number", nullable = false, length = 30)
     private String seatNumber;
 
-    @Column(name = "row_number", nullable = false)
+    @Column(name = "`row_number`", nullable = false)
     private int rowNumber;
 
-    @Column(name = "column_number", nullable = false)
+    @Column(name = "`column_number`", nullable = false)
     private int columnNumber;
 
     @Column(name = "row_label", length = 10)

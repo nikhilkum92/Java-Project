@@ -33,6 +33,10 @@ function updateDateDisplay() {
     }
 }
 
+function isSuccess(res) {
+    return res && (res.success === true || res.status === 'SUCCESS');
+}
+
 function authHeaders() {
     return {
         'Content-Type': 'application/json',
@@ -44,7 +48,7 @@ async function loadSpaceStats() {
     try {
         const res = await fetch('/api/spaces/stats', { headers: authHeaders() });
         const data = await res.json();
-        if (data.success && data.data) {
+        if (isSuccess(data) && data.data) {
             document.getElementById('statCampuses').textContent = data.data.totalCampuses;
             document.getElementById('statBlocks').textContent = data.data.totalBlocks;
             document.getElementById('statFloors').textContent = data.data.totalFloors;
@@ -62,7 +66,7 @@ async function loadCampusTree() {
     try {
         const res = await fetch('/api/spaces/tree', { headers: authHeaders() });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             globalTree = json.data;
             renderTree(globalTree);
         } else {
@@ -246,7 +250,7 @@ async function handleSaveCampus(e) {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data.success) {
+        if (isSuccess(data)) {
             closeModal('campusModal');
             loadCampusTree();
             loadSpaceStats();
@@ -265,7 +269,7 @@ async function openCreateBlockModal() {
     try {
         const res = await fetch('/api/admin/spaces/campuses', { headers: authHeaders() });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (isSuccess(json) && json.data) {
             json.data.forEach(c => {
                 select.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(c.code)})</option>`;
             });
@@ -299,7 +303,7 @@ async function handleSaveBlock(e) {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data.success) {
+        if (isSuccess(data)) {
             closeModal('blockModal');
             loadCampusTree();
             loadSpaceStats();
@@ -332,7 +336,7 @@ async function handleSaveFloor(e) {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data.success) {
+        if (isSuccess(data)) {
             closeModal('floorModal');
             loadCampusTree();
             loadSpaceStats();
@@ -352,7 +356,7 @@ async function deleteCampus(id) {
             headers: authHeaders()
         });
         const data = await res.json();
-        if (data.success) {
+        if (isSuccess(data)) {
             loadCampusTree();
             loadSpaceStats();
             document.getElementById('nodeDetailsPane').innerHTML = '<div style="padding:40px; text-align:center; color:var(--cg-text-muted);">Campus deleted.</div>';
@@ -372,7 +376,7 @@ async function deleteBlock(id) {
             headers: authHeaders()
         });
         const data = await res.json();
-        if (data.success) {
+        if (isSuccess(data)) {
             loadCampusTree();
             loadSpaceStats();
             document.getElementById('nodeDetailsPane').innerHTML = '<div style="padding:40px; text-align:center; color:var(--cg-text-muted);">Block deleted.</div>';
@@ -392,7 +396,7 @@ async function deleteFloor(id) {
             headers: authHeaders()
         });
         const data = await res.json();
-        if (data.success) {
+        if (isSuccess(data)) {
             loadCampusTree();
             loadSpaceStats();
             document.getElementById('nodeDetailsPane').innerHTML = '<div style="padding:40px; text-align:center; color:var(--cg-text-muted);">Floor deleted.</div>';
