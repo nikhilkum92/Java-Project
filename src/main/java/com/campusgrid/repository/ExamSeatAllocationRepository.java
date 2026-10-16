@@ -37,4 +37,8 @@ public interface ExamSeatAllocationRepository extends JpaRepository<ExamSeatAllo
     boolean existsByExamSessionIdAndStudentId(Long examSessionId, Long studentId);
 
     boolean existsByExamSessionIdAndPhysicalSeatId(Long examSessionId, Long physicalSeatId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("DELETE FROM ExamSeatAllocation e WHERE e.physicalSeat IN :seats")
+    void deleteByPhysicalSeatIn(@Param("seats") java.util.Collection<com.campusgrid.model.PhysicalSeat> seats);
 }

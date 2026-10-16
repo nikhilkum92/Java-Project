@@ -9,22 +9,42 @@ const Auth = {
     USER_KEY: 'campusgrid_user',
 
     getToken() {
-        return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+        return localStorage.getItem(this.ACCESS_TOKEN_KEY) || localStorage.getItem('accessToken');
+    },
+
+    isAuthenticated() {
+        return !!this.getToken();
     },
 
     getRefreshToken() {
-        return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+        return localStorage.getItem(this.REFRESH_TOKEN_KEY) || localStorage.getItem('refreshToken');
     },
 
     getUser() {
         const u = localStorage.getItem(this.USER_KEY);
-        return u ? JSON.parse(u) : null;
+        if (u) {
+            try { return JSON.parse(u); } catch (e) {}
+        }
+        const role = localStorage.getItem('userRole');
+        const username = localStorage.getItem('username');
+        if (role) {
+            return { role: role, username: username || '', fullName: username || '' };
+        }
+        return null;
     },
 
     setSession(authData) {
         localStorage.setItem(this.ACCESS_TOKEN_KEY, authData.accessToken);
         localStorage.setItem(this.REFRESH_TOKEN_KEY, authData.refreshToken);
         localStorage.setItem(this.USER_KEY, JSON.stringify(authData.user));
+
+        // Cross-module keys for Module 2 Space & Seating modules
+        localStorage.setItem('accessToken', authData.accessToken);
+        localStorage.setItem('refreshToken', authData.refreshToken);
+        if (authData.user) {
+            localStorage.setItem('userRole', authData.user.role || '');
+            localStorage.setItem('username', authData.user.username || authData.user.fullName || '');
+        }
 
         // Also set accessToken in cookie for server-side route guards if needed
         document.cookie = `accessToken=${authData.accessToken}; path=/; max-age=86400; SameSite=Lax`;
@@ -34,6 +54,10 @@ const Auth = {
         localStorage.removeItem(this.ACCESS_TOKEN_KEY);
         localStorage.removeItem(this.REFRESH_TOKEN_KEY);
         localStorage.removeItem(this.USER_KEY);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('username');
         document.cookie = 'accessToken=; path=/; max-age=0; SameSite=Lax';
     },
 
@@ -124,7 +148,7 @@ const Auth = {
     redirectByRole(role) {
         switch (role) {
             case 'ADMIN':
-                window.location.href = '/admin/users';
+                window.location.href = '/admin/dashboard';
                 break;
             case 'FACULTY':
                 window.location.href = '/faculty/dashboard';

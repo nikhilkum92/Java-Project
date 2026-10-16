@@ -10,22 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-layout">
+    <div class="app-shell">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-brand">
-                <a href="/admin/dashboard" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit;">
-                    <div class="sidebar-logo">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="14" width="7" height="7"></rect>
-                            <rect x="3" y="14" width="7" height="7"></rect>
-                        </svg>
-                    </div>
-                    <span class="sidebar-title">CampusGrid</span>
-                </a>
-            </div>
+            <a href="/admin/dashboard" class="sidebar-brand">
+                <span class="sidebar-brand-pill">CG</span>
+                <span>CampusGrid</span>
+            </a>
 
             <div class="sidebar-nav">
                 <div class="sidebar-category">Overview</div>
@@ -130,20 +121,25 @@
             </div>
             <div class="topbar-right">
                 <div style="font-size: 12px; font-weight: 500; color: var(--cg-text-muted);" id="currentDateStr"></div>
-                <div class="profile-dropdown">
-                    <div class="profile-chip">
-                        <div class="avatar-circle" id="userAvatar">A</div>
-                        <div class="profile-info">
-                            <span class="profile-name" id="userDisplayName">Administrator</span>
-                            <span class="profile-role">ADMIN</span>
-                        </div>
+                <div class="user-badge" onclick="if(confirm('Log out of CampusGrid?')) Auth.logout();" title="Click to Logout">
+                    <div class="user-avatar" id="topAvatar">A</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; line-height: 1.2;" id="topUserName">Campus Administrator</div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); line-height: 1.2;">Admin &bull; Logout</div>
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-wrapper">
+            <div class="breadcrumb-cg">
+                <span>CampusGrid</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span>Campus &amp; Space</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span style="color: var(--cg-text-primary); font-weight: 600;">Seat Layouts</span>
+            </div>
             <!-- Room Selection & Layout Configuration Controls Bar -->
             <div class="card" style="padding: 20px; margin-bottom: 24px;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;">
@@ -154,7 +150,7 @@
                         </div>
                         <div class="form-group-cg" style="margin-bottom:0;">
                             <label class="form-label-cg">Layout Template</label>
-                            <select id="designerTemplateSelect" class="input-cg" style="height:38px; padding-left:10px;">
+                            <select id="designerTemplateSelect" class="input-cg" style="height:38px; padding-left:10px;" onchange="onTemplateOrDimensionsChanged()">
                                 <option value="STANDARD_GRID">Standard Grid (Continuous)</option>
                                 <option value="CENTRAL_AISLE">Central Aisle (2 Column Blocks)</option>
                                 <option value="H_PATTERN">H-Pattern Walkway (Exam Hall)</option>
@@ -163,25 +159,24 @@
                         </div>
                         <div class="form-group-cg" style="margin-bottom:0; width:90px;">
                             <label class="form-label-cg">Rows</label>
-                            <input type="number" id="designerRowsInput" class="input-cg" style="height:38px; padding-left:10px;" min="1" max="50">
+                            <input type="number" id="designerRowsInput" class="input-cg" style="height:38px; padding-left:10px;" min="1" max="50" oninput="onTemplateOrDimensionsChanged()">
                         </div>
                         <div class="form-group-cg" style="margin-bottom:0; width:90px;">
                             <label class="form-label-cg">Columns</label>
-                            <input type="number" id="designerColsInput" class="input-cg" style="height:38px; padding-left:10px;" min="1" max="50">
+                            <input type="number" id="designerColsInput" class="input-cg" style="height:38px; padding-left:10px;" min="1" max="50" oninput="onTemplateOrDimensionsChanged()">
                         </div>
                     </div>
 
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn btn-primary" style="height:38px;" onclick="applyLayoutConfiguration()">
+                    <div style="display:flex; gap:10px; align-items:flex-end;">
+                        <button class="btn btn-primary" id="btnApplyLayout" style="height:38px;" onclick="applyLayoutConfiguration()">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <polyline points="1 20 1 14 7 14"></polyline>
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
-                            <span>Regenerate Grid</span>
+                            <span>Apply &amp; Save Layout</span>
                         </button>
                     </div>
                 </div>
+                <div id="layoutFeedbackMsg" style="margin-top:12px; font-size:12px; display:none; align-items:center; gap:8px;"></div>
             </div>
 
             <!-- Grid Header & Metrics Card -->

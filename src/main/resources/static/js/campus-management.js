@@ -12,15 +12,38 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCampusTree();
 });
 
-function checkAuthSession() {
-    const token = localStorage.getItem('accessToken');
+function getStoredToken() {
+    return (typeof Auth !== 'undefined' && Auth.getToken && Auth.getToken()) ||
+        localStorage.getItem('campusgrid_access_token') ||
+        localStorage.getItem('accessToken');
+}
+
+function getStoredUser() {
+    if (typeof Auth !== 'undefined' && Auth.getUser) {
+        const u = Auth.getUser();
+        if (u) return u;
+    }
+    const raw = localStorage.getItem('campusgrid_user');
+    if (raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+    }
     const role = localStorage.getItem('userRole');
+    const username = localStorage.getItem('username');
+    if (role) return { role: role, username: username || '', fullName: username || '' };
+    return null;
+}
+
+function checkAuthSession() {
+    const token = getStoredToken();
+    const user = getStoredUser();
+    const role = user ? user.role : localStorage.getItem('userRole');
     if (!token || role !== 'ADMIN') {
         window.location.href = '/login';
+        return;
     }
-    const username = localStorage.getItem('username') || 'Administrator';
-    const displayNameEl = document.getElementById('userDisplayName');
-    const avatarEl = document.getElementById('userAvatar');
+    const username = (user && (user.fullName || user.username)) || localStorage.getItem('username') || 'Administrator';
+    const displayNameEl = document.getElementById('userDisplayName') || document.getElementById('topUserName');
+    const avatarEl = document.getElementById('userAvatar') || document.getElementById('topAvatar');
     if (displayNameEl) displayNameEl.textContent = username;
     if (avatarEl) avatarEl.textContent = username.charAt(0).toUpperCase();
 }
@@ -40,7 +63,7 @@ function isSuccess(res) {
 function authHeaders() {
     return {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+        'Authorization': 'Bearer ' + getStoredToken()
     };
 }
 

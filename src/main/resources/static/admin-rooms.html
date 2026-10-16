@@ -10,22 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-layout">
+    <div class="app-shell">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-brand">
-                <a href="/admin/dashboard" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit;">
-                    <div class="sidebar-logo">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="3" width="7" height="7"></rect>
-                            <rect x="14" y="14" width="7" height="7"></rect>
-                            <rect x="3" y="14" width="7" height="7"></rect>
-                        </svg>
-                    </div>
-                    <span class="sidebar-title">CampusGrid</span>
-                </a>
-            </div>
+            <a href="/admin/dashboard" class="sidebar-brand">
+                <span class="sidebar-brand-pill">CG</span>
+                <span>CampusGrid</span>
+            </a>
 
             <div class="sidebar-nav">
                 <div class="sidebar-category">Overview</div>
@@ -136,20 +127,25 @@
             </div>
             <div class="topbar-right">
                 <div style="font-size: 12px; font-weight: 500; color: var(--cg-text-muted);" id="currentDateStr"></div>
-                <div class="profile-dropdown">
-                    <div class="profile-chip">
-                        <div class="avatar-circle" id="userAvatar">A</div>
-                        <div class="profile-info">
-                            <span class="profile-name" id="userDisplayName">Administrator</span>
-                            <span class="profile-role">ADMIN</span>
-                        </div>
+                <div class="user-badge" onclick="if(confirm('Log out of CampusGrid?')) Auth.logout();" title="Click to Logout">
+                    <div class="user-avatar" id="topAvatar">A</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; line-height: 1.2;" id="topUserName">Campus Administrator</div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); line-height: 1.2;">Admin &bull; Logout</div>
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-wrapper">
+            <div class="breadcrumb-cg">
+                <span>CampusGrid</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span>Campus &amp; Space</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span style="color: var(--cg-text-primary); font-weight: 600;">Rooms</span>
+            </div>
             <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 24px;">
                 <div>
                     <h1 class="page-title" style="font-size: 22px; font-weight: 700; color: var(--cg-text-primary);">Academic Rooms Directory</h1>

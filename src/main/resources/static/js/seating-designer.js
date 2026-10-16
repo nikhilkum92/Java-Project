@@ -11,15 +11,38 @@ document.addEventListener('DOMContentLoaded', () => {
     populateRoomsDropdown();
 });
 
-function checkAuthSession() {
-    const token = localStorage.getItem('accessToken');
+function getStoredToken() {
+    return (typeof Auth !== 'undefined' && Auth.getToken && Auth.getToken()) ||
+        localStorage.getItem('campusgrid_access_token') ||
+        localStorage.getItem('accessToken');
+}
+
+function getStoredUser() {
+    if (typeof Auth !== 'undefined' && Auth.getUser) {
+        const u = Auth.getUser();
+        if (u) return u;
+    }
+    const raw = localStorage.getItem('campusgrid_user');
+    if (raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+    }
     const role = localStorage.getItem('userRole');
+    const username = localStorage.getItem('username');
+    if (role) return { role: role, username: username || '', fullName: username || '' };
+    return null;
+}
+
+function checkAuthSession() {
+    const token = getStoredToken();
+    const user = getStoredUser();
+    const role = user ? user.role : localStorage.getItem('userRole');
     if (!token || role !== 'ADMIN') {
         window.location.href = '/login';
+        return;
     }
-    const username = localStorage.getItem('username') || 'Administrator';
-    const displayNameEl = document.getElementById('userDisplayName');
-    const avatarEl = document.getElementById('userAvatar');
+    const username = (user && (user.fullName || user.username)) || localStorage.getItem('username') || 'Administrator';
+    const displayNameEl = document.getElementById('userDisplayName') || document.getElementById('topUserName');
+    const avatarEl = document.getElementById('userAvatar') || document.getElementById('topAvatar');
     if (displayNameEl) displayNameEl.textContent = username;
     if (avatarEl) avatarEl.textContent = username.charAt(0).toUpperCase();
 }
@@ -39,7 +62,7 @@ function isSuccess(res) {
 function authHeaders() {
     return {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+        'Authorization': 'Bearer ' + getStoredToken()
     };
 }
 
@@ -202,6 +225,115 @@ async function toggleSeatStatus(seatId, currentStatus) {
     }
 }
 
+function determineAisleCols(template, cols) {
+    const aisles = [];
+    if (template === 'CENTRAL_AISLE' || template === 'H_PATTERN') {
+        if (cols >= 3) aisles.push(Math.floor(cols / 2) + 1);
+    } else if (template === 'LABORATORY') {
+        for (let c = 3; c <= cols; c += 3) aisles.push(c);
+    }
+    return aisles;
+}
+
+function determineAisleRows(template, rows) {
+    const aisles = [];
+    if (template === 'H_PATTERN') {
+        if (rows >= 4) aisles.push(Math.floor(rows / 2) + 1);
+    }
+    return aisles;
+}
+
+function getRowLetter(rowNumber) {
+    let sb = '';
+    let r = rowNumber;
+    while (r > 0) {
+        r--;
+        sb = String.fromCharCode(65 + (r % 26)) + sb;
+        r = Math.floor(r / 26);
+    }
+    return sb;
+}
+
+function onTemplateOrDimensionsChanged() {
+    if (!currentRoomId || !currentGridData) return;
+
+    const template = document.getElementById('designerTemplateSelect').value;
+    const rows = parseInt(document.getElementById('designerRowsInput').value);
+    const cols = parseInt(document.getElementById('designerColsInput').value);
+
+    if (isNaN(rows) || isNaN(cols) || rows < 1 || cols < 1) return;
+
+    const aisleCols = determineAisleCols(template, cols);
+    const aisleRows = determineAisleRows(template, rows);
+
+    const validRows = Math.max(0, rows - aisleRows.length);
+    const validCols = Math.max(0, cols - aisleCols.length);
+    const estSeats = validRows * validCols;
+    const capacity = currentGridData.capacity || 0;
+
+    const feedbackEl = document.getElementById('layoutFeedbackMsg');
+    const applyBtn = document.getElementById('btnApplyLayout');
+
+    if (feedbackEl) {
+        feedbackEl.style.display = 'flex';
+        if (estSeats > capacity) {
+            feedbackEl.innerHTML = `
+                <span style="color:var(--cg-danger); font-weight:600;">⚠️ ${estSeats} physical seats exceeds room capacity of ${capacity}.</span>
+                <span style="color:var(--cg-text-muted);">Please decrease rows or columns to fit within capacity.</span>
+            `;
+            if (applyBtn) applyBtn.disabled = true;
+        } else {
+            feedbackEl.innerHTML = `
+                <span style="color:var(--cg-primary-blue); font-weight:600;">⚡ Live Preview:</span>
+                <span style="color:var(--cg-text-secondary);">${estSeats} seats calculated (${capacity} capacity). Click <strong>Apply &amp; Save Layout</strong> to commit.</span>
+            `;
+            if (applyBtn) applyBtn.disabled = false;
+        }
+    }
+
+    // Render visual live preview
+    renderPreviewGrid(template, rows, cols, aisleCols, aisleRows);
+}
+
+function renderPreviewGrid(template, rows, cols, aisleCols, aisleRows) {
+    const wrapper = document.getElementById('seatingMatrixWrapper');
+    if (!wrapper) return;
+
+    const aisleColSet = new Set(aisleCols);
+    const aisleRowSet = new Set(aisleRows);
+
+    const matrix = document.createElement('div');
+    matrix.className = 'seating-matrix';
+    matrix.style.gridTemplateColumns = `repeat(${cols}, 38px)`;
+
+    let seatCounter = 1;
+    for (let r = 1; r <= rows; r++) {
+        const isAisleRow = aisleRowSet.has(r);
+        const rowLabel = isAisleRow ? '' : getRowLetter(r);
+
+        for (let c = 1; c <= cols; c++) {
+            const cell = document.createElement('div');
+            const isAisleCol = aisleColSet.has(c);
+
+            if (isAisleRow || isAisleCol) {
+                cell.className = 'seat-cell aisle-gap';
+                cell.title = 'Aisle Walkway';
+            } else {
+                const seatNum = `${rowLabel}-${String(c).padStart(2, '0')}`;
+                const seatType = (template === 'LABORATORY') ? 'workstation' : '';
+                cell.className = `seat-cell available ${seatType}`;
+                cell.textContent = seatNum;
+                cell.title = `Preview Seat ${seatNum}`;
+                seatCounter++;
+            }
+            matrix.appendChild(cell);
+        }
+    }
+
+    wrapper.innerHTML = '';
+    wrapper.appendChild(matrix);
+}
+
 async function applyLayoutConfiguration() {
     if (!currentRoomId) {
         alert('Please select a room first.');
@@ -217,15 +349,17 @@ async function applyLayoutConfiguration() {
         return;
     }
 
-    if (!confirm(`Warning: Regenerating the grid will replace existing physical seat numbers and custom statuses with a newly configured ${rows}x${cols} ${template} layout. Continue?`)) {
-        return;
-    }
-
     const payload = {
         layoutTemplate: template,
         rowsCount: rows,
         columnsCount: cols
     };
+
+    const feedbackEl = document.getElementById('layoutFeedbackMsg');
+    if (feedbackEl) {
+        feedbackEl.style.display = 'flex';
+        feedbackEl.innerHTML = `<span style="color:var(--cg-primary-blue);">Saving and generating ${template} layout...</span>`;
+    }
 
     try {
         const res = await fetch(`/api/admin/spaces/rooms/${currentRoomId}/layout`, {
@@ -237,11 +371,23 @@ async function applyLayoutConfiguration() {
         if (isSuccess(json) && json.data) {
             currentGridData = json.data;
             renderSeatingGrid(currentGridData);
+
+            if (feedbackEl) {
+                feedbackEl.innerHTML = `
+                    <span style="color:var(--cg-success); font-weight:600;">✓ Layout saved successfully!</span>
+                    <span style="color:var(--cg-text-secondary);">${json.data.configuredSeatsCount} physical seats active in ${rows}x${cols} ${template} grid.</span>
+                `;
+                setTimeout(() => {
+                    if (feedbackEl) feedbackEl.style.display = 'none';
+                }, 5000);
+            }
         } else {
-            alert('Layout Generation Rejected: ' + json.message);
+            alert('Layout Generation Rejected: ' + (json.message || 'Unknown error'));
+            if (feedbackEl) feedbackEl.style.display = 'none';
         }
     } catch (e) {
         alert('Error: ' + e.message);
+        if (feedbackEl) feedbackEl.style.display = 'none';
     }
 }
 

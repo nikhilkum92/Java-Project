@@ -4,6 +4,7 @@ import com.campusgrid.dto.ConfigureLayoutRequest;
 import com.campusgrid.dto.SeatDto;
 import com.campusgrid.dto.SeatingGridDto;
 import com.campusgrid.model.*;
+import com.campusgrid.repository.ExamSeatAllocationRepository;
 import com.campusgrid.repository.PhysicalSeatRepository;
 import com.campusgrid.repository.RoomRepository;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,14 @@ public class SeatingLayoutService {
 
     private final RoomRepository roomRepository;
     private final PhysicalSeatRepository seatRepository;
+    private final ExamSeatAllocationRepository examSeatAllocationRepository;
 
-    public SeatingLayoutService(RoomRepository roomRepository, PhysicalSeatRepository seatRepository) {
+    public SeatingLayoutService(RoomRepository roomRepository,
+                                PhysicalSeatRepository seatRepository,
+                                ExamSeatAllocationRepository examSeatAllocationRepository) {
         this.roomRepository = roomRepository;
         this.seatRepository = seatRepository;
+        this.examSeatAllocationRepository = examSeatAllocationRepository;
     }
 
     @Transactional
@@ -108,6 +113,7 @@ public class SeatingLayoutService {
                 .filter(es -> !preservedSeatIds.contains(es.getId()))
                 .collect(Collectors.toList());
         if (!orphanedSeats.isEmpty()) {
+            examSeatAllocationRepository.deleteByPhysicalSeatIn(orphanedSeats);
             seatRepository.deleteAll(orphanedSeats);
         }
 

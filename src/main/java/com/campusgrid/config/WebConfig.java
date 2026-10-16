@@ -20,7 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/");
+                .addResourceLocations("classpath:/static/")
+                .setCachePeriod(0);
     }
 
     @Override
@@ -28,7 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/").setViewName("forward:/login.html");
         registry.addViewController("/login").setViewName("forward:/login.html");
         registry.addViewController("/admin/users").setViewName("forward:/admin-users.html");
-        registry.addViewController("/admin/dashboard").setViewName("forward:/admin-users.html");
+        registry.addViewController("/admin/dashboard").setViewName("forward:/admin-dashboard.html");
         registry.addViewController("/admin/campus").setViewName("forward:/admin-campus.html");
         registry.addViewController("/admin/rooms").setViewName("forward:/admin-rooms.html");
         registry.addViewController("/admin/seating").setViewName("forward:/admin-seating.html");

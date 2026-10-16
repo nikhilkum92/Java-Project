@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Dashboard — CampusGrid</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="/admin/dashboard" class="sidebar-brand">
+                <span class="sidebar-brand-pill">CG</span>
+                <span>CampusGrid</span>
+            </a>
+            <div class="sidebar-nav">
+                <div class="sidebar-category">Overview</div>
+                <a href="/admin/dashboard" class="sidebar-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="sidebar-category">Campus &amp; Space</div>
+                <a href="/admin/campus" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                    <span>Campus Explorer</span>
+                </a>
+                <a href="/admin/rooms" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Rooms</span>
+                </a>
+                <a href="/admin/seating" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    <span>Seat Layouts</span>
+                </a>
+
+                <div class="sidebar-category">Academics</div>
+                <a href="/admin/users" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>User Management</span>
+                </a>
+                <a href="/admin/timetable" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>Timetable &amp; Allocation</span>
+                </a>
+                <a href="/admin/timetable?tab=subjects" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    <span>Sections &amp; Subjects</span>
+                </a>
+
+                <div class="sidebar-category">Examinations</div>
+                <a href="/admin/examinations" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Examinations &amp; Seating</span>
+                </a>
+
+                <div class="sidebar-category">System</div>
+                <a href="#" onclick="openNotificationCenter(); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span>Notifications</span>
+                </a>
+                <a href="#" onclick="openSystemReports(); return false;" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="input-with-icon" style="width: 100%;">
+                    <span class="input-icon-left">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" class="global-search-input" placeholder="Search spaces, users, schedules, exams... (Ctrl+K)">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div style="font-size: 12px; font-weight: 500; color: var(--cg-text-muted);" id="currentDateStr"></div>
+                <div class="topbar-icon-btn" onclick="openNotificationCenter()" title="System Notifications">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="topbar-badge" id="topNotifBadge">3</span>
+                </div>
+                <div class="user-badge" onclick="if(confirm('Log out of CampusGrid?')) Auth.logout();" title="Click to Logout">
+                    <div class="user-avatar" id="topAvatar">A</div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; line-height: 1.2;" id="topUserName">Campus Administrator</div>
+                        <div style="font-size: 11px; color: var(--cg-text-muted); line-height: 1.2;">Admin &bull; Logout</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-wrapper">
+            <div class="breadcrumb-cg">
+                <span>CampusGrid</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span>Overview</span>
+                <span style="color: #CBD5E1;">/</span>
+                <span style="color: var(--cg-text-primary); font-weight: 600;">Dashboard</span>
+            </div>
+
+            <div class="page-header" style="margin-bottom: 24px;">
+                <div>
+                    <h1 class="page-title" style="font-size: 22px; font-weight: 700; color: var(--cg-text-primary);">Executive Campus Dashboard</h1>
+                    <div style="font-size: 13px; color: var(--cg-text-secondary); margin-top: 4px;">
+                        Real-time institutional telemetry, academic schedules, space utilization, and examination controls.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="/admin/users" class="btn btn-outline" style="text-decoration:none;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                        <span>User Directory</span>
+                    </a>
+                    <a href="/admin/rooms" class="btn btn-outline" style="text-decoration:none;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        </svg>
+                        <span>Rooms Directory</span>
+                    </a>
+                    <a href="/admin/timetable" class="btn btn-primary" style="text-decoration:none;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                        </svg>
+                        <span>Manage Timetable</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Top Level Telemetry KPI Banner -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div class="card" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 700; color: var(--cg-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Enrolled Students</div>
+                            <div style="font-size: 26px; font-weight: 700; color: var(--cg-text-primary); margin-top: 6px;" id="kpiStudents">17</div>
+                            <div style="font-size: 12px; color: #16A34A; margin-top: 4px; font-weight: 500;" id="kpiActiveStudents">15 Active Cohort Members</div>
+                        </div>
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 700; color: var(--cg-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Campus Capacity</div>
+                            <div style="font-size: 26px; font-weight: 700; color: var(--cg-text-primary); margin-top: 6px;" id="kpiCapacity">1,011</div>
+                            <div style="font-size: 12px; color: var(--cg-text-secondary); margin-top: 4px; font-weight: 500;" id="kpiRoomsSub">20 Rooms in 5 Blocks</div>
+                        </div>
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #F0FDF4; color: #16A34A; display: flex; align-items: center; justify-content: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 700; color: var(--cg-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Weekly Schedules</div>
+                            <div style="font-size: 26px; font-weight: 700; color: var(--cg-text-primary); margin-top: 6px;" id="kpiSchedules">11</div>
+                            <div style="font-size: 12px; color: var(--cg-text-secondary); margin-top: 4px; font-weight: 500;" id="kpiHoursSub">12.0 Hours / Week</div>
+                        </div>
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #FAF5FF; color: #9333EA; display: flex; align-items: center; justify-content: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 700; color: var(--cg-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Active Examinations</div>
+                            <div style="font-size: 26px; font-weight: 700; color: var(--cg-text-primary); margin-top: 6px;" id="kpiExams">3</div>
+                            <div style="font-size: 12px; color: #D97706; margin-top: 4px; font-weight: 500;" id="kpiExamsSub">26 Candidates Seated</div>
+                        </div>
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #FFFBEB; color: #D97706; display: flex; align-items: center; justify-content: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operational Insights & Telemetry Breakdown -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px;">
+                <!-- Space & Facility Breakdown -->
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                        <div>
+                            <h2 style="font-size: 16px; font-weight: 700; color: var(--cg-text-primary);">Physical Space &amp; Venue Allocation</h2>
+                            <p style="font-size: 12.5px; color: var(--cg-text-secondary); margin-top: 2px;">Campus facilities, instructional venues, and seating distribution.</p>
+                        </div>
+                        <a href="/admin/campus" class="btn btn-outline btn-sm" style="text-decoration:none;">Campus Explorer &rarr;</a>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px;">
+                        <div style="padding: 14px; border-radius: 8px; background: #F8FAFC; border: 1px solid var(--cg-border);">
+                            <div style="font-size: 11px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">Classrooms</div>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--cg-text-primary); margin-top: 4px;" id="countClassrooms">10</div>
+                            <div style="font-size: 11px; color: #16A34A; margin-top: 2px;">Available for Lectures</div>
+                        </div>
+                        <div style="padding: 14px; border-radius: 8px; background: #F8FAFC; border: 1px solid var(--cg-border);">
+                            <div style="font-size: 11px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">Laboratories</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #2563EB; margin-top: 4px;" id="countLabs">5</div>
+                            <div style="font-size: 11px; color: var(--cg-text-muted); margin-top: 2px;">Equipped Practical Bays</div>
+                        </div>
+                        <div style="padding: 14px; border-radius: 8px; background: #F8FAFC; border: 1px solid var(--cg-border);">
+                            <div style="font-size: 11px; font-weight: 600; color: var(--cg-text-muted); text-transform: uppercase;">Auditoriums</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #9333EA; margin-top: 4px;" id="countAuditoriums">5</div>
+                            <div style="font-size: 11px; color: var(--cg-text-muted); margin-top: 2px;">Large Venue Theaters</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; font-size: 12px; color: var(--cg-text-secondary); padding-top: 12px; border-top: 1px solid var(--cg-border);">
+                        <div><strong>Campuses:</strong> <span id="countCampuses">1</span></div>
+                        <div>&bull;</div>
+                        <div><strong>Blocks:</strong> <span id="countBlocks">5</span></div>
+                        <div>&bull;</div>
+                        <div><strong>Floors:</strong> <span id="countFloors">7</span></div>
+                        <div>&bull;</div>
+                        <div><strong>Total Rooms:</strong> <span id="countTotalRooms">20</span></div>
+                        <div>&bull;</div>
+                        <div><strong>Seat Capacity:</strong> <span id="countTotalCapacity">1,011</span></div>
+                    </div>
+                </div>
+
+                <!-- Academic Community Quick Stats -->
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                        <div>
+                            <h2 style="font-size: 16px; font-weight: 700; color: var(--cg-text-primary);">Academic Community</h2>
+                            <p style="font-size: 12.5px; color: var(--cg-text-secondary); margin-top: 2px;">User Directory Metrics</p>
+                        </div>
+                        <a href="/admin/users" class="btn btn-outline btn-sm" style="text-decoration:none;">View Users &rarr;</a>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 6px; background: #F8FAFC; border: 1px solid var(--cg-border);">
+                            <span style="font-size: 13px; font-weight: 500;">Enrolled Students</span>
+                            <span style="font-weight: 700; font-size: 14px;" id="sumStudents">17</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 6px; background: #F8FAFC; border: 1px solid var(--cg-border);">
+                            <span style="font-size: 13px; font-weight: 500;">Faculty Members</span>
+                            <span style="font-weight: 700; font-size: 14px;" id="sumFaculty">2</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 6px; background: #F8FAFC; border: 1px solid var(--cg-border);">
+                            <span style="font-size: 13px; font-weight: 500;">Academic Departments</span>
+                            <span style="font-weight: 700; font-size: 14px;" id="sumDepts">2</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 6px; background: #F8FAFC; border: 1px solid var(--cg-border);">
+                            <span style="font-size: 13px; font-weight: 500;">Active Cohort Sections</span>
+                            <span style="font-weight: 700; font-size: 14px;" id="sumSections">4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Module Launchpad Grid -->
+            <div style="margin-bottom: 24px;">
+                <h2 style="font-size: 16px; font-weight: 700; color: var(--cg-text-primary); margin-bottom: 14px;">CampusGrid Enterprise Modules</h2>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <!-- Card 1: Campus & Space -->
+                    <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: inline-flex; padding: 8px; border-radius: 8px; background: #EFF6FF; color: #2563EB; margin-bottom: 12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                                </svg>
+                            </div>
+                            <h3 style="font-size: 15px; font-weight: 700; color: var(--cg-text-primary);">Campus &amp; Space Hierarchy</h3>
+                            <p style="font-size: 12.5px; color: var(--cg-text-secondary); margin-top: 4px; line-height: 1.4;">
+                                Module 2: Manage academic campuses, physical blocks, multi-tier floor levels, and architectural venues.
+                            </p>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <a href="/admin/campus" class="btn btn-outline btn-sm" style="text-decoration:none;">Open Campus Explorer &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Rooms & Labs -->
+                    <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: inline-flex; padding: 8px; border-radius: 8px; background: #F0FDF4; color: #16A34A; margin-bottom: 12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                </svg>
+                            </div>
+                            <h3 style="font-size: 15px; font-weight: 700; color: var(--cg-text-primary);">Rooms &amp; Facilities Directory</h3>
+                            <p style="font-size: 12.5px; color: var(--cg-text-secondary); margin-top: 4px; line-height: 1.4;">
+                                Module 2: Inspect room types, capacities, amenities, projection equipment, and active availability.
+                            </p>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <a href="/admin/rooms" class="btn btn-outline btn-sm" style="text-decoration:none;">Open Rooms Directory &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Seating Layout Designer -->
+                    <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: inline-flex; padding: 8px; border-radius: 8px; background: #FEF3C7; color: #D97706; margin-bottom: 12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                                </svg>
+                            </div>
+                            <h3 style="font-size: 15px; font-weight: 700; color: var(--cg-text-primary);">Interactive Seating Designer</h3>
+                            <p style="font-size: 12.5px; color: var(--cg-text-secondary); margin-top: 4px; line-height: 1.4;">
+                                Module 2: Configure 2D seating grids, aisle walkways, damaged desks, and anti-cheating templates.
+                            </p>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <a href="/admin/seating" class="btn btn-outline btn-sm" style="text-decoration:none;">Open Seating Designer &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: User Directory -->
+                    <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: inline-flex; padding: 8px; border-radius: 8px; background: #F1F5F9; color: var(--cg-text-primary); margin-bottom: 12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </div>
+                            <h3 style="font-size: 15px; font-weight: 700; color: var(--cg-text-primary);">User &amp; Academic Credentials</h3>
+                            <p style="font-size: 12.5px; color: var(--cg-text-secondary); margin-top: 4px; line-height: 1.4;">
+                                Module 1: Student cohort rosters, faculty teaching assignments, CSV batch import/export, and RBAC accounts.
+                            </p>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <a href="/admin/users" class="btn btn-outline btn-sm" style="text-decoration:none;">Open User Management &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Timetable & Room Allocation -->
+                    <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: inline-flex; padding: 8px; border-radius: 8px; background: #FAF5FF; color: #9333EA; margin-bottom: 12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </div>
+                            <h3 style="font-size: 15px; font-weight: 700; color: var(--cg-text-primary);">Timetable &amp; Room Allocation</h3>
+                            <p style="font-size: 12.5px; color: var(--cg-text-secondary); margin-top: 4px; line-height: 1.4;">
+                                Module 3: Recurring lecture schedule builder, conflict prevention, subject registry, and cohort matrix.
+                            </p>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <a href="/admin/timetable" class="btn btn-outline btn-sm" style="text-decoration:none;">Open Timetables &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Examination Management -->
+                    <div class="card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="display: inline-flex; padding: 8px; border-radius: 8px; background: #FFFBEB; color: #D97706; margin-bottom: 12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                            </div>
+                            <h3 style="font-size: 15px; font-weight: 700; color: var(--cg-text-primary);">Examinations &amp; Seating</h3>
+                            <p style="font-size: 12.5px; color: var(--cg-text-secondary); margin-top: 4px; line-height: 1.4;">
+                                Module 4: Exam scheduling, anti-cheating seat allocation, printable attendance rosters, and student slips.
+                            </p>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <a href="/admin/examinations" class="btn btn-outline btn-sm" style="text-decoration:none;">Open Examinations &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/system-tools.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verify session
+            const user = Auth.getUser();
+            if (!user || user.role !== 'ADMIN') {
+                window.location.href = '/login';
+                return;
+            }
+
+            // Topbar Info
+            const topUserName = document.getElementById('topUserName');
+            if (topUserName) topUserName.textContent = user.fullName || 'Administrator';
+            const topAvatar = document.getElementById('topAvatar');
+            if (topAvatar) topAvatar.textContent = (user.fullName || 'A').charAt(0).toUpperCase();
+
+            // Current date
+            const dateEl = document.getElementById('currentDateStr');
+            if (dateEl) {
+                const now = new Date();
+                dateEl.textContent = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            }
+
+            // Fetch live telemetry metrics
+            await loadAllMetrics();
+        });
+
+        async function loadAllMetrics() {
+            try {
+                const [userRes, spaceRes, ttRes, examRes] = await Promise.all([
+                    Auth.fetchWithAuth('/api/admin/users/stats').catch(() => null),
+                    Auth.fetchWithAuth('/api/spaces/stats').catch(() => null),
+                    Auth.fetchWithAuth('/api/admin/timetables/stats').catch(() => null),
+                    Auth.fetchWithAuth('/api/admin/exams/stats').catch(() => null)
+                ]);
+
+                if (userRes && userRes.ok) {
+                    const u = (await userRes.json()).data;
+                    if (u) {
+                        document.getElementById('kpiStudents').textContent = u.totalStudents ?? 0;
+                        document.getElementById('kpiActiveStudents').textContent = `${u.activeStudents ?? 0} Active Cohort Members`;
+                        document.getElementById('sumStudents').textContent = u.totalStudents ?? 0;
+                        document.getElementById('sumFaculty').textContent = u.totalFaculty ?? 0;
+                        document.getElementById('sumDepts').textContent = u.totalDepartments ?? 0;
+                        document.getElementById('sumSections').textContent = u.totalSections ?? 0;
+                    }
+                }
+
+                if (spaceRes && spaceRes.ok) {
+                    const s = (await spaceRes.json()).data;
+                    if (s) {
+                        document.getElementById('kpiCapacity').textContent = (s.totalCapacity ?? 0).toLocaleString();
+                        document.getElementById('kpiRoomsSub').textContent = `${s.totalRooms ?? 0} Rooms in ${s.totalBlocks ?? 0} Blocks`;
+                        document.getElementById('countClassrooms').textContent = s.classroomsCount ?? 0;
+                        document.getElementById('countLabs').textContent = s.laboratoriesCount ?? 0;
+                        document.getElementById('countAuditoriums').textContent = s.auditoriumsCount ?? 0;
+                        document.getElementById('countCampuses').textContent = s.totalCampuses ?? 0;
+                        document.getElementById('countBlocks').textContent = s.totalBlocks ?? 0;
+                        document.getElementById('countFloors').textContent = s.totalFloors ?? 0;
+                        document.getElementById('countTotalRooms').textContent = s.totalRooms ?? 0;
+                        document.getElementById('countTotalCapacity').textContent = (s.totalCapacity ?? 0).toLocaleString();
+                    }
+                }
+
+                if (ttRes && ttRes.ok) {
+                    const t = (await ttRes.json()).data;
+                    if (t) {
+                        document.getElementById('kpiSchedules').textContent = t.scheduledEntries ?? t.totalEntries ?? 0;
+                        document.getElementById('kpiHoursSub').textContent = `${(t.totalHoursScheduled ?? 0).toFixed(1)} Hours / Week`;
+                    }
+                }
+
+                if (examRes && examRes.ok) {
+                    const e = (await examRes.json()).data;
+                    if (e) {
+                        document.getElementById('kpiExams').textContent = e.totalExams ?? 0;
+                        document.getElementById('kpiExamsSub').textContent = `${e.totalStudentsSeated ?? 0} Candidates Seated`;
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load dashboard metrics:', err);
+            }
+        }
+    </script>
+</body>
+</html>

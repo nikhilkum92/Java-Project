@@ -628,7 +628,10 @@ function resetFilters() {
 
 function closeModal(modalId) {
     const m = document.getElementById(modalId);
-    if (m) m.style.display = 'none';
+    if (m) {
+        m.style.display = 'none';
+        m.classList.remove('show');
+    }
 }
 
 function showAlert(boxId, msg, type) {
@@ -720,7 +723,10 @@ function renderSubjectsView() {
 
 function openCreateSubjectModal() {
     const modal = document.getElementById('modalCreateSubject');
-    if (modal) modal.classList.add('show');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('show');
+    }
 }
 
 async function submitNewSubject(event) {
