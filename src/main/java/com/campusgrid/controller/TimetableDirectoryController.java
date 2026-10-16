@@ -111,4 +111,14 @@ public class TimetableDirectoryController {
         List<TimetableEntryDto> schedule = timetableService.getTimetableByFacultyUserId(userId);
         return ResponseEntity.ok(ApiResponse.success(schedule));
     }
+
+    @GetMapping("/subjects")
+    public ResponseEntity<ApiResponse<List<com.campusgrid.dto.SubjectDto>>> getAllSubjects(HttpServletRequest request) {
+        if (!isAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required to access subjects directory."));
+        }
+        List<com.campusgrid.dto.SubjectDto> subjects = timetableService.getAllSubjects();
+        return ResponseEntity.ok(ApiResponse.success(subjects));
+    }
 }

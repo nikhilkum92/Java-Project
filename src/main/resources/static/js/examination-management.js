@@ -76,8 +76,8 @@ const ExamMgmt = {
         try {
             const [roomsRes, facultyRes, subjectsRes] = await Promise.all([
                 Auth.fetchWithAuth('/api/spaces/rooms'),
-                Auth.fetchWithAuth('/api/users/faculty'),
-                Auth.fetchWithAuth('/api/timetables/subjects')
+                Auth.fetchWithAuth('/api/admin/users/faculty'),
+                Auth.fetchWithAuth('/api/admin/subjects')
             ]);
 
             const roomsJson = await roomsRes.json();
