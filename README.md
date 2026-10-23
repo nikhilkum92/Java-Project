@@ -1,117 +1,124 @@
-# CampusGrid: Smart Campus Space, Timetable & Examination Management System
+# CampusGrid: Campus Space & Seating Management System
 
-[![Java Version](https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Railway](https://img.shields.io/badge/Deployed_on-Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://railway.app/)
-[![Tests](https://img.shields.io/badge/Tests-140%2F140%20Passing-brightgreen?style=for-the-badge)]()
-
----
+## Week 1
 
 ## Project Administration
 
-* **Project Guide:** Er. Ram Babu Buri
+**Project Guide:** Er. Ram Babu Buri
 * **Research Area:** Machine Learning & Data Science
 * **Specializations:** Java, JSP–Servlet, Spring Boot, MySQL, Python
-* **Institution:** Department of Computer Science & Engineering
-* **Project Title:** CampusGrid — Enterprise Campus Space, Timetable & Examination Management System
-* **Live Repository:** [https://github.com/nikhilkum92/Java-Project.git](https://github.com/nikhilkum92/Java-Project.git)
+
+
+
+### Team Members
+
+| # | Name | Enrollment | Email | Mobile |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | Nikhil Kumawat | 24E1ARADM30P111 | nk2423797@gmail.com | 9887251846 |
+| 2 | Palak Nandani | 24E1ARADF10P116 | palaknlalawat@gmail.com | 8005501729 |
+| 3 | Kashish Upadhyay | 24E1ARADF40P079 | kashishu314@gmail.com | 9887760412 |
+| 4 | Priyanshu Kumar | 24E1ARADM40P126 | priyanshuv1710@gmail.com | 7014827524 |
+| 5 | Bhawni Kumari | 24E1ARADF40P032 | bhawni2006@gmail.com | 9102461981 |
 
 ---
 
-### Team Members & Module Ownership
+## Abstract
 
-| # | Name | Enrollment | Role / Module Ownership | Email | Mobile |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **1** | **Nikhil Kumawat** | 24E1ARADM30P111 | **Module 2:** Campus Spatial Hierarchy & Visual Seating Designer | nk2423797@gmail.com | +91 9887251846 |
-| **2** | **Palak Nandani** | 24E1ARADF10P116 | **Module 5:** Student Portal, Faculty Hub & UI Integration | palaknlalawat@gmail.com | +91 8005501729 |
-| **3** | **Kashish Upadhyay** | 24E1ARADF40P079 | **Module 4:** Examination Management & Anti-Cheating Seating Engine | kashishu314@gmail.com | +91 9887760412 |
-| **4** | **Priyanshu Kumar** | 24E1ARADM40P126 | **Module 1:** Identity, JWT Authentication & Executive Admin Dashboard | priyanshuv1710@gmail.com | +91 7014827524 |
-| **5** | **Bhawni Kumari** | 24E1ARADF40P032 | **Module 3:** Academic Timetable & Dual-Vector Collision Engine | bhawni2006@gmail.com | +91 9102461981 |
+This project introduces CampusGrid, a comprehensive campus space and seating management platform engineered to address the operational challenges faced by educational institutions in managing their physical infrastructure. While traditional manual processes and fragmented spreadsheet-based systems lack the real-time visibility and control required for efficient campus resource utilization, CampusGrid provides a centralized, role-based environment for administrators, faculty, and students to discover, manage, and interact with campus spaces, rooms, and seating arrangements.
+
+The system operates on a monolithic Spring Boot backend with a layered architecture. It utilizes MySQL for ACID-compliant data storage, managing the complete hierarchical structure of campus entities — from campuses and blocks down to floors, rooms, and individual physical seats. The client-side interface, developed using HTML, CSS, and JavaScript, features dedicated dashboards for each user role: administrators can configure campus hierarchies and design interactive seating layouts, faculty can view space assignments, and students can explore available resources across the campus. The platform enforces stateless, JWT-based authentication and Role-Based Access Control (RBAC) using Spring Security to ensure that each user interacts only with functionality appropriate to their role.
+
+Ultimately, CampusGrid converges these architectural components into a unified space management solution. The platform bridges the gap between physical infrastructure and digital management, providing administrators with real-time occupancy insights, dynamic seating layout configuration, and streamlined room management. The resulting system empowers institutions to maximize their spatial resources, eliminate scheduling conflicts, and deliver a transparent and accessible campus experience to all stakeholders.
 
 ---
 
-## Executive Abstract
+## Week 2
 
-Modern educational institutions operate across large physical campuses with dozens of academic blocks, hundreds of lecture halls, and thousands of enrolled students. Despite this scale, room bookings, class schedules, and examination seating allocations are frequently managed through manual spreadsheets, fragmented paper rosters, or isolated departmental logs. These outdated workflows cause persistent operational friction: lecture halls are double-booked, faculty members are assigned concurrent lectures across disparate blocks, and examination supervisors spend dozens of hours manually planning seating arrangements to prevent student cheating.
-
-**CampusGrid** is an enterprise-grade, cloud-native web application designed to eliminate institutional scheduling inefficiencies and physical space misallocations. Powered by a monolithic Spring Boot 3.3.4 backend, an ACID-compliant MySQL persistence architecture, and a modern client web interface, CampusGrid unifies five mission-critical operational pillars:
-
-1. **Identity & Security (Module 1):** Stateless dual-token JWT authentication (access + refresh token rotation), BCrypt password hashing, and Role-Based Access Control (`ADMIN`, `FACULTY`, `STUDENT`).
-2. **Spatial Infrastructure (Module 2):** A normalized 4-tier physical hierarchy (*Campuses &rarr; Blocks &rarr; Floors &rarr; Rooms*) coupled with an Interactive Seating Grid Designer featuring coordinate-based seat status management and custom aisle walkway layouts.
-3. **Academic Scheduling (Module 3):** An automated class timetable allocation engine equipped with a real-time **Dual-Vector Conflict Detection Engine** that prevents both spatial (room) and personnel (faculty) double-bookings.
-4. **Examination Orchestration (Module 4):** A deterministic, automated **Anti-Cheating Seating Engine** that assigns candidates to physical seats in alternating checkerboard patterns to enforce academic integrity.
-5. **Stakeholder Portals & Telemetry (Module 5):** Unified self-service web portals delivering personalized daily class agendas, digital examination hall tickets (admit cards with verified seat labels), faculty invigilation rosters, and an executive administration telemetry dashboard aggregating live metrics across all backends.
+## User Roles
+CampusGrid enforces strict Role-Based Access Control (RBAC) at the API and service layers utilizing Spring Security and stateless JSON Web Tokens (JWT).
+* **Administrator (`ADMIN`)**: Full platform authority to manage campus hierarchies, design visual seating layouts, coordinate master timetable schedules, configure examination sessions, trigger automated anti-cheating seat allocations, and oversee user lifecycle management.
+* **Faculty Member (`FACULTY`)**: Permitted to view individual weekly teaching timetables, check classroom availability, access subject course details, and inspect assigned examination invigilation duty rosters with real-time room and headcount data.
+* **Student (`STUDENT`)**: Granted access to a personalized student self-service portal to review weekly class schedules, enrolled subject directories, upcoming examination dates, and digital hall tickets with assigned room numbers and designated physical seats.
 
 ---
 
-## 12-Week Comprehensive Development Journey
+### SRS PDF
 
-The following sections chronicle the end-to-end 12-week agile engineering roadmap undertaken by our 5-member team, detailing the specific milestones achieved, cross-functional responsibilities, technical challenges faced each week, and the exact architectural solutions implemented to overcome them.
-
----
-
-### Week 1: Problem Identification, Domain Research & Team Organization
-
-#### Objectives & Deliverables
-* Conducted domain research into administrative bottlenecks at university campus administration offices.
-* Formalized core project objectives, scope boundaries, and high-level architectural requirements.
-* Established team hierarchy, Git workflow conventions, branch protection rules, and engineering tooling (Java 17, Maven 3.9+, MySQL 8.0, Spring Boot 3.3+).
-
-#### Team Contributions
-* **Nikhil Kumawat:** Researched spatial organization standards in universities; cataloged how campuses categorize auditoriums, labs, and lecture rooms.
-* **Palak Nandani:** Surveyed student pain points regarding missing timetable changes, examination hall confusion, and lack of digital hall tickets.
-* **Kashish Upadhyay:** Analyzed manual examination seating processes; documented requirements for seating separation and anti-cheating protocols.
-* **Priyanshu Kumar:** Evaluated enterprise security standards, role-based workflows, and stateless JWT token lifecycles for university ERP systems.
-* **Bhawni Kumari:** Investigated academic scheduling algorithms, weekly recurring lecture matrices, and conflict detection rules.
-
-#### Challenges Faced in Week 1
-* **Scope Creep & Boundary Ambiguity:** Initial proposals included complex facility maintenance ticketing, cafeteria point-of-sale, and library circulation, which threatened to derail the core space and examination scheduling focus.
-* **Heterogeneous Development Environments:** Team members operated different operating systems (Windows 11, macOS, Linux) with mismatched local Java and MySQL versions.
-
-#### How We Overcame Them
-* **Strict Scope Bounding:** Under the guidance of Er. Ram Babu Buri, we restricted the platform's core scope to space management, timetabling, and examination seating across three defined user personas (`ADMIN`, `FACULTY`, `STUDENT`).
-* **Environment Standardization:** Enforced a standardized baseline of Java 17 LTS, Maven 3.9.6, and MySQL 8.0, recording all setup prerequisites in a shared repository bootstrap document.
+You can access the official Software Requirements Specification (SRS) document here:  
+👉 **[Project SRS (Google Drive)](https://drive.google.com/file/d/19gzBiHBor-abgMxAQIs0FBi7UxTkP4Ya/view?usp=drive_link)** *(or view the [Repository PDF](./docs/CampusGrid_SRS.pdf))*
 
 ---
 
-### Week 2: Software Requirements Specification (SRS) & Module Partitioning
+## Architecture & Core Modules
 
-#### Objectives & Deliverables
-* Formulated the formal Software Requirements Specification (SRS v1.0) document covering functional, non-functional, security, and performance constraints.
-* Access official SRS Document: 👉 **[CampusGrid SRS (Google Drive)](https://drive.google.com/file/d/19gzBiHBor-abgMxAQIs0FBi7UxTkP4Ya/view?usp=drive_link)** *(or view repository [docs/CampusGrid_SRS.pdf](./docs/CampusGrid_SRS.pdf))*.
-* Partitioned the monolithic platform into 5 cohesive, decoupled functional modules.
+The CampusGrid platform operates on a modular, monolithic Spring Boot architecture with a layered service-oriented design. The backend acts as the central orchestrator providing RESTful API endpoints consumed by responsive HTML5/CSS3/JavaScript client dashboards.
 
-#### Functional Module Assignment
+### Functional Modules
 
-```mermaid
-flowchart TD
-    CORE["CampusGrid Monolithic Core (Spring Boot 3.3.4)"]
-    CORE --> M1["Module 1: Authentication & User Lifecycle\nLead: Priyanshu Kumar"]
-    CORE --> M2["Module 2: Campus Hierarchy & Seating Designer\nLead: Nikhil Kumawat"]
-    CORE --> M3["Module 3: Timetable & Dual-Vector Scheduling\nLead: Bhawni Kumari"]
-    CORE --> M4["Module 4: Examination & Anti-Cheating Seating\nLead: Kashish Upadhyay"]
-    CORE --> M5["Module 5: Student & Faculty Portals, UI Telemetry\nLead: Palak Nandani"]
-```
+* **Module 1: Authentication + User Management** *(Lead: Priyanshu Kumar)*
+  Validates credentials and issues secure, time-bound stateless JSON Web Tokens (JWT) with refresh token rotation. It enforces Role-Based Access Control (RBAC) across three distinct roles (`ADMIN`, `FACULTY`, `STUDENT`), handles BCrypt password hashing, manages user profile metadata, department allocations, session logging, and tracks client IP addresses and user agents for security audits.
 
-#### Challenges Faced in Week 2
-* **Cross-Module Dependency Deadlocks:** Module 3 (Timetable) and Module 4 (Examinations) both depended heavily on Module 2 (Rooms & Seats) and Module 1 (Users), risking development stalls if dependencies were built sequentially.
-* **Non-Functional Requirement Realism:** Defining realistic response times for dynamic matrix generation and bulk examination seating allocation without early benchmarking data.
+* **Module 2: Campus and Room Management** *(Lead: Nikhil Kumawat)*
+  Manages the spatial infrastructure across a 4-tier hierarchy: Campuses ➔ Academic Blocks ➔ Floors ➔ Rooms. Features an interactive Visual Seating Designer enabling administrators to customize room layouts (grid dimensions, aisle spacing, seat numbering, and usability status). It maintains live room occupancy statuses (`AVAILABLE`, `OCCUPIED`, `MAINTENANCE`) and categorizes facilities into lecture halls, labs, auditoriums, and seminar rooms.
 
-#### How We Overcame Them
-* **Interface-First Contract Design:** Before writing implementations, the team co-authored Data Transfer Object (DTO) contracts (`RoomDto`, `SeatDto`, `TimetableEntryDto`, `ExamSessionDto`, `UserTableDto`) and agreed upon shared REST endpoint schemas.
-* **Stubbing & In-Memory Fixtures:** Each member built mock services and unit fixtures adhering to the agreed DTO interfaces, allowing concurrent module development without blocking one another.
+* **Module 3: Timetable + Room Allocation** *(Lead: Bhawni Kumari)*
+  Provides an automated scheduling engine for academic courses and recurring weekly time slots. Features a robust dual-vector conflict detection system:
+  * **Room Conflict Detection**: Prevents spatial double-booking by ensuring no room hosts overlapping lectures.
+  * **Faculty Conflict Detection**: Ensures instructors cannot be scheduled for concurrent teaching commitments across multiple locations.
+  It also manages subject catalogs, course credits, and department-semester-section groupings.
+
+* **Module 4: Examination + Seat Allocation** *(Lead: Kashish Upadhyay)*
+  Coordinates examination sessions, date-time intervals, room capacity constraints, and faculty invigilator assignments. Features an intelligent anti-cheating seating engine that:
+  * Dynamically allocates students across available examination halls according to configured room grid capacities.
+  * Implements an alternating/checkerboard seating distribution pattern that separates students of the same department or subject, preventing adjacent placement and upholding academic integrity.
+
+* **Module 5: Student Portal + UI Integration** *(Lead: Palak Nandani)*
+  Integrates all backend engines into unified, accessible client portals and analytical interfaces:
+  * **Student Portal**: Displays personal academic profiles, real-time class timetables, and digital examination hall tickets featuring assigned room codes, floor numbers, and specific seat labels (e.g., `A-01`).
+  * **Faculty Portal**: Displays teaching timetables alongside invigilation duty assignments with live room rosters.
+  * **Executive Analytics & System Tools**: Surfaces cross-module platform telemetry, tracking total space utilization, room capacity metrics, active schedule slots, and examination readiness across all four engines.
 
 ---
 
-### Week 3: System Architecture & UML Modeling
+## Database Strategy & Persistence Architecture
 
-#### Objectives & Deliverables
-* Designed the comprehensive architectural diagrams representing data flow, domain relationships, and class models.
-* Mapped domain interactions across security, physical hierarchy, timetable scheduling, exam allocation, and client portals.
+CampusGrid employs an ACID-compliant Relational Database Architecture (MySQL for production, in-memory H2 for rapid development and testing) orchestrated through Spring Data JPA and Hibernate ORM.
 
-#### 1. Inter-Module Data Flow Diagram
+### Relational Schema Design & Entity Mapping
+* **Identity & Security Layer (`users`, `user_sessions`, `refresh_tokens`)**: Stores user accounts, encrypted credentials, role enumerations, profile metadata (department, semester, roll number, employee ID), and audit logs.
+* **Spatial Hierarchy Layer (`campuses`, `blocks`, `floors`, `rooms`, `room_seats`)**: Maintains strict referential integrity with cascading updates and deletes. The `room_seats` table stores individual coordinate-based seat records (`row_index`, `col_index`, `seat_label`, `is_usable`) for fine-grained seating matrix management.
+* **Academic Scheduling Layer (`subjects`, `timetable_entries`)**: Enforces foreign keys linking subjects, faculty members, and target rooms. Unique composite indexes prevent concurrent room or faculty bookings within identical time windows.
+* **Examination Management Layer (`exam_sessions`, `exam_rooms`, `exam_seat_allocations`)**: Tracks exam metadata, allotted room capacities, assigned faculty invigilators, and individual student seat allocations (`seat_id`, `seat_number`, `student_id`).
+
+### Data Integrity & Transaction Management
+* **Declarative Transactions**: Critical operations like automated exam seating allocation and timetable generation run under `@Transactional(isolation = Isolation.READ_COMMITTED)` to prevent race conditions during concurrent bookings.
+* **Entity Validation**: Model constraints are strictly enforced via Jakarta Validation (`@NotBlank`, `@NotNull`, `@Size`, `@Pattern`) before persisting to the database.
+
+---
+
+## Non-Functional Requirements
+
+* **Performance & Low Latency**: 
+  * Room availability lookups and timetable queries execute in under 100ms.
+  * The anti-cheating seat allocation engine completes seating for a 500-student examination batch in under 300ms.
+* **Security & Authentication**:
+  * Passwords encrypted using BCrypt with salt rounds.
+  * Stateless JWT authentication with short-lived access tokens (15 minutes) and revocable refresh tokens.
+  * Role-based authorization interceptors protecting all administrative and management endpoints.
+* **Conflict Prevention & Fault Tolerance**:
+  * Dual-vector collision detection engine prevents overlapping timetable bookings and double-allocated exam seats.
+  * Comprehensive error handling providing structured `ApiResponse<T>` payloads with meaningful error messages and timestamps.
+* **Scalability & Maintainability**:
+  * Clean separation of concerns across Controller, Service, DTO, Repository, and Entity layers.
+  * Modular design enabling each of the 5 functional engines to be maintained, tested, or scaled independently.
+
+---
+
+## Week 3: System Architecture & UML Design
+
+### 1. Inter-Module Integration & Data Flow Architecture
+
+The following architectural diagram illustrates how all five functional modules integrate with each other, sharing live data contracts across authentication, spatial hierarchy, scheduling, anti-cheating exam seating, and student self-service.
 
 ```mermaid
 flowchart TD
@@ -164,7 +171,11 @@ flowchart TD
     M4 -. "Telemetry Data" .-> ANALYTICS
 ```
 
-#### 2. Domain UML Class Diagram
+---
+
+### 2. Comprehensive UML Class Diagram
+
+This class diagram models all domain entities, relationships, attributes, and enumerations across the five integrated modules:
 
 ```mermaid
 classDiagram
@@ -180,30 +191,15 @@ classDiagram
     class RoomType {
         <<enumeration>>
         CLASSROOM
-        LABORATORY
+        LAB
         AUDITORIUM
+        SEMINAR_HALL
     }
 
     class RoomStatus {
         <<enumeration>>
         AVAILABLE
         OCCUPIED
-        MAINTENANCE
-        INACTIVE
-    }
-
-    class LayoutTemplate {
-        <<enumeration>>
-        STANDARD_GRID
-        CENTRAL_AISLE
-        H_PATTERN
-        LABORATORY
-    }
-
-    class SeatStatus {
-        <<enumeration>>
-        AVAILABLE
-        BLOCKED
         MAINTENANCE
     }
 
@@ -212,31 +208,56 @@ classDiagram
         +String uid
         +String username
         +String email
-        +String passwordHash
+        +String password
         +String fullName
         +Role role
+        +String specificId
+        +String department
+        +String section
+        +Integer year
+        +Integer semester
         +Boolean active
+    }
+
+    class UserSession {
+        +Long id
+        +String token
+        +String ipAddress
+        +String userAgent
+        +LocalDateTime loginTime
+        +LocalDateTime lastAccessTime
+        +Boolean active
+    }
+
+    class RefreshToken {
+        +Long id
+        +String token
+        +Instant expiryDate
+        +Boolean revoked
     }
 
     class Campus {
         +Long id
-        +String campusCode
-        +String campusName
+        +String code
+        +String name
         +String address
+        +String city
         +Boolean active
     }
 
     class Block {
         +Long id
-        +String blockCode
-        +String blockName
+        +String code
+        +String name
         +Integer totalFloors
+        +Boolean active
     }
 
     class Floor {
         +Long id
         +Integer floorNumber
         +String floorName
+        +Boolean active
     }
 
     class Room {
@@ -247,19 +268,15 @@ classDiagram
         +Integer capacity
         +Integer rowsCount
         +Integer columnsCount
-        +LayoutTemplate layoutTemplate
         +RoomStatus status
     }
 
-    class PhysicalSeat {
+    class RoomSeat {
         +Long id
-        +String seatNumber
-        +Integer rowNumber
-        +Integer columnNumber
-        +String rowLabel
-        +SeatType seatType
-        +SeatStatus status
-        +Boolean active
+        +Integer rowIndex
+        +Integer colIndex
+        +String seatLabel
+        +Boolean isUsable
     }
 
     class Subject {
@@ -269,116 +286,139 @@ classDiagram
         +String department
         +Integer semester
         +Integer credits
+        +Boolean isLab
     }
 
     class TimetableEntry {
         +Long id
         +String dayOfWeek
+        +String timeSlot
         +LocalTime startTime
         +LocalTime endTime
+        +Integer academicYear
+        +Integer semester
         +String section
+        +String status
     }
 
     class ExamSession {
         +Long id
-        +String examTitle
+        +String examName
         +String courseCode
+        +String courseName
         +LocalDate examDate
         +LocalTime startTime
         +LocalTime endTime
+        +String instructions
         +String status
+    }
+
+    class ExamRoom {
+        +Long id
+        +Integer allocatedCapacity
+        +String notes
     }
 
     class ExamSeatAllocation {
         +Long id
         +String seatNumber
-        +Integer rowNumber
-        +Integer columnNumber
-        +String attendanceStatus
+        +String seatStatus
     }
 
+    User "1" --> "*" UserSession : logs
+    User "1" --> "*" RefreshToken : generates
     User --> Role : has_role
+
     Campus "1" *-- "*" Block : contains
-    Block "1" *-- "*" Floor : has
-    Floor "1" *-- "*" Room : houses
-    Room "1" *-- "*" PhysicalSeat : configures
+    Block "1" *-- "*" Floor : contains
+    Floor "1" *-- "*" Room : contains
+    Room "1" *-- "*" RoomSeat : configures
     Room --> RoomType : typed_as
     Room --> RoomStatus : state
-    Room --> LayoutTemplate : layout
 
     Subject "1" <-- "*" TimetableEntry : scheduled_for
     User "1" <-- "*" TimetableEntry : instructor
     Room "1" <-- "*" TimetableEntry : hosted_in
 
-    ExamSession "1" *-- "*" ExamSeatAllocation : assigns
-    PhysicalSeat "1" <-- "*" ExamSeatAllocation : references
-    User "1" <-- "*" ExamSeatAllocation : examinee
+    ExamSession "1" *-- "*" ExamRoom : schedules
+    Room "1" <-- "*" ExamRoom : allocated_hall
+    User "1" <-- "*" ExamRoom : invigilator
+
+    ExamRoom "1" *-- "*" ExamSeatAllocation : binds_room
+    User "1" <-- "*" ExamSeatAllocation : allocated_student
+    RoomSeat "1" <-- "*" ExamSeatAllocation : assigned_physical_seat
 ```
-
-#### Challenges Faced in Week 3
-* **Representing Walkway Aisles in OOP Domain:** Standard seating models treat rooms as continuous matrices; representing irregular architectural geometries (e.g., center aisles, lab bench gaps, sound booths) in a clean relational model was challenging.
-* **Complex Multi-Table Associations:** Risk of circular entity references between `ExamSession`, `Room`, `PhysicalSeat`, and `Student`.
-
-#### How We Overcame Them
-* **Coordinate & Template Pattern:** Nikhil and Kashish devised a coordinate-based model (`rowNumber`, `columnNumber`, `rowLabel`) combined with algorithmic templates (`STANDARD_GRID`, `CENTRAL_AISLE`, `H_PATTERN`, `LABORATORY`) where aisle coordinates are treated as navigational walkway gaps rather than physical inventory seats.
-* **Unidirectional Foreign Keys & DTO Projection:** Eliminated circular JSON serialization bugs by utilizing unidirectional JPA mappings and dedicated DTO projections for API outputs.
 
 ---
 
-### Week 4: Database Architecture & Relational Schema Design
+### 3. Entity-Relationship (ER) Diagram
 
-#### Objectives & Deliverables
-* Implemented the relational database schema in MySQL 8.0 with foreign key constraints, composite unique indexes, and audit timestamps.
-* Generated wireframes and initial user interface mockups for the administrative dashboards.
-
-#### Entity-Relationship (ER) Diagram
+The ER diagram defines the relational persistence model, foreign key linkages, and table schemas managed by Spring Data JPA:
 
 ```mermaid
 erDiagram
     USERS ||--o{ USER_SESSIONS : "creates"
     USERS ||--o{ REFRESH_TOKENS : "owns"
     USERS ||--o{ TIMETABLE_ENTRIES : "instructs"
-    USERS ||--o{ EXAM_ROOM_ALLOCATIONS : "invigilates"
+    USERS ||--o{ EXAM_ROOMS : "invigilates"
     USERS ||--o{ EXAM_SEAT_ALLOCATIONS : "sits_for"
 
     CAMPUSES ||--|{ BLOCKS : "contains"
     BLOCKS ||--|{ FLOORS : "has"
     FLOORS ||--|{ ROOMS : "houses"
-    ROOMS ||--|{ SEATS : "configures"
+    ROOMS ||--|{ ROOM_SEATS : "configures"
 
     ROOMS ||--o{ TIMETABLE_ENTRIES : "hosts_class"
     SUBJECTS ||--o{ TIMETABLE_ENTRIES : "taught_in"
 
-    EXAM_SESSIONS ||--|{ EXAM_ROOM_ALLOCATIONS : "utilizes"
-    ROOMS ||--o{ EXAM_ROOM_ALLOCATIONS : "assigned_hall"
-    EXAM_SESSIONS ||--|{ EXAM_SEAT_ALLOCATIONS : "schedules"
-    SEATS ||--o{ EXAM_SEAT_ALLOCATIONS : "binds_seat"
+    EXAM_SESSIONS ||--|{ EXAM_ROOMS : "utilizes"
+    ROOMS ||--o{ EXAM_ROOMS : "assigned_hall"
+    EXAM_ROOMS ||--|{ EXAM_SEAT_ALLOCATIONS : "allocates"
+    ROOM_SEATS ||--o{ EXAM_SEAT_ALLOCATIONS : "maps_to"
 
     USERS {
         bigint id PK
         string uid UK
         string username UK
         string email UK
-        string password_hash
+        string password
         string full_name
         string role "ADMIN|FACULTY|STUDENT"
-        boolean is_active
+        string specific_id
+        string department
+        string section
+        int year
+        int semester
+        boolean active
+    }
+
+    USER_SESSIONS {
+        bigint id PK
+        bigint user_id FK
+        string token
+        string ip_address
+        string user_agent
+        timestamp login_time
+        timestamp last_access_time
+        boolean active
     }
 
     CAMPUSES {
         bigint id PK
-        string campus_code UK
-        string campus_name
+        string code UK
+        string name
         string address
-        boolean is_active
+        string city
+        boolean active
     }
 
     BLOCKS {
         bigint id PK
         bigint campus_id FK
-        string block_code
-        string block_name
+        string code
+        string name
         int total_floors
+        boolean active
     }
 
     FLOORS {
@@ -386,6 +426,7 @@ erDiagram
         bigint block_id FK
         int floor_number
         string floor_name
+        boolean active
     }
 
     ROOMS {
@@ -393,23 +434,30 @@ erDiagram
         bigint floor_id FK
         string room_code UK
         string room_name
-        string room_type
+        string room_type "CLASSROOM|LAB|AUDITORIUM|SEMINAR_HALL"
         int capacity
         int rows_count
         int columns_count
-        string layout_template
-        string status
+        string status "AVAILABLE|OCCUPIED|MAINTENANCE"
     }
 
-    SEATS {
+    ROOM_SEATS {
         bigint id PK
         bigint room_id FK
-        string seat_number
-        int row_number
-        int column_number
-        string row_label
-        string seat_type
-        string status
+        int row_index
+        int col_index
+        string seat_label
+        boolean is_usable
+    }
+
+    SUBJECTS {
+        bigint id PK
+        string subject_code UK
+        string subject_name
+        string department
+        int semester
+        int credits
+        boolean is_lab
     }
 
     TIMETABLE_ENTRIES {
@@ -418,50 +466,115 @@ erDiagram
         bigint faculty_id FK
         bigint room_id FK
         string day_of_week
+        string time_slot
         time start_time
         time end_time
+        int academic_year
+        int semester
         string section
+        string status
     }
 
     EXAM_SESSIONS {
         bigint id PK
-        string exam_title
+        string exam_name
         string course_code
+        string course_name
         date exam_date
         time start_time
         time end_time
+        string instructions
         string status
+    }
+
+    EXAM_ROOMS {
+        bigint id PK
+        bigint exam_session_id FK
+        bigint room_id FK
+        bigint invigilator_id FK
+        int allocated_capacity
+        string notes
     }
 
     EXAM_SEAT_ALLOCATIONS {
         bigint id PK
-        bigint exam_id FK
+        bigint exam_room_id FK
         bigint student_id FK
-        bigint room_id FK
         bigint seat_id FK
         string seat_number
-        string attendance_status
+        string seat_status
     }
 ```
 
-#### Challenges Faced in Week 4
-* **Database Reserved Keywords:** Column names like `row_number`, `column_number`, and `rows` clashed with MySQL 8.0 reserved window functions, producing syntax errors during JPA schema generation.
-* **Database Index Performance:** High volume queries checking timetable conflicts were executing table scans without appropriate composite indexing.
+---
 
-#### How We Overcame Them
-* **Explicit Column Backticking:** Configured `@Column(name = "`row_number`")` and `@Column(name = "`column_number`")` in JPA models to safely escape SQL keywords.
-* **Composite Index Tuning:** Added composite indexes across `(room_id, day_of_week, start_time, end_time)` and `(faculty_id, day_of_week, start_time, end_time)` to achieve sub-millisecond conflict checks.
+## Week 4: Database Design & UI Mock-ups
+
+### 1. Database Architecture & Relational Schema Specifications
+
+CampusGrid operates on an ACID-compliant Relational Database Architecture connecting all 5 operational modules through Spring Data JPA and Hibernate:
+
+* **`users` Table**: Core identity, credentials, roles, and demographic profiles.
+  * `id` (`BIGINT`, `PRIMARY KEY`, `AUTO_INCREMENT`)
+  * `uid` (`VARCHAR(36)`, `UNIQUE`, `NOT NULL`) — Canonical UUID (`USR-XXXXXXXX`)
+  * `username` (`VARCHAR(50)`, `UNIQUE`, `NOT NULL`)
+  * `email` (`VARCHAR(100)`, `UNIQUE`, `NOT NULL`)
+  * `password` (`VARCHAR(255)`, `NOT NULL`) — BCrypt Hash (10 salt rounds)
+  * `role` (`VARCHAR(20)`, `NOT NULL`) — `ADMIN`, `FACULTY`, `STUDENT`
+  * `specific_id` (`VARCHAR(50)`) — Roll No (`23CSE001`) / Faculty ID (`FAC001`)
+  * `department` (`VARCHAR(100)`), `section` (`VARCHAR(20)`), `semester` (`INT`), `active` (`BOOLEAN`)
+
+* **`user_sessions` Table**: Active session logging and audit tracking.
+  * `id` (`BIGINT`, `PRIMARY KEY`, `AUTO_INCREMENT`)
+  * `user_id` (`BIGINT`, `FOREIGN KEY` -> `users.id`)
+  * `token` (`VARCHAR(512)`), `ip_address` (`VARCHAR(45)`), `user_agent` (`VARCHAR(255)`), `login_time` (`TIMESTAMP`)
+
+* **`campuses`, `blocks` & `floors` Tables**: Campus physical infrastructure hierarchy.
+  * `campuses`: `id` (`PK`), `code` (`UK`), `name`, `city`, `active`
+  * `blocks`: `id` (`PK`), `campus_id` (`FK`), `code`, `name`, `total_floors`, `active`
+  * `floors`: `id` (`PK`), `block_id` (`FK`), `floor_number`, `floor_name`, `active`
+
+* **`rooms` & `room_seats` Tables**: Space inventory and coordinate seating matrix.
+  * `rooms`: `id` (`PK`), `floor_id` (`FK`), `room_code` (`UK`), `room_name`, `room_type`, `capacity`, `rows_count`, `columns_count`, `status`
+  * `room_seats`: `id` (`PK`), `room_id` (`FK`), `row_index`, `col_index`, `seat_label`, `is_usable`
+
+* **`subjects` & `timetable_entries` Tables**: Academic schedule and conflict mapping.
+  * `subjects`: `id` (`PK`), `subject_code` (`UK`), `subject_name`, `department`, `semester`, `credits`, `is_lab`
+  * `timetable_entries`: `id` (`PK`), `subject_id` (`FK`), `faculty_id` (`FK`), `room_id` (`FK`), `day_of_week`, `time_slot`, `start_time`, `end_time`, `section`, `status`
+
+* **`exam_sessions`, `exam_rooms` & `exam_seat_allocations` Tables**: Examination and anti-cheating seating.
+  * `exam_sessions`: `id` (`PK`), `exam_name`, `course_code`, `course_name`, `exam_date`, `start_time`, `end_time`, `status`
+  * `exam_rooms`: `id` (`PK`), `exam_session_id` (`FK`), `room_id` (`FK`), `invigilator_id` (`FK`), `allocated_capacity`
+  * `exam_seat_allocations`: `id` (`PK`), `exam_room_id` (`FK`), `student_id` (`FK`), `seat_id` (`FK`), `seat_number`, `seat_status`
 
 ---
 
-### Week 5: Module 1 — Identity, JWT Security & Session Management
+### 2. User Interface (UI) Mock-ups
 
-#### Objectives & Deliverables
-* Built the core security perimeter: `JwtService`, `JwtAuthFilter`, `AuthService`, and `AuthController`.
-* Implemented stateless HMAC-SHA512 token creation, 15-minute access expiration, and 7-day refresh token rotation.
-* Implemented BCrypt password hashing (10 salt rounds) and role-based route guards.
+#### A. Campus Administrator User Management Center (Module 1 & 5)
+Features cohort filtering, student & faculty credentials directory, active status toggles, and administrative action controls.
 
-#### Authentication & Authorization Flow
+* [CampusGrid User Management Dashboard]![User Management Dashboard](./image/user_management_mockup.png)
+
+#### B. Academic Timetable & Room Allocation Dashboard (Module 3 & 2)
+Features multi-filter scheduling matrix, room conflict checks, recurring lecture slot assignment, and faculty workload distribution.
+
+* [CampusGrid Academic Timetable & Room Allocation]![Timetable & Room Allocation](./image/timetable_allocation_mockup.png)
+
+---
+
+## Week 5: Module 1 — Identity, Authentication & Role-Based Access Control
+
+### 1. Architectural Highlights & Implementation Objectives
+Module 1 serves as the foundational security perimeter and identity directory for CampusGrid, engineered under the leadership of **Priyanshu Kumar**. It governs credential authentication, stateless token lifecycle management, fine-grained access authorization, and forensic session auditing.
+
+* **Stateless Token-Based Authentication**: Implemented `JwtService` utilizing HMAC-SHA512 cryptographic signing. Configured a dual-token lifecycle with short-lived access tokens (15-minute expiration) and persistent 7-day refresh tokens (`RefreshTokenRequest`, `AuthResponse`).
+* **Role-Based Access Control (RBAC)**: Defined three fundamental user roles (`ADMIN`, `FACULTY`, `STUDENT`) with custom endpoint authorization interceptors guarding administrative and academic resources.
+* **Password Hashing & Security Policies**: Enforced one-way password hashing using BCrypt with 10 salt rounds to safeguard user credentials against dictionary and rainbow table vulnerabilities.
+* **Session Auditing & IP Tracking**: Constructed `UserSession` and `RefreshToken` repositories to capture client IPv4/IPv6 addresses, browser User-Agent strings, and timestamped activity logs for administrative compliance.
+* **Automated Data Seeders**: Built institutional bootstrap seeders generating default administrative (`admin`), faculty (`meera.faculty`), and student (`rahul123`) accounts with pre-configured academic profiles.
+
+### 2. Authentication & Authorization Lifecycle Diagram
 
 ```mermaid
 sequenceDiagram
@@ -470,91 +583,91 @@ sequenceDiagram
     participant AuthCtrl as AuthController
     participant AuthSvc as AuthService
     participant JwtSvc as JwtService
-    participant DB as Relational Database
-    participant API as Protected Endpoints
+    participant DB as Relational Database (users / user_sessions)
+    participant ProtectedApi as Protected Endpoints (Spaces / Exams)
 
     Client->>AuthCtrl: POST /api/auth/login (username, password)
-    AuthCtrl->>AuthSvc: login(credentials, ipAddress, userAgent)
+    AuthCtrl->>AuthSvc: login(request, ipAddress, userAgent)
     AuthSvc->>DB: findByUsernameOrEmail(username)
-    DB-->>AuthSvc: Return User Entity (BCrypt Hash, Role)
-    AuthSvc->>AuthSvc: passwordEncoder.matches(raw, hash)
+    DB-->>AuthSvc: Return User Entity (BCrypt Hash, Role, Profile)
+    AuthSvc->>AuthSvc: BCrypt.checkpw(rawPassword, hashedPassword)
     
     alt Invalid Password / Inactive Account
         AuthSvc-->>AuthCtrl: Throw BadCredentialsException
-        AuthCtrl-->>Client: HTTP 401 Unauthorized
+        AuthCtrl-->>Client: HTTP 401 Unauthorized / HTTP 403 Forbidden
     else Valid Credentials
-        AuthSvc->>JwtSvc: generateAccessToken(user)
-        JwtSvc-->>AuthSvc: 15-Minute Signed JWT
-        AuthSvc->>DB: saveRefreshToken(token, user)
-        AuthSvc-->>AuthCtrl: AuthResponse (accessToken, refreshToken, userDto)
-        AuthCtrl-->>Client: HTTP 200 OK + Set-Cookie
+        AuthSvc->>JwtSvc: generateAccessToken(User)
+        JwtSvc-->>AuthSvc: 15-Minute Signed JWT (HMAC-SHA512)
+        AuthSvc->>DB: createRefreshToken(User) & logSession(User, IP, UserAgent)
+        AuthSvc-->>AuthCtrl: AuthResponse (Tokens, Role, Profile DTO)
+        AuthCtrl-->>Client: HTTP 200 OK (AccessToken + RefreshToken)
     end
 
-    Note over Client,API: Subsequent API Requests with Bearer Token
-    Client->>API: GET /api/admin/users/stats (Authorization: Bearer JWT)
-    API->>JwtSvc: extractUsername(token) & validateToken(token)
-    alt Valid Token & Role == ADMIN
-        API->>DB: Query Aggregated User Metrics
-        DB-->>API: 17 Students, 2 Faculty, 20 Users
-        API-->>Client: HTTP 200 OK (ApiResponse)
-    else Expired or Invalid Token
-        API-->>Client: HTTP 401 Unauthorized
+    Note over Client,ProtectedApi: Subsequent API Requests with Bearer Access Token
+    Client->>ProtectedApi: GET /api/spaces/stats (Header: Bearer JWT)
+    ProtectedApi->>JwtSvc: validateToken(JWT) & extractRole(JWT)
+    alt Valid Token & Authorized Role
+        ProtectedApi->>DB: Query Space Statistics
+        DB-->>ProtectedApi: Space Utilization Metrics
+        ProtectedApi-->>Client: HTTP 200 OK (ApiResponse<SpaceStatsDto>)
+    else Expired or Tampered Token
+        ProtectedApi-->>Client: HTTP 401 Unauthorized (JWT Expired/Invalid)
     end
 ```
 
-#### Challenges Faced in Week 5
-* **Token Invalidation on Logout:** Stateless JWTs cannot be revoked natively prior to token expiration without introducing state.
-* **Dual-Token Storage Security:** Balancing cross-module client-side fetch requirements against XSS / CSRF vulnerabilities.
-
-#### How We Overcame Them
-* **Revocable Refresh Token Store:** Created a database-backed `RefreshToken` registry. When a user logs out, the refresh token is immediately revoked in MySQL, cutting off session re-issuance.
-* **Hybrid Storage Pattern:** Stored access tokens in client memory and `localStorage` with accompanying short 15-minute expirations, while securing refresh tokens and injecting Bearer headers through unified `auth.js` interceptors.
-
 ---
 
-### Week 6: Module 2 — Spatial Hierarchy & Visual Seating Designer
+## Week 6: Module 2 — Campus Spatial Hierarchy & Visual Seating Designer
 
-#### Objectives & Deliverables
-* Built the 4-tier spatial hierarchy backend (`Campus`, `Block`, `Floor`, `Room`) with recursive tree endpoints (`/api/spaces/tree`).
-* Developed the interactive visual seating grid designer (`admin-seating.html` and `seating-designer.js`) with coordinate management and custom walkway layouts.
+### 1. Spatial Structure Implementation
+Module 2, spearheaded by **Nikhil Kumawat**, models the university's physical geography into a scalable, normalized 4-tier relational hierarchy:
 
-#### Seating Grid & Room State Lifecycle
+* **4-Tier Institutional Spatial Hierarchy**: Developed domain models and JPA repositories managing the complete physical infrastructure: `Campus` ➔ `Block` ➔ `Floor` ➔ `Room`.
+* **Dynamic Room Categorization**: Added support for diverse space classifications (`CLASSROOM`, `LAB`, `AUDITORIUM`, `SEMINAR_HALL`) with real-time occupancy status flags (`AVAILABLE`, `OCCUPIED`, `MAINTENANCE`).
+* **Hierarchical Tree Directory**: Exposed `GET /api/spaces/tree` delivering a nested JSON representation of the entire campus layout for instant visual navigation in client dashboards.
+
+### 2. Interactive Seating Layout Designer
+* **Visual Matrix Generator**: Built `SeatingLayoutService` enabling administrators to configure grid dimensions ($M \times N$) for any room.
+* **Coordinate-Based Seat Management**: Persisted individual physical seat entities (`PhysicalSeat`) capturing exact `row_index` and `col_index` coordinates alongside alphanumeric labels (e.g., `A-01`, `B-04`).
+* **Usability & Aisle Mapping**: Added interactive toggles allowing administrators to flag specific coordinates as disabled/broken seats or walkway aisles, ensuring non-usable slots are excluded from class capacity and exam seating.
+
+### 3. Spatial & Physical Seat Lifecycle State Diagram
 
 ```mermaid
 stateDiagram-v2
     [*] --> DraftGrid : Admin Configures Rows x Cols (M x N)
-    DraftGrid --> UsableSeat : Default Coordinate (Active Available Seat)
-    UsableSeat --> AisleSpace : Algorithmic Walkway / Aisle Gap
-    UsableSeat --> BlockedReserved : Admin Toggles Seat to Blocked
-    BlockedReserved --> MaintenanceSeat : Admin Toggles to Maintenance
-    MaintenanceSeat --> UsableSeat : Reverted to Available
+    DraftGrid --> UsableSeat : Default State (Active Seat)
+    UsableSeat --> AisleSpace : Mark as Walkway / Aisle
+    UsableSeat --> BrokenDisabled : Mark as Maintenance / Broken
+    AisleSpace --> UsableSeat : Revert to Active Seat
+    BrokenDisabled --> UsableSeat : Repair Complete
 
-    state RoomOperationalState {
-        [*] --> AVAILABLE : Default State / Room Vacant
-        AVAILABLE --> OCCUPIED : Class Timetable In Session / Exam In Progress
-        OCCUPIED --> AVAILABLE : Class Concluded / Session Finished
-        AVAILABLE --> MAINTENANCE : Scheduled Facility Repair
-        MAINTENANCE --> AVAILABLE : Room Certified
+    state RoomStatusLifecycle {
+        [*] --> AVAILABLE : Initial State / Room Vacant
+        AVAILABLE --> OCCUPIED : Active Timetable Class / Exam In Session
+        OCCUPIED --> AVAILABLE : Class Concluded / Exam Finished
+        AVAILABLE --> MAINTENANCE : Scheduled Maintenance / Renovation
+        MAINTENANCE --> AVAILABLE : Maintenance Signed Off
     }
 ```
 
-#### Challenges Faced in Week 6
-* **Coordinate Synchronization Glitches:** When changing grid dimensions from $10 \times 10$ to $8 \times 8$, orphaned seats outside the new boundary caused database inconsistency and constraint errors.
-* **Visual Rendering Latency:** Rendering individual DOM nodes for massive auditoriums ($120+$ seats) with complex CSS styling caused noticeable UI lag on lower-end devices.
-
-#### How We Overcame Them
-* **Entity Synchronization Algorithm:** Implemented an upsert-and-prune algorithm in `SeatingLayoutService`: existing seats matching the new dimensions preserve their custom status (e.g. `BLOCKED`), newly introduced coordinates are inserted, and orphaned seats outside the boundary are safely cleaned up.
-* **CSS Grid Lightweight Matrix:** Replaced heavy nested layout wrappers with high-performance CSS Grid layouts (`display: grid; grid-template-columns: repeat(N, 38px);`) and pure CSS color swatches.
-
 ---
 
-### Week 7: Module 3 — Academic Timetable & Dual-Vector Conflict Engine
+## Week 7: Module 3 — Academic Timetable & Collision Detection Engine
 
-#### Objectives & Deliverables
-* Built curriculum catalog and course management (`Subject` entity, credits, theory vs lab tags).
-* Implemented the weekly master timetable scheduler with the **Dual-Vector Conflict Detection Engine**.
+### 1. Course Scheduling & Master Timetable Architecture
+Module 3, led by **Bhawni Kumari**, implements the academic curriculum catalogue and timetable scheduling engine:
 
-#### Dual-Vector Collision Detection Pipeline
+* **Curriculum & Subject Catalogue**: Modeled academic courses (`Subject`) with course codes, titles, credits, department affiliations, semester mappings, and theory vs laboratory classifications.
+* **Recurring Slot Allocation**: Designed `TimetableService` and `TimetableEntry` entities managing weekly recurring lecture periods across days of the week (`MONDAY` through `SATURDAY`).
+
+### 2. Dual-Vector Collision Detection Engine
+To eliminate scheduling anomalies and resource collisions, the scheduling engine executes an automated dual-vector validation pipeline before committing any timetable record:
+
+1. **Room Conflict Vector**: Queries `timetable_entries` for identical `room_id`, `day_of_week`, and overlapping time intervals (`[start_time, end_time]`). If a collision exists, the request is immediately rejected with details of the conflicting class.
+2. **Faculty Conflict Vector**: Queries `timetable_entries` for identical `faculty_id`, `day_of_week`, and overlapping time intervals, preventing instructors from being double-booked across different rooms or academic cohorts.
+
+### 3. Dual-Vector Conflict Detection Flowchart
 
 ```mermaid
 flowchart TD
@@ -575,28 +688,27 @@ flowchart TD
     SYNC_PORTAL --> SUCCESS(["HTTP 201 Created: Timetable Slot Confirmed"])
 ```
 
-#### Challenges Faced in Week 7
-* **Overlapping Time Boundary Calculations:** Determining whether time intervals $[A_{start}, A_{end}]$ and $[B_{start}, B_{end}]$ collide when start and end boundaries touch (e.g., Class 1 ending at 10:00 AM and Class 2 starting at 10:00 AM).
-* **Concurrent Booking Race Conditions:** Two administrators booking the same classroom simultaneously could bypass application-level validation if queries ran concurrently.
-
-#### How We Overcame Them
-* **Strict Overlap Mathematical Formulation:** Formulated conflict checking as $(A_{start} < B_{end}) \land (A_{end} > B_{start})$, allowing touching boundaries without flagging false conflicts.
-* **Transactional Isolation & Database Locking:** Applied `@Transactional(isolation = Isolation.READ_COMMITTED)` with database-level composite unique constraints to guarantee absolute consistency under concurrent requests.
-
 ---
 
-### Week 8: Module 4 — Examination Coordination & Anti-Cheating Seating Engine
+## Week 8: Module 4 — Examination Scheduling & Anti-Cheating Seating Engine
 
-#### Objectives & Deliverables
-* Implemented examination session lifecycle management (`ExamSession`, `ExamRoomAllocation`).
-* Engineered the **Anti-Cheating Alternating Seating Engine** to automatically seat students in checkerboard patterns and generate official attendance rosters.
+### 1. Examination Lifecycle Management
+Module 4, developed by **Kashish Upadhyay**, coordinates university examinations, venue capacities, invigilator duty assignments, and randomized seating allocations:
 
-#### Anti-Cheating Seating Allocation Flow
+* **Examination Sessions**: Modeled `ExamSession` capturing exam names, course catalogue codes, calendar dates, exact commencement/conclusion time windows, and examination guidelines.
+* **Hall Capacity & Invigilation Allotment**: Implemented `ExamRoomAllocation` linking examination halls with allocated seating quotas, notes, and designated faculty invigilators (`User`).
+
+### 2. Intelligent Anti-Cheating Seating Engine
+* **Algorithmic Seat Distribution (`ExamSeatingEngine`)**: Formulated an automated seating assignment algorithm that ingests configured physical seat grids from Module 2.
+* **Checkerboard & Alternating Pattern**: Enforces academic integrity by ensuring students taking the same examination paper or enrolled in identical academic cohorts are never seated adjacently in adjacent rows or columns.
+* **Deterministic Allocation & Roster Generation**: Binds each candidate to an immutable physical seat record (`ExamSeatAllocation`) with distinct labels (`seat_number`), outputting exportable attendance rosters.
+
+### 3. Anti-Cheating Seating Distribution Pipeline
 
 ```mermaid
 flowchart LR
-    subgraph Inputs["1. Queue Inputs"]
-        STUDENTS["Candidate Student Queue\n(Grouped by Dept & Section)"]
+    subgraph Inputs["1. Seeding Data Inputs"]
+        STUDENTS["Candidate Student Queue\n(Grouped by Dept & Course)"]
         ROOM_GRID["Configured Room Seat Matrix\n(Usable physical seats sorted row/col)"]
     end
 
@@ -607,7 +719,7 @@ flowchart LR
         ALLOCATE["Assign Physical Seat Coordinate\n(e.g., Seat A-01, Seat A-03)"]
     end
 
-    subgraph Outputs["3. Concrete Outputs"]
+    subgraph Outputs["3. Concrete Allocations"]
         EXAM_ROSTER["Exam Room Invigilation Roster\n(Master seating chart for hall supervisor)"]
         STUDENT_TICKET["Student Digital Admit Card\n(Hall, Floor, Exact Seat Number)"]
     end
@@ -619,85 +731,86 @@ flowchart LR
     ALLOCATE --> Outputs
 ```
 
-#### Challenges Faced in Week 8
-* **Irregular Room Geometry Seating:** Auditoriums with central aisle gaps caused index-based alternating algorithms to seat adjacent students right across the aisle from each other.
-* **Capacity Overflow Handling:** Exam sessions with more candidate students than the aggregate capacity of assigned rooms resulted in silent truncation or unassigned students.
-
-#### How We Overcame Them
-* **Coordinate-Aware Distance Checking:** Rewrote `ExamSeatingEngine` to evaluate actual physical coordinates ($row, col$) and aisle gap presence rather than sequential array indices, ensuring safe physical spacing regardless of room shape.
-* **Pre-Allocation Capacity Validation:** Added strict upfront capacity validation: if candidates exceed total available seats across all selected examination halls, the operation rejects early with detailed shortage counts.
-
 ---
 
-### Week 9: Module 5 — Student Portal, Digital Hall Tickets & Faculty Hub
+## Week 9: Module 5 — Student Portal & Faculty Workspaces
 
-#### Objectives & Deliverables
-* Built the student self-service web interface (`student-dashboard.html`, `student-timetable.html`, `student-examinations.html`).
-* Developed the digital exam hall ticket system providing students with verifiable seat labels (`A-01`, `B-04`) and hall locations.
-* Implemented the faculty dashboard displaying weekly teaching agendas and assigned exam invigilation duties.
+### 1. Student Self-Service Experience
+Module 5, led by **Palak Nandani**, stitches together backend services into intuitive, accessible self-service interfaces:
 
-#### Student Admit Card Retrieval Sequence
+* **Personalized Daily Schedule**: Developed `StudentPortalController` and `StudentService` delivering customized daily lecture agendas based on the student's registered department, year, semester, and section.
+* **Digital Examination Hall Ticket (Admit Card)**: Integrated live examination records allowing students to view exam dates, venues, floor levels, and verified physical seat numbers (e.g., `Seat: A-01`) directly on their personal portal.
+
+### 2. Faculty Teaching & Invigilation Dashboard
+* **Faculty Lecture Roster**: Surfaces a consolidated weekly calendar of assigned teaching commitments.
+* **Invigilation Duty Roster**: Added an active invigilation table (`GET /api/admin/exams/my-duties`) enabling professors to monitor their allocated examination halls, time slots, and examinee candidate headcounts.
+
+### 3. Student Digital Hall Ticket Fetching Sequence
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Student as Enrolled Student
-    participant Portal as Student Portal (student.js)
+    participant Portal as Student Portal UI (student.js)
     participant Ctrl as StudentPortalController
     participant Svc as StudentService
-    participant ExamRepo as ExamSeatAllocationRepository
+    participant ExamSvc as ExamService
+    participant Repo as ExamSeatAllocationRepository
 
     Student->>Portal: Navigate to "My Examinations" / Admit Card
-    Portal->>Ctrl: GET /api/student/examinations (Bearer JWT)
+    Portal->>Ctrl: GET /api/student/examinations (Bearer Token)
     Ctrl->>Ctrl: Validate JWT Claims (User ID & Role == STUDENT)
     Ctrl->>Svc: getStudentExaminations(studentUserId)
-    Svc->>ExamRepo: findByStudentUserId(studentUserId)
-    ExamRepo-->>Svc: List of ExamSeatAllocations (Room, Seat Number, Exam Session)
-    Svc-->>Ctrl: Map to StudentExamAllocationDto
+    Svc->>ExamSvc: getStudentExamAllocations(studentUserId)
+    ExamSvc->>Repo: findByStudentId(studentUserId)
+    Repo-->>ExamSvc: List of ExamSeatAllocations (Room, Seat Number, Exam Session)
+    ExamSvc-->>Svc: Map to StudentExamAllocationDto
+    Svc-->>Ctrl: Return DTO List (Course, Date, Venue, Seat Label)
     Ctrl-->>Portal: HTTP 200 OK (ApiResponse<List<StudentExamAllocationDto>>)
     Portal-->>Student: Render Digital Hall Ticket Card with Badge: [Seat A-01]
 ```
 
-#### Challenges Faced in Week 9
-* **Data Leakage & Privacy Risks:** Students inspecting API network calls could potentially view seating arrangements or personal details of other candidates.
-* **Fragmented Timetable Views:** Different student sections required completely isolated schedule views to avoid confusion.
-
-#### How We Overcame Them
-* **Strict JWT Subject Extraction:** Ensured all student endpoints extract identity exclusively from the validated JWT token (`SecurityContextHolder` / `authenticatedUserId`), strictly barring user-supplied ID parameters in query strings or request bodies.
-* **Cohort-Scoped Filtering:** Filtered timetable schedules strictly by the authenticated student's enrolled department, academic year, semester, and section.
-
 ---
 
-### Week 10: Cross-Module Integration, UI Layout Polish & Executive Telemetry
+## Week 10: Cross-Module Integration & Executive Platform Telemetry
 
-#### Objectives & Deliverables
-* Integrated all 5 modules into a seamless unified application under a standard design system (`style.css`).
-* Created the dedicated Executive Admin Dashboard (`admin-dashboard.html`) to aggregate live system KPIs across all micro-services.
-* Fixed layout overlapping bugs and sidebar routing inconsistencies.
+### 1. End-to-End Cross-Engine Interlinking
+* **Spatial Action Routing**: Enriched the Room Directory modal in `room-management.js` with direct action buttons linking physical rooms to:
+  * Their weekly lecture timetable schedule (`/admin/timetable?search=...`).
+  * Their upcoming examination room allocations (`/admin/examinations`).
+  * Their interactive seating designer layout (`/admin/seating?roomId=...`).
+* **Standardized REST Contract**: Normalized all responses across controllers using a unified `ApiResponse<T>` envelope containing status indicators, user-friendly messages, typed payloads, and ISO-8601 timestamps.
 
-#### 4-Pillar Executive Operations Telemetry
+### 2. Executive Analytics & Health Telemetry
+* **4-Pillar Operations Dashboard**: Integrated `system-tools.js` to poll live statistics across all four operational backends:
+  * **Space Engine**: Campuses, blocks, rooms, total capacity, and occupancy rates.
+  * **Timetable Engine**: Total scheduled class hours, active slots, and conflict indicators.
+  * **Exam Engine**: Active exam sessions, allocated rooms, and seating fill rates.
+  * **Identity Core**: User distributions across Administrator, Faculty, and Student roles.
+
+### 3. 4-Pillar Operations Telemetry Architecture
 
 ```mermaid
 flowchart TD
-    subgraph UI["Executive Web Console (admin-dashboard.html)"]
-        MODAL["Executive Telemetry Aggregator (Promise.all)"]
+    subgraph UI["Executive Web Console (admin-examinations.html / admin-users.html)"]
+        MODAL["Executive Telemetry Modal (system-tools.js)"]
     end
 
-    subgraph Endpoints["Live Service Statistics Endpoints"]
-        P1["GET /api/spaces/stats\n(Module 2: Spaces)"]
-        P2["GET /api/admin/timetables/stats\n(Module 3: Timetable)"]
-        P3["GET /api/admin/exams/stats\n(Module 4: Exams)"]
-        P4["GET /api/admin/users/stats\n(Module 1: Users)"]
+    subgraph Endpoints["Aggregated Telemetry Endpoints"]
+        P1["GET /api/spaces/stats\n(Module 2)"]
+        P2["GET /api/admin/timetable/stats\n(Module 3)"]
+        P3["GET /api/admin/exams/stats\n(Module 4)"]
+        P4["GET /api/admin/users/stats\n(Module 1)"]
     end
 
-    subgraph Metrics["Live Platform KPIs Displayed"]
-        M1["20 Rooms, 1,011 Capacity across 5 Blocks"]
-        M2["11 Scheduled Classes, 12.0 Hours / Week"]
-        M3["3 Active Exam Sessions, 26 Seated Candidates"]
-        M4["20 Platform Accounts (17 Students, 2 Faculty)"]
+    subgraph Metrics["Platform KPIs Displayed"]
+        M1["Total Campuses, Blocks, Rooms & Seating Capacity"]
+        M2["Total Scheduled Weekly Lecture Slots & Conflict Status"]
+        M3["Active Exam Sessions, Assigned Halls & Fill Rate"]
+        M4["Active Users (Admin, Faculty, Student Breakdown)"]
     end
 
-    MODAL -- "Parallel Asynchronous Fetch" --> P1 & P2 & P3 & P4
+    MODAL -- "Parallel AJAX Fetch" --> P1 & P2 & P3 & P4
     P1 --> M1
     P2 --> M2
     P3 --> M3
@@ -705,189 +818,85 @@ flowchart TD
     M1 & M2 & M3 & M4 --> MODAL
 ```
 
-#### Challenges Faced in Week 10
-* **CSS Layout Regression:** Converting legacy layout classes (`app-layout`, `main-content`) caused elements on campus and room pages to be shifted behind the fixed sidebar.
-* **Dashboard Route Aliasing:** Navigating to `/admin/dashboard` mistakenly forwarded users to `admin-users.html` because a dedicated dashboard view had not yet been created.
-* **Cascading Foreign Key Constraint Violation (SQL Error 1451):** When admins reconfigured room seating layouts in Module 2, deleting displaced/orphaned seats failed with a MySQL 500 error because existing examination records in `exam_seat_allocations` referenced those seat IDs.
-
-#### How We Overcame Them
-* **Unified Layout Architecture:** Replaced legacy layout structures with canonical `app-shell`, `sidebar`, `topbar`, and `main-wrapper` containers, adding compatibility rules to [`style.css`](file:///C:/Coding/Eclipse_ide_codes/eclipse_july_2026/Java%20Project%20Based%20Learning/src/jpbl0/Java-Project/src/main/resources/static/css/style.css).
-* **Executive Dashboard Development:** Authored [`admin-dashboard.html`](file:///C:/Coding/Eclipse_ide_codes/eclipse_july_2026/Java%20Project%20Based%20Learning/src/jpbl0/Java-Project/src/main/resources/static/admin-dashboard.html) featuring 4 live KPI telemetry cards, physical space breakdown counters, academic directory summaries, and a 6-card interactive module launchpad.
-* **Cascading Allocation Cleanup:** Updated [`ExamSeatAllocationRepository`](file:///C:/Coding/Eclipse_ide_codes/eclipse_july_2026/Java%20Project%20Based%20Learning/src/jpbl0/Java-Project/src/main/java/com/campusgrid/repository/ExamSeatAllocationRepository.java) with `deleteByPhysicalSeatIn(orphanedSeats)` and updated [`SeatingLayoutService`](file:///C:/Coding/Eclipse_ide_codes/eclipse_july_2026/Java%20Project%20Based%20Learning/src/jpbl0/Java-Project/src/main/java/com/campusgrid/service/SeatingLayoutService.java) to safely unlink allocations prior to removing physical seat rows.
-
 ---
 
-### Week 11: Automated Test Suite & Security Verification
+## Week 11: Quality Assurance, Security Audit & Project Directory Structure
 
-#### Objectives & Deliverables
-* Conducted comprehensive automated unit, integration, and security testing across all controllers and services.
-* Validated that all **140 automated tests pass with 100% success rate**.
+### 1. Automated Test Suite Execution
+CampusGrid enforces rigorous quality control through automated unit, integration, and security test suites executed via Maven:
 
-#### Automated Test Suite Matrix (140 / 140 Passing)
+* **Test Suite Status**: **140 / 140 Automated Tests Passing** (`mvn test -Dspring.profiles.active=test`).
+* **Test Classes Breakdown**:
+  * **Identity & Authentication**: `AuthServiceTest`, `AuthControllerSecurityTest`, `JwtServiceTest`, `UserServiceTest`, `UserManagementControllerSecurityTest`
+  * **Spatial Hierarchy**: `SpaceServiceTest`, `SpaceControllerSecurityTest`, `SeatingLayoutServiceTest`
+  * **Timetable & Scheduling**: `TimetableServiceTest`, `TimetableConflictAndConcurrencyTest`, `TimetableControllerSecurityTest`
+  * **Examination & Seating Engine**: `ExamServiceTest`, `ExamSeatingEngineTest`, `ExamManagementControllerSecurityTest`
+  * **Student Portal & Privacy Auditing**: `StudentServiceTest`, `StudentPortalControllerSecurityTest`, `StudentPrivacyAndSecurityAuditTest`, `CsvSecurityTest`
 
-| Test Class | Focus Area | Status |
-| :--- | :--- | :--- |
-| `AuthServiceTest` | BCrypt password hashing & authentication logic | ✅ Passed |
-| `AuthControllerSecurityTest` | Public login endpoints & rate limit handling | ✅ Passed |
-| `JwtServiceTest` | HMAC-SHA512 token tampering, signature & expiration | ✅ Passed |
-| `UserServiceTest` | User creation, role allocation & cohort lookups | ✅ Passed |
-| `UserManagementControllerSecurityTest` | RBAC protection on administrative user CRUD | ✅ Passed |
-| `SpaceServiceTest` | 4-tier spatial hierarchy persistence and validation | ✅ Passed |
-| `SpaceControllerSecurityTest` | Public tree directory vs administrative mutators | ✅ Passed |
-| `SeatingLayoutServiceTest` | Matrix generation, coordinate integrity & aisle calculations | ✅ Passed |
-| `TimetableServiceTest` | Recurring slot commitments & entity mapping | ✅ Passed |
-| `TimetableConflictAndConcurrencyTest` | Dual-vector collision detection (Room & Faculty collisions) | ✅ Passed |
-| `TimetableControllerSecurityTest` | RBAC validation on schedule operations | ✅ Passed |
-| `ExamServiceTest` | Exam lifecycle states and invigilator assignment | ✅ Passed |
-| `ExamSeatingEngineTest` | Anti-cheating alternating distribution verification | ✅ Passed |
-| `ExamManagementControllerSecurityTest` | Exam session authorization checks | ✅ Passed |
-| `StudentServiceTest` | Student schedule & hall ticket data aggregation | ✅ Passed |
-| `StudentPortalControllerSecurityTest` | Endpoint isolation & role verification | ✅ Passed |
-| `StudentPrivacyAndSecurityAuditTest` | Cross-tenant student data isolation | ✅ Passed |
-| `CsvSecurityTest` | CSV injection prevention & safe user batch import | ✅ Passed |
+### 2. Comprehensive Project Directory Structure
 
-#### Challenges Faced in Week 11
-* **Context Loading Slowdowns:** Running 140 Spring Boot integration tests sequentially re-initialized the full application context multiple times, extending build times.
-* **Test Database Pollution:** Integration tests creating test entities left residual records in the test database, occasionally triggering unique constraint failures in downstream test cases.
-
-#### How We Overcame Them
-* **Slice Testing & Context Caching:** Used `@WebMvcTest` and shared test configurations (`application-test.properties` with H2 in-memory mode) to maximize context reuse and reduce test suite execution to under 15 seconds.
-* **Transactional Test Rollbacks:** Annotated all integration tests with `@Transactional`, ensuring each test method executed in isolation and automatically rolled back changes upon completion.
-
----
-
-### Week 12: Cloud Deployment on Railway, Performance Benchmarks & Final Delivery
-
-#### Objectives & Deliverables
-* Containerized the platform with a multi-stage **`Dockerfile`** and configured production settings in **`application.properties`**.
-* Successfully deployed and verified CampusGrid on **Railway** cloud infrastructure.
-* Prepared presentation slide decks, interactive evaluation slides, and final project deliverables.
-
-#### Cloud Deployment Architecture (Railway + Docker + Managed MySQL)
-
-```mermaid
-flowchart LR
-    subgraph GitHub["GitHub Repository (Java-Project)"]
-        CODE["Source Code + Multi-Stage Dockerfile\n(Branch: main)"]
-    end
-
-    subgraph Railway["Railway Cloud Platform (railway.app)"]
-        subgraph Builder["Build Pipeline"]
-            DOCKER_BUILD["Maven 3.9.6 + Eclipse Temurin 17\nmvn clean package -DskipTests"]
-            RUN_IMG["Minimal Alpine JRE 17 Image\napp.jar (Container Size: ~180MB)"]
-        end
-
-        subgraph Runtime["Live Services"]
-            APP["Spring Boot 3.3.4 Web Service\n(Listening on ${PORT:8080})"]
-            MYSQL_SVC[("Managed MySQL 8.0 Database\n(campusgrid schema)")]
-            PROXY["Railway Public Edge Proxy\n(Automatic SSL / HTTPS Domain)"]
-        end
-    end
-
-    subgraph EndUsers["End Users"]
-        ADMIN_USER["Campus Administrator"]
-        FACULTY_USER["Faculty Member"]
-        STUDENT_USER["Enrolled Student"]
-    end
-
-    GitHub -- "Git Push Webhook" --> DOCKER_BUILD
-    DOCKER_BUILD --> RUN_IMG
-    RUN_IMG --> APP
-    APP <-->|Internal Network JDBC| MYSQL_SVC
-    PROXY <--> APP
-    EndUsers <-->|HTTPS (Port 443)| PROXY
-```
-
-#### Challenges Faced in Week 12
-* **Dynamic Port Allocation on Railway:** Cloud platforms like Railway dynamically allocate unpredictable ports (e.g., 6241) via the `PORT` environment variable. Hardcoded `server.port=8080` caused Railway's edge proxy to return `502 Bad Gateway`.
-* **Database Connection Credentials in Cloud:** Railway provisions MySQL with separate environment variables (`MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, `MYSQLPASSWORD`) rather than a single Spring JDBC URL.
-* **Browser Cache of Route Forwards:** Browsers cached the legacy `/admin/dashboard` forward to `/admin-users.html` from previous sessions.
-
-#### How We Overcame Them
-* **Dynamic Port Binding:** Configured `server.port=${PORT:8080}` in [`application.properties`](file:///C:/Coding/Eclipse_ide_codes/eclipse_july_2026/Java%20Project%20Based%20Learning/src/jpbl0/Java-Project/src/main/resources/application.properties), enabling the app to seamlessly adapt to Railway's assigned port while defaulting to 8080 locally.
-* **Adaptive Cloud Datasource Property:** Configured [`application.properties`](file:///C:/Coding/Eclipse_ide_codes/eclipse_july_2026/Java%20Project%20Based%20Learning/src/jpbl0/Java-Project/src/main/resources/application.properties) with dynamic fallbacks:
-  ```properties
-  spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:campusgrid}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-  spring.datasource.username=${SPRING_DATASOURCE_USERNAME:${MYSQLUSER:root}}
-  spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:${MYSQLPASSWORD:Valt@root@123}}
-  ```
-  This configuration connects natively to Railway's managed MySQL in the cloud, while falling back gracefully to local credentials when developed offline.
-* **Zero-Cache Static Resource Policy:** Added `.setCachePeriod(0)` / `Cache-Control: no-store` to [`WebConfig.java`](file:///C:/Coding/Eclipse_ide_codes/eclipse_july_2026/Java%20Project%20Based%20Learning/src/jpbl0/Java-Project/src/main/java/com/campusgrid/config/WebConfig.java) so browsers always fetch the latest page layouts without requiring manual cache clearing.
-
----
-
-## Complete Project Directory Structure
+Below is the complete project directory structure of the **CampusGrid** repository:
 
 ```text
 Java-Project/
 │
-├── Dockerfile                                 # Multi-stage production build (Maven + Alpine JRE 17)
-├── .dockerignore                              # Excludes target/, .git/, docs/ from container context
-├── pom.xml                                    # Maven Build Configuration & Dependencies
-├── README.md                                  # Comprehensive 12-Week Documentation & Architecture
-├── SETUP_AND_RUN.md                           # Local execution instructions & database setup
+├── README.md                                  # Complete Project Documentation & 12-Week Roadmap
+├── pom.xml                                    # Maven Dependencies & Build Configuration
 │
-├── docs/                                      # Formal Project Specifications
+├── docs/                                      # Formal Project Specifications & Documentation
 │   └── CampusGrid_SRS.pdf                     # Software Requirements Specification (SRS v1.0)
 │
-├── image/                                     # UI Mockups & System Diagrams
-│   ├── user_management_mockup.png             # User Management Dashboard Screenshot
-│   └── timetable_allocation_mockup.png        # Timetable & Room Allocation Interface
+├── image/                                     # UI Mockup Screenshots & Documentation Visuals
+│   ├── user_management_mockup.png             # Administrator User Management Dashboard
+│   └── timetable_allocation_mockup.png        # Academic Timetable & Room Allocation Interface
 │
 ├── src/
 │   ├── main/
 │   │   ├── java/com/campusgrid/
-│   │   │   ├── CampusGridApplication.java     # Main Entry Point & Automatic Initial Data Seeder
-│   │   │   │
-│   │   │   ├── config/                        # Security, Interceptors & Spring Configurations
-│   │   │   │   ├── JwtAuthFilter.java         # Stateless JWT Bearer Authentication Filter
-│   │   │   │   ├── SecurityConfig.java        # BCrypt Password Encoder & Security Configuration
-│   │   │   │   └── WebConfig.java             # MVC Forward View Controllers & Cache-Control
+│   │   │   ├── CampusGridApplication.java     # Spring Boot Main Entry Point & Data Bootstrapper
 │   │   │   │
 │   │   │   ├── controller/                    # RESTful Web API Controllers
-│   │   │   │   ├── AuthController.java                  # Login, Refresh & Session Termination
-│   │   │   │   ├── UserManagementController.java        # User CRUD, Cohort Filters & CSV Import
+│   │   │   │   ├── AuthController.java                  # Login, Token Refresh & Session Termination
+│   │   │   │   ├── UserManagementController.java        # User CRUD, Cohort Filters & Credentials
 │   │   │   │   ├── SpaceManagementController.java       # Campus, Block, Floor & Room Administration
 │   │   │   │   ├── SpaceDirectoryController.java        # Public Space Directory & Tree Exploration
-│   │   │   │   ├── TimetableManagementController.java   # Timetable CRUD & Conflict Verification
+│   │   │   │   ├── TimetableManagementController.java   # Timetable CRUD & Scheduling Engine
 │   │   │   │   ├── TimetableDirectoryController.java    # Subject Catalog & Class Slot Queries
-│   │   │   │   ├── ExamManagementController.java        # Exam Sessions, Invigilation & Seating Engine
+│   │   │   │   ├── ExamManagementController.java        # Exam Sessions, Invigilation & Seating
 │   │   │   │   └── StudentPortalController.java         # Student Self-Service, Admit Cards & Schedule
 │   │   │   │
 │   │   │   ├── dto/                           # Data Transfer Objects & Request Payloads
-│   │   │   │   ├── ApiResponse.java                     # Standard Response Envelope Wrapper
-│   │   │   │   ├── LoginRequest.java / AuthResponse.java # Authentication Payloads
-│   │   │   │   ├── CreateUserRequest.java / UserTableDto.java
+│   │   │   │   ├── ApiResponse.java                     # Standardized Response Wrapper Envelope
+│   │   │   │   ├── LoginRequest.java / AuthResponse.java # Authentication DTOs
+│   │   │   │   ├── CreateUserRequest.java / UpdateUserRequest.java
 │   │   │   │   ├── CampusDto.java / BlockDto.java / FloorDto.java / RoomDto.java
-│   │   │   │   ├── SeatingGridDto.java / ConfigureLayoutRequest.java / SeatDto.java
+│   │   │   │   ├── SeatingGridDto.java / ConfigureLayoutRequest.java
 │   │   │   │   ├── CreateTimetableRequest.java / TimetableEntryDto.java
 │   │   │   │   ├── CreateExamRequest.java / ExamDetailDto.java / ExamStatsDto.java
 │   │   │   │   ├── GenerateExamSeatingRequest.java / ExamSeatingGridDto.java
 │   │   │   │   └── StudentDashboardDto.java / StudentExamAllocationDto.java
 │   │   │   │
 │   │   │   ├── model/                         # JPA Domain Entities & Enums
-│   │   │   │   ├── User.java / Role.java                # Core User Account Entity & Role Enum
-│   │   │   │   ├── UserSession.java / RefreshToken.java # Audit Logging & Token Entities
+│   │   │   │   ├── User.java / Role.java                # User Entity & RBAC Enums
+│   │   │   │   ├── UserSession.java                     # Session & Audit Trail Entity
 │   │   │   │   ├── Campus.java / Block.java / Floor.java # Spatial Hierarchy Entities
-│   │   │   │   ├── Room.java / RoomType.java / RoomStatus.java # Room Classification
-│   │   │   │   ├── PhysicalSeat.java / LayoutTemplate.java / SeatStatus.java # Physical Seat Coordinates
-│   │   │   │   ├── Subject.java / TimetableEntry.java   # Academic Curriculum & Schedule
-│   │   │   │   ├── ExamSession.java / ExamAttendanceStatus.java # Exam Metadata
-│   │   │   │   ├── ExamRoomAllocation.java             # Exam Hall & Invigilator Mapping
-│   │   │   │   └── ExamSeatAllocation.java              # Candidate Seat Assignment
+│   │   │   │   ├── Room.java / RoomType.java / RoomStatus.java # Room Entity & Classification
+│   │   │   │   ├── PhysicalSeat.java / LayoutTemplate.java # Fine-Grained Physical Seat Models
+│   │   │   │   ├── Subject.java / TimetableEntry.java   # Academic Curriculum & Schedule Models
+│   │   │   │   └── ExamSession.java / ExamRoomAllocation.java / ExamSeatAllocation.java
 │   │   │   │
-│   │   │   ├── repository/                    # Spring Data JPA Repositories
-│   │   │   │   ├── UserRepository.java / UserSessionRepository.java / RefreshTokenRepository.java
+│   │   │   ├── repository/                    # Spring Data JPA Persistence Repositories
+│   │   │   │   ├── UserRepository.java / UserSessionRepository.java
 │   │   │   │   ├── CampusRepository.java / BlockRepository.java / FloorRepository.java
 │   │   │   │   ├── RoomRepository.java / PhysicalSeatRepository.java
 │   │   │   │   ├── SubjectRepository.java / TimetableEntryRepository.java
 │   │   │   │   └── ExamSessionRepository.java / ExamRoomAllocationRepository.java / ExamSeatAllocationRepository.java
 │   │   │   │
-│   │   │   └── service/                       # Business Logic & Core Algorithmic Engines
+│   │   │   └── service/                       # Business Logic & Core Engines
 │   │   │       ├── AuthService.java                     # Authentication, Hashing & Verification
 │   │   │       ├── JwtService.java                      # HMAC-SHA512 Token Creation & Validation
 │   │   │       ├── UserService.java                     # User Lifecycle Management
-│   │   │       ├── SpaceService.java                    # Campus Hierarchy & Room Inventory
+│   │   │       ├── SpaceService.java                    # Campus & Space Operations
 │   │   │       ├── SeatingLayoutService.java            # Grid Layout & Usable Seat Customization
 │   │   │       ├── TimetableService.java                # Lecture Scheduling & Dual-Conflict Detection
 │   │   │       ├── ExamService.java                     # Exam Administration & Invigilation Allotment
@@ -895,14 +904,13 @@ Java-Project/
 │   │   │       └── StudentService.java                  # Student Timetable & Hall Ticket Aggregator
 │   │   │
 │   │   └── resources/
-│   │       ├── application.properties                   # Production & Cloud MySQL Datasource Settings
+│   │       ├── application.properties                   # Production MySQL & Datasource Settings
 │   │       ├── application-dev.properties               # In-Memory H2 Development Configuration
-│   │       └── static/                                  # Responsive Client Web Application
+│   │       └── static/                                  # Responsive Front-End Web Application
 │   │           ├── login.html                           # Authentication Portal Entry Page
-│   │           ├── admin-dashboard.html                 # Executive Overview Telemetry Dashboard
 │   │           ├── admin-users.html                     # Identity & User Management Console
-│   │           ├── admin-campus.html                    # Campus & Building Hierarchy Explorer
-│   │           ├── admin-rooms.html                     # Academic Space Directory & Room Inventory
+│   │           ├── admin-campus.html                    # Campus Hierarchy Management
+│   │           ├── admin-rooms.html                     # Space Directory & Room Inventory
 │   │           ├── admin-seating.html                   # Interactive Visual Seating Grid Designer
 │   │           ├── admin-timetable.html                 # Timetable Scheduling & Conflict Matrix
 │   │           ├── admin-examinations.html              # Exam Scheduler & Anti-Cheating Seating Console
@@ -910,13 +918,13 @@ Java-Project/
 │   │           ├── student-dashboard.html               # Student Portal & Digital Exam Hall Ticket
 │   │           ├── student-timetable.html               # Enrolled Class Timetable Viewer
 │   │           ├── student-examinations.html            # Exam Hall Tickets & Allocated Seat Badges
-│   │           ├── css/style.css                        # Unified Enterprise Design System
-│   │           └── js/                                  # Client Controller Scripts
+│   │           ├── css/style.css                        # Institutional Design System & CSS Styling
+│   │           └── js/                                  # Front-End Controller Scripts
 │   │               ├── auth.js                          # JWT Client Handler & Role Redirection
 │   │               ├── user-management.js               # User CRUD & Cohort Actions
 │   │               ├── campus-management.js             # Campus & Building Hierarchy Scripts
 │   │               ├── room-management.js               # Room Inventory & Cross-Module Action Links
-│   │               ├── seating-designer.js              # Real-Time Visual Seating Grid Matrix
+│   │               ├── seating-designer.js              # Interactive Grid Drawing Engine
 │   │               ├── timetable-management.js          # Timetable Slot Scheduling & Conflict Checks
 │   │               ├── examination-management.js        # Exam Administration & Seating Trigger
 │   │               ├── student.js                       # Student Portal Data Fetcher
@@ -948,78 +956,73 @@ Java-Project/
 
 ---
 
-## Default User Credentials
+## Week 12: Deployment, Production Readiness & Project Conclusion
 
-CampusGrid seeds initial user profiles at startup so all features can be immediately explored:
+### 1. Installation and Local Setup Guide
 
-| Role | Username / User ID | Password | Name & Assigned Details |
-| :--- | :--- | :--- | :--- |
-| **Administrator** | `admin` | `Admin@123` | Campus Administrator (Full System Authority) |
-| **Faculty** | `meera.faculty` | `Faculty@123` | Dr. Meera Sharma (Associate Professor, Computer Science) |
-| **Faculty** | `arjun.faculty` | `Faculty@123` | Prof. Arjun Singh (Assistant Professor, Computer Science) |
-| **Student** | `rahul123` | `Student@123` | Rahul Sharma (Roll: `23CSE001`, CSE-A, 2nd Year, 3rd Sem) |
-| **Student** | `ananya.verma` | `Student@123` | Ananya Verma (Roll: `23CSE002`, CSE-A, 2nd Year, 3rd Sem) |
-| **Student** | `priya.singh` | `Student@123` | Priya Singh (Roll: `23CSE003`, CSE-A, 2nd Year, 3rd Sem) |
-| **Student** | `arjun.mehta` | `Student@123` | Arjun Mehta (Roll: `23CSE004`, CSE-B, 2nd Year, 3rd Sem) |
-| **Student** | `neha.gupta` | `Student@123` | Neha Gupta (Roll: `23CSE005`, CSE-B, 2nd Year, 3rd Sem) |
-| **Student** | `karan.patel` | `Student@123` | Karan Patel (Roll: `23CSE006`, CSE-B, 2nd Year, 3rd Sem) |
-| **Student** | `rohan.kumar` | `Student@123` | Rohan Kumar (Roll: `23CSE007`, CSE-C, 2nd Year, 3rd Sem) |
-| **Student** | `sneha.joshi` | `Student@123` | Sneha Joshi (Roll: `23CSE008`, CSE-C, 2nd Year, 3rd Sem) |
+#### A. Prerequisites
+* **Java Development Kit (JDK)**: Version 17 or higher
+* **Apache Maven**: Version 3.8+
+* **Database**: MySQL 8.0+ (Production) or built-in H2 (Development & Testing)
+* **Web Browser**: Modern Chromium or Firefox browser
 
----
-
-## Quickstart & Local Installation Guide
-
-### Prerequisites
-* **Java Development Kit (JDK):** Version 17 LTS or higher
-* **Apache Maven:** Version 3.8+
-* **Database:** MySQL 8.0+ (Production/Local) or built-in H2 (Development & Testing)
-
-### 1. Clone the Repository
+#### B. Clone & Build Instructions
 ```bash
+# 1. Clone the project repository
 git clone https://github.com/nikhilkum92/Java-Project.git
 cd Java-Project
-```
 
-### 2. Configure Database Credentials (Optional)
-If your local MySQL credentials differ from `root` / `Valt@root@123`, define environment variables or update `src/main/resources/application.properties`:
-```bash
-export SPRING_DATASOURCE_USERNAME=your_username
-export SPRING_DATASOURCE_PASSWORD=your_password
-```
-
-### 3. Build & Run
-```powershell
-# Build executable JAR (skipping test suite for rapid start)
+# 2. Compile and package the project (skipping tests for quick startup)
 mvn clean package -DskipTests
 
-# Run the packaged Spring Boot JAR
-java -jar target/campusgrid-core-1.0.0.jar
+# 3. Run the application with the development profile (auto-seeded H2 database)
+java -jar target/campusgrid-core-1.0.0.jar --spring.profiles.active=dev
+
+# Alternatively, run via the Maven plugin:
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-### 4. Access the Web Portal
-* Open **[http://localhost:8080/login](http://localhost:8080/login)** in your browser.
-* Sign in using any default credential set listed in the table above.
+#### C. Access the Web Portal & Profiles
+Once the terminal displays `Started CampusGridApplication in X.XXX seconds`, access the application:
+* **Web Portal URL**: [http://localhost:8080/login](http://localhost:8080/login)
+* **Active Profiles**:
+  * `dev` (Default Development Profile): Runs an in-memory H2 database with automatic sample institutional datasets seeded at startup.
+  * `prod` (Production Profile): Connects to enterprise MySQL with HikariCP connection pooling, strict schema validation, and optimized JPA query execution.
 
 ---
 
-## Project Deliverables & Submission Artifacts
+### 2. Production Optimizations & Performance Benchmarks
+
+* **Low-Latency Directory Lookups**: Spatial hierarchy and room availability checks execute in under 100ms through indexed queries on `room_code`, `campus_id`, and `floor_id`.
+* **High-Throughput Seating Engine**: The anti-cheating alternating seating distributor completes candidate allocations for a 500-student examination batch in under 300ms.
+* **Database Connection Pool Tuning**: Configured HikariCP maximum pool size, idle timeout, and connection leak detection to ensure zero thread starvation during peak registration hours.
+* **Stateless Fault Isolation**: Decoupled service layer design ensures that potential failures in external notification or reporting services do not impede core timetable booking or exam allocation transactions.
+
+---
+
+### 3. Project Deliverables & Submission Artifacts
 
 | Deliverable | Description | Access Link |
 | :--- | :--- | :--- |
-| 📄 **SRS Document** | Official Software Requirements Specification (v1.0) | [View SRS Document (Google Drive)](https://drive.google.com/file/d/19gzBiHBor-abgMxAQIs0FBi7UxTkP4Ya/view?usp=drive_link) |
-| 📊 **Presentation Slides** | Slide deck for project defense and viva evaluation | [View CampusGrid Presentation (HTML)](./CampusGrid_Presentation.html) |
-| 📦 **PowerPoint Presentation** | 15-slide editable PowerPoint for institutional review | [Download PPTX Slide Deck](./CampusGrid_Presentation.pptx) |
-| 🌐 **Live GitHub Repository** | Version-controlled codebase across all branches | [GitHub: nikhilkum92/Java-Project](https://github.com/nikhilkum92/Java-Project.git) |
+| 📄 **Final Project Report** | Complete technical report covering system requirements, architectural designs, implementation details, and evaluation results. | [View Project Report (PDF)](#) |
+| 📊 **Project Presentation (PPT)** | Comprehensive slide deck prepared for final project defense, technical review, and viva examination. | [View Project Presentation (PPT / Slides)](#) |
+| 🎥 **Demonstration Video** | End-to-end video walkthrough showcasing live workflows across all 5 modules (Auth, Spaces, Timetable, Exams, Student Portal). | [Watch Video Demonstration](#) |
 
 ---
 
-## Conclusion & Acknowledgements
+### 4. Future Scope & System Enhancements
 
-The **CampusGrid** platform successfully bridges the operational divide between physical educational infrastructure and digital campus administration. Over 12 weeks of structured development, our 5-member team engineered and converged five core modules — Identity & Security, Spatial Hierarchy & Seating Grid Design, Collision-Free Academic Timetabling, Anti-Cheating Examination Allocation, and Stakeholder Self-Service Portals — into a cohesive, production-ready system backed by 140 passing automated tests.
+* **Mobile Native Applications**: Extending student and faculty workflows to cross-platform mobile apps (Flutter / React Native) with push notifications for instant class rescheduling alerts.
+* **IoT Smart Classroom Integration**: Interfacing physical room turnstiles and RFID scanners with Module 2 for automated, hands-free student attendance and real-time room occupancy verification.
+* **AI-Powered Predictive Timetabling**: Integrating machine learning heuristics to automatically recommend optimal lecture slots based on historical attendance patterns and instructor preferences.
+* **Automated Biometric Hall Ticket Verification**: Implementing QR-coded digital hall tickets for automated, tamper-proof student identity verification at examination hall entrances.
 
-We express our sincere gratitude to our project guide, **Er. Ram Babu Buri**, for his mentorship and guidance throughout the architectural, design, and implementation phases of this endeavor.
+---
 
-* **Department of Computer Science & Engineering**
-* **Project Team:** Nikhil Kumawat, Palak Nandani, Kashish Upadhyay, Priyanshu Kumar, Bhawni Kumari
-* **CampusGrid v1.0.0** — October 2026
+### 5. Project Conclusion & Institutional Acknowledgement
+
+CampusGrid successfully bridges the operational gap between physical university infrastructure and digital resource management. By converging five core engines — Identity Management, Spatial Hierarchy, Automated Collision-Free Timetabling, Anti-Cheating Exam Seating, and Student Self-Service Portals — the platform delivers an enterprise-grade solution that eliminates administrative double-bookings, upholds examination integrity, and optimizes campus resource allocation.
+
+* **Project Guide:** Er. Ram Babu Buri
+* **Team Members:** Nikhil Kumawat, Palak Nandani, Kashish Upadhyay, Priyanshu Kumar, Bhawni Kumari
+* **Repository:** [https://github.com/nikhilkum92/Java-Project.git](https://github.com/nikhilkum92/Java-Project.git)
