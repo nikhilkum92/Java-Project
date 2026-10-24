@@ -1005,7 +1005,7 @@ Once the terminal displays `Started CampusGridApplication in X.XXX seconds`, acc
 | Deliverable | Description | Access Link |
 | :--- | :--- | :--- |
 | 📄 **Final Project Report** | Complete technical report covering system requirements, architectural designs, implementation details, and evaluation results. | [View Project Report (Google Drive)](https://drive.google.com/file/d/1QtPeQNG-MMIe_vUuSXZq23nJiYslpkCP/view?usp=drive_link) |
-| 📊 **Project Presentation (PPT)** | Comprehensive slide deck prepared for final project defense, technical review, and viva examination. | [View Project Presentation (PPT / Slides)](#) |
+| 📊 **Project Presentation (PPT)** | Comprehensive slide deck prepared for final project defense, technical review, and viva examination. | [View Project Presentation (OneDrive PPT)](https://1drv.ms/p/c/758a058e83d1d6ae/IQA8jcuB08KhSJx0dLp4r_5KAV84ptLlFiI5mN8cndT9Iw0?e=3PMXwA) |
 | 🎥 **Demonstration Video** | End-to-end video walkthrough showcasing live workflows across all 5 modules (Auth, Spaces, Timetable, Exams, Student Portal). | [Watch Video Demonstration](#) |
 
 ---
